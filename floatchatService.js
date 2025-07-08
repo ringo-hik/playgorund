@@ -78,7 +78,7 @@ const floatChatService = {
     const iconMap = {
       'swdp_menu': 'apps',
       'project': 'folder',
-      'voc': 'headphones',
+      'voc': 'headphones-alt',
       'project_info': 'info-circle',
       'swdp_api': 'code-branch'
     };

@@ -3,8 +3,8 @@
     <div class="float-chat-button" 
          :class="{ 'is-active': isOpen }" 
          @click="toggleChat">
-      <unicon v-if="!isOpen" name="comment" fill="#FFFFFF" :width="24" :height="24"></unicon>
-      <unicon v-else name="times" fill="#FFFFFF" :width="22" :height="22"></unicon>
+      <i v-if="!isOpen" class="uil uil-comment" style="color: #FFFFFF; font-size: 24px;"></i>
+      <i v-else class="uil uil-times" style="color: #FFFFFF; font-size: 22px;"></i>
     </div>
 
     <div v-if="isOpen" 
@@ -17,7 +17,7 @@
       <div class="header">
         <div class="bot-info">
           <div class="avatar">
-            <unicon name="comment" fill="#FFFFFF" :width="20" :height="20"></unicon>
+            <i class="uil uil-comment" style="color: #FFFFFF; font-size: 20px;"></i>
           </div>
           <div class="details">
             <span class="name">SWP Float Chat</span>
@@ -48,12 +48,12 @@
 
       <div class="tabs">
         <button @click="setActiveTab('chat')" :class="{ active: activeTab === 'chat' }" class="tab">
-          <unicon name="comment" :fill="activeTab === 'chat' ? '#2C5AA0' : '#8E99AD'" :width="16" :height="16"></unicon>
+          <i class="uil uil-comment" :style="{ color: activeTab === 'chat' ? '#2C5AA0' : '#8E99AD', fontSize: '16px' }"></i>
           <span>{{ getText('chat') }}</span>
           <span v-if="chatProcessingCount > 0" class="indicator"></span>
         </button>
         <button @click="setActiveTab('feedback')" :class="{ active: activeTab === 'feedback' }" :disabled="chatProcessingCount > 0" class="tab">
-          <unicon name="thumbs-up" :fill="activeTab === 'feedback' ? '#2C5AA0' : '#8E99AD'" :width="16" :height="16"></unicon>
+          <i class="uil uil-thumbs-up" :style="{ color: activeTab === 'feedback' ? '#2C5AA0' : '#8E99AD', fontSize: '16px' }"></i>
           <span>{{ getText('feedback') }}</span>
         </button>
       </div>

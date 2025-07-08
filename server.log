@@ -1,0 +1,9 @@
+127.0.0.1 - - [08/Jul/2025 22:21:13] "HEAD / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:21:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:22:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:22:27] "GET /FloatChat.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:22:28] "GET /CustomMarkdown.css HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:22:28] code 404, message File not found
+127.0.0.1 - - [08/Jul/2025 22:22:28] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jul/2025 22:22:39] code 404, message File not found
+127.0.0.1 - - [08/Jul/2025 22:22:39] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -

@@ -2,26 +2,26 @@
   <div class="feedback-tab">
     <div v-if="resultMessage" class="result" :class="resultType">
       <template v-if="resultType === 'success'">
-        <unicon name="check-circle" fill="#38B2AC" :width="24" :height="24"></unicon>
+        <i class="uil uil-check-circle" style="color: #38B2AC; font-size: 24px;"></i>
         <div>
           <h4>{{ getText('feedbackSuccess') }}</h4>
           <p>{{ resultMessage }}</p>
         </div>
         <button @click="resetForm" class="action-btn">
-          <unicon name="plus" fill="#FFFFFF" :width="16" :height="16"></unicon>
+          <i class="uil uil-plus" style="color: #FFFFFF; font-size: 16px;"></i>
           {{ getText('sendAnother') }}
         </button>
       </template>
       
       <template v-if="resultType === 'error'">
-        <unicon name="exclamation-triangle" fill="#E53E3E" :width="20" :height="20"></unicon>
+        <i class="uil uil-exclamation-triangle" style="color: #E53E3E; font-size: 20px;"></i>
         <span>{{ resultMessage }}</span>
       </template>
     </div>
 
     <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
       <div class="form-header">
-        <unicon name="heart" fill="#2C5AA0" :width="36" :height="36"></unicon>
+        <i class="uil uil-heart" style="color: #2C5AA0; font-size: 36px;"></i>
         <h3>{{ getText('feedbackTitle') }}</h3>
         <p>{{ getText('feedbackDescription') }}</p>
       </div>
@@ -29,7 +29,7 @@
       <div class="feedback-content">
         <div class="group">
           <label>
-            <unicon name="star" fill="#2C5AA0" :width="16" :height="16"></unicon>
+            <i class="uil uil-star" style="color: #2C5AA0; font-size: 16px;"></i>
             {{ getText('rating') }}
             <span class="required">*</span>
           </label>
@@ -41,7 +41,7 @@
                     @mouseenter="hoverRating = star"
                     @mouseleave="hoverRating = 0"
                     type="button">
-              <unicon name="star" :fill="(star <= selectedRating || star <= hoverRating) ? '#FFD700' : '#E0E0E0'" :width="24" :height="24"></unicon>
+              <i class="uil uil-star" :style="{ color: (star <= selectedRating || star <= hoverRating) ? '#FFD700' : '#E0E0E0', fontSize: '24px' }"></i>
             </button>
           </div>
           <div class="rating-text">
@@ -51,7 +51,7 @@
 
         <div class="group">
           <label>
-            <unicon name="tag" fill="#2C5AA0" :width="16" :height="16"></unicon>
+            <i class="uil uil-tag" style="color: #2C5AA0; font-size: 16px;"></i>
             {{ getText('feedbackCategory') }}
           </label>
           <div class="categories">
@@ -60,7 +60,7 @@
                     @click="toggleCategory(category.value)"
                     :class="['category', { active: selectedCategories.includes(category.value) }]"
                     type="button">
-              <unicon :name="category.icon" :fill="selectedCategories.includes(category.value) ? '#FFFFFF' : '#2C5AA0'" :width="14" :height="14"></unicon>
+              <i :class="'uil uil-' + category.icon" :style="{ color: selectedCategories.includes(category.value) ? '#FFFFFF' : '#2C5AA0', fontSize: '14px' }"></i>
               {{ category.label }}
             </button>
           </div>
@@ -68,7 +68,7 @@
 
         <div class="group">
           <label>
-            <unicon name="edit" fill="#2C5AA0" :width="16" :height="16"></unicon>
+            <i class="uil uil-edit" style="color: #2C5AA0; font-size: 16px;"></i>
             {{ getText('detailedComment') }}
           </label>
           <textarea v-model="comment" 
@@ -89,7 +89,7 @@
           {{ getText('submitting') }}
         </template>
         <template v-else>
-          <unicon name="message" fill="#FFFFFF" :width="16" :height="16"></unicon>
+          <i class="uil uil-message" style="color: #FFFFFF; font-size: 16px;"></i>
           {{ getText('submitFeedback') }}
         </template>
       </button>
@@ -167,12 +167,12 @@ export default {
     
     feedbackCategories() {
       return [
-        { value: 'usability', label: this.texts.categories.usability, icon: 'mouse' },
+        { value: 'usability', label: this.texts.categories.usability, icon: 'mouse-alt' },
         { value: 'performance', label: this.texts.categories.performance, icon: 'rocket' },
         { value: 'content', label: this.texts.categories.content, icon: 'document' },
         { value: 'design', label: this.texts.categories.design, icon: 'palette' },
         { value: 'bug', label: this.texts.categories.bug, icon: 'bug' },
-        { value: 'suggestion', label: this.texts.categories.suggestion, icon: 'lightbulb' }
+        { value: 'suggestion', label: this.texts.categories.suggestion, icon: 'lightbulb-alt' }
       ];
     },
     
