@@ -73,14 +73,14 @@ const floatChatService = {
       setTimeout(() => {
         const mockResponses = {
           'general': [
-            '안녕하세요! 저희 서비스에 대해 문의해주셔서 감사합니다. 🙂\n\n저희는 고객의 다양한 요청에 신속하고 정확하게 대응하는 AI 챗봇 서비스를 제공하고 있습니다.',
-            '무엇이든 궁금한 점이 있으시면 언제든지 말씀해주세요! 최선을 다해 도움을 드리겠습니다.',
-            '일반적인 문의사항에 대해 24시간 자동 응답 서비스를 제공하고 있습니다.'
+            '# 안녕하세요! 👋\n\n**저희 서비스**에 대해 문의해주셔서 감사합니다.\n\n## 주요 서비스\n- 🤖 AI 챗봇 지원\n- 📞 24/7 고객 상담\n- 💡 맞춤형 솔루션\n\n> 궁금한 점이 있으시면 언제든지 말씀해주세요!',
+            '## 서비스 특징 ✨\n\n### 1. 실시간 지원\n```\n응답시간: < 2초\n가용시간: 24/7/365\n```\n\n### 2. 다국어 지원\n- 🇰🇷 한국어\n- 🇺🇸 English\n- 🇯🇵 日本語\n\n**최고의 서비스**를 제공하겠습니다!',
+            '### 📋 이용 가능한 서비스\n\n| 서비스 | 설명 | 비용 |\n|--------|------|------|\n| 기본 상담 | 일반 문의 응답 | 무료 |\n| 전문 상담 | 전문가 연결 | 유료 |\n| 맞춤 솔루션 | 개별 컨설팅 | 문의 |\n\n*더 자세한 정보가 필요하시면 말씀해주세요!*'
           ],
           'technical': [
-            '기술적인 문제가 발생하셨나요? 🔧\n\n다음 단계를 차례대로 시도해보시기 바랍니다:\n\n1. 브라우저 캐시 삭제\n2. 페이지 새로고침\n3. 다른 브라우저로 접속 시도',
-            '시스템 요구사항: Chrome 80+, Firefox 75+, Safari 13+\n최적 해상도: 1280x720 이상',
-            '기술 지원팀에 연결해드릴까요? 전문 엔지니어가 직접 도움을 드리겠습니다.'
+            '# 🔧 기술 지원\n\n**문제 해결 순서**:\n\n## 1단계: 기본 확인\n```bash\n# 캐시 삭제\nCtrl + Shift + Delete\n\n# 강제 새로고침\nCtrl + F5\n```\n\n## 2단계: 브라우저 확인\n- ✅ Chrome 80+\n- ✅ Firefox 75+\n- ✅ Safari 13+\n\n> 💡 **팁**: 시크릿 모드로 먼저 테스트해보세요!',
+            '## 📊 시스템 요구사항\n\n### 최소 사양\n| 항목 | 요구사항 |\n|------|----------|\n| 브라우저 | Chrome 80+ |\n| 해상도 | 1280x720 |\n| 메모리 | 4GB RAM |\n| 네트워크 | 10Mbps |\n\n### 권장 사양\n```yaml\nBrowser: Chrome 100+\nResolution: 1920x1080\nRAM: 8GB+\nNetwork: 50Mbps+\n```',
+            '### 🆘 전문 지원 요청\n\n**연결 가능한 전문가**:\n\n1. **시스템 엔지니어** 👨‍💻\n   - 서버/네트워크 문제\n   - 성능 최적화\n\n2. **프론트엔드 개발자** 🎨\n   - UI/UX 문제\n   - 브라우저 호환성\n\n3. **데이터베이스 관리자** 🗄️\n   - 데이터 관련 문제\n   - 쿼리 최적화\n\n> 전문가 연결을 원하시면 **"전문가 연결"**이라고 말씀해주세요!'
           ],
           'business': [
             '비즈니스 상담에 관심을 가져주셔서 감사합니다! 💼\n\n저희는 다양한 업계의 파트너와 함께 성장하고 있습니다.',
@@ -197,9 +197,44 @@ const floatChatService = {
 
   convertMarkdownTableToHtml(content) {
     if (!content || typeof content !== 'string') return content;
-    // This is a simplified mock version. A full implementation is complex.
-    // For the mock, we'll just wrap the content in a div.
-    return `<div class="markdown-content">${content.replace(/\n/g, '<br>')}</div>`;
+    
+    let html = content;
+    
+    // Headers (# ## ###)
+    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    
+    // Bold and Italic
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Code blocks
+    html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    
+    // Lists
+    html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+    
+    // Tables
+    html = html.replace(/\|(.+)\|\n\|[-:| ]+\|\n((?:\|.+\|\n?)*)/g, function(match, header, rows) {
+      const headerCells = header.split('|').map(cell => `<th>${cell.trim()}</th>`).join('');
+      const rowCells = rows.trim().split('\n').map(row => {
+        const cells = row.split('|').map(cell => `<td>${cell.trim()}</td>`).join('');
+        return `<tr>${cells}</tr>`;
+      }).join('');
+      return `<table><thead><tr>${headerCells}</tr></thead><tbody>${rowCells}</tbody></table>`;
+    });
+    
+    // Blockquotes
+    html = html.replace(/^> (.*$)/gm, '<blockquote>$1</blockquote>');
+    
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return `<div class="markdown-content">${html}</div>`;
   },
   
   convertMessageToText(message) {
