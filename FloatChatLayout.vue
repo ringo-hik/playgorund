@@ -59,7 +59,7 @@
       </div>
 
       <div class="content">
-        <ChatTab v-if="activeTab === 'chat'" 
+        <chat-tab v-if="activeTab === 'chat'" 
                  ref="chatTab" 
                  :categories="categories" 
                  :loading-categories="loadingCategories" 
@@ -68,7 +68,7 @@
                  :window-size="windowSize"
                  @message-sent="handleMessageSent" 
                  @processing-state-changed="handleProcessingStateChanged" />
-        <FeedbackTab v-if="activeTab === 'feedback'" 
+        <feedback-tab v-if="activeTab === 'feedback'" 
                      ref="feedbackTab" 
                      :current-language="currentLanguage" 
                      @feedback-sent="handleFeedbackSent" />
@@ -84,8 +84,8 @@ const floatChatService = window.floatChatService;
 module.exports = {
   name: 'FloatChatLayout',
   components: { 
-    ChatTab: httpVueLoader('./ChatTab.vue'),
-    FeedbackTab: httpVueLoader('./FeedbackTab.vue')
+    'chat-tab': httpVueLoader('./ChatTab.vue'),
+    'feedback-tab': httpVueLoader('./FeedbackTab.vue')
   },
   data() {
     return {
