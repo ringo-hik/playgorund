@@ -81,7 +81,7 @@
 // Use window globals for http-vue-loader compatibility
 const floatChatService = window.floatChatService;
 
-export default {
+module.exports = {
   name: 'FloatChatLayout',
   components: { 
     ChatTab: httpVueLoader('./ChatTab.vue'),

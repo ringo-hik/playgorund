@@ -128,7 +128,7 @@
 const floatChatService = window.floatChatService;
 const llmContextService = window.llmContextService;
 
-export default {
+module.exports = {
   name: 'ChatTab',
   props: {
     categories: {

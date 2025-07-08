@@ -13,3 +13,13 @@
 127.0.0.1 - - [08/Jul/2025 22:27:01] "GET /FloatChatLayout.vue HTTP/1.1" 200 -
 127.0.0.1 - - [08/Jul/2025 22:27:03] code 404, message File not found
 127.0.0.1 - - [08/Jul/2025 22:27:03] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET /CustomMarkdown.css HTTP/1.1" 304 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET /floatchatService.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET /llmContext.js HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] code 404, message File not found
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jul/2025 22:29:43] "GET /FloatChatLayout.vue HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:29:54] "GET /FloatChat.css HTTP/1.1" 304 -
+127.0.0.1 - - [08/Jul/2025 22:29:54] code 404, message File not found
+127.0.0.1 - - [08/Jul/2025 22:29:54] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
