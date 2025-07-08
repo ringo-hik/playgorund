@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Float Chat Mock</title>
+    <link rel="stylesheet" href="https://unpkg.com/vue-unicons/dist/vue-unicons.css">
+    <link rel="stylesheet" href="FloatChat.css">
+    <link rel="stylesheet" href="CustomMarkdown.css">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f0f2f5; }
+        h1 { color: #333; }
+        p { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Float Chat Mockup Page</h1>
+    <p>This is a simple page to test the floating chat component.</p>
+
+    <div id="app">
+        <float-chat-layout></float-chat-layout>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/http-vue-loader@1.4.2/src/httpVueLoader.js"></script>
+    <script src="https://unpkg.com/vue-unicons/dist/vue-unicons.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script>
+        // Unicons 아이콘 라이브러리 설정
+        Vue.use(Unicons);
+        
+        // http-vue-loader를 사용하여 Vue 컴포넌트 로드
+        new Vue({
+            el: '#app',
+            components: {
+                'float-chat-layout': httpVueLoader('FloatChatLayout.vue')
+            }
+        });
+    </script>
+</body>
+</html>
