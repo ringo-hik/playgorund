@@ -78,13 +78,15 @@
 </template>
 
 <script>
-import floatChatService from './floatchatService.js';
-import ChatTab from './ChatTab.vue';
-import FeedbackTab from './FeedbackTab.vue';
+// Use window globals for http-vue-loader compatibility
+const floatChatService = window.floatChatService;
 
 export default {
   name: 'FloatChatLayout',
-  components: { ChatTab, FeedbackTab },
+  components: { 
+    ChatTab: httpVueLoader('./ChatTab.vue'),
+    FeedbackTab: httpVueLoader('./FeedbackTab.vue')
+  },
   data() {
     return {
       isOpen: false,

@@ -7,3 +7,9 @@
 127.0.0.1 - - [08/Jul/2025 22:22:28] "GET /favicon.ico HTTP/1.1" 404 -
 127.0.0.1 - - [08/Jul/2025 22:22:39] code 404, message File not found
 127.0.0.1 - - [08/Jul/2025 22:22:39] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -
+127.0.0.1 - - [08/Jul/2025 22:26:59] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:26:59] "GET /FloatChat.css HTTP/1.1" 304 -
+127.0.0.1 - - [08/Jul/2025 22:26:59] "GET /CustomMarkdown.css HTTP/1.1" 304 -
+127.0.0.1 - - [08/Jul/2025 22:27:01] "GET /FloatChatLayout.vue HTTP/1.1" 200 -
+127.0.0.1 - - [08/Jul/2025 22:27:03] code 404, message File not found
+127.0.0.1 - - [08/Jul/2025 22:27:03] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 -

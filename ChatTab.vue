@@ -124,8 +124,9 @@
 </template>
 
 <script>
-import floatChatService from './floatchatService.js';
-import llmContextService from './llmContext.js';
+// Use require for http-vue-loader compatibility
+const floatChatService = window.floatChatService;
+const llmContextService = window.llmContextService;
 
 export default {
   name: 'ChatTab',

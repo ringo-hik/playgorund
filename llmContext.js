@@ -36,4 +36,3 @@ const llmContextService = {
 
 // Make it globally accessible for the browser environment
 window.llmContextService = llmContextService;
-export default llmContextService;

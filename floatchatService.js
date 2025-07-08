@@ -133,8 +133,5 @@ const floatChatService = {
   }
 };
 
-// In a real module environment, you'd use `export default`.
-// For this browser-based mock, we'll just make it globally accessible if needed,
-// but http-vue-loader and the script module should handle scoping correctly.
+// Make it globally accessible for the browser environment
 window.floatChatService = floatChatService;
-export default floatChatService;
