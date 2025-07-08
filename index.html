@@ -29,6 +29,12 @@
     <!-- Unicons with proper initialization -->
     <script src="https://unpkg.com/@iconscout/unicons@4.0.8/dist/unicons.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/@iconscout/unicons@4.0.8/css/line.css">
+    <script>
+        // Globally register the unicon component
+        if (typeof Unicon !== 'undefined' && typeof Vue !== 'undefined') {
+            Vue.component('unicon', Unicon);
+        }
+    </script>
 
     <!-- Load services first -->
     <script src="floatchatService.js"></script>

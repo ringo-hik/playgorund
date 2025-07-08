@@ -9,12 +9,12 @@
       <div v-else class="categories">
         <div v-for="category in categories" :key="category.categoryId" 
              @click="selectCategory(category)" class="category">
-          <i :class="'uil uil-' + getCategoryIconName(category)" style="color: #2C5AA0; font-size: 24px;"></i>
+          <unicon :name="getCategoryIconName(category)" fill="hsl(var(--essential2-600))" :width="24" :height="24"></unicon>
           <div class="info">
             <div class="name">{{ currentLanguage === 'ko' ? category.description : category.descriptionEn }}</div>
             <div class="desc">{{ currentLanguage === 'ko' ? category.description : category.descriptionEn }}</div>
           </div>
-          <i class="uil uil-angle-right" style="color: #9AA0A6; font-size: 16px;"></i>
+          <unicon name="angle-right-b" fill="hsl(var(--essential1-400))" :width="20" :height="20"></unicon>
         </div>
       </div>
     </div>
@@ -23,21 +23,21 @@
       <div class="chat-header">
         <div class="category-info">
           <div class="badge">
-            <i :class="'uil uil-' + getCategoryIconName(selectedCategory)" style="color: #2C5AA0; font-size: 14px;"></i>
-            {{ currentLanguage === 'ko' ? selectedCategory.description : selectedCategory.descriptionEn }}
+            <unicon :name="getCategoryIconName(selectedCategory)" fill="hsl(var(--text-secondary))" :width="14" :height="14"></unicon>
+            <span>{{ currentLanguage === 'ko' ? selectedCategory.description : selectedCategory.descriptionEn }}</span>
           </div>
         </div>
         <div class="controls">
           <button @click="resetCategory" :disabled="isProcessing" class="btn-text">
-            <i class="uil uil-redo" style="color: #9AA0A6; font-size: 12px;"></i>
-            {{ getText('change') }}
+            <unicon name="process" fill="hsl(var(--text-secondary))" :width="16" :height="16"></unicon>
+            <span>{{ getText('change') }}</span>
           </button>
         </div>
       </div>
 
       <div class="messages" ref="messagesContainer" @scroll="handleScroll">
         <div v-if="messages.length === 0 && !isProcessing && !loadingHistory" class="welcome">
-          <i class="uil uil-sparkles" style="color: #2C5AA0; font-size: 36px;"></i>
+          <unicon name="sparkle" fill="hsl(var(--essential2-500))" :width="40" :height="40"></unicon>
           <h4>{{ getText('welcomeTitle').replace('{category}', currentLanguage === 'ko' ? selectedCategory.description : selectedCategory.descriptionEn) }}</h4>
         </div>
 
@@ -62,13 +62,13 @@
               <button v-if="message.type === 'ai'" 
                       @click="copyMessage(message)" 
                       class="copy">
-                <i class="uil uil-copy" style="color: #9AA0A6; font-size: 12px;"></i>
+                <unicon name="copy" fill="hsl(var(--text-tertiary))" :width="14" :height="14"></unicon>
               </button>
 
               <button v-if="message.type === 'ai' && !message.isError" 
                       @click="showImprovePrompt(message)" 
                       class="improve">
-                <i class="uil uil-setting" style="color: #9AA0A6; font-size: 12px;"></i>
+                <unicon name="wrench" fill="hsl(var(--text-tertiary))" :width="14" :height="14"></unicon>
               </button>
             </template>
           </div>
@@ -101,8 +101,8 @@
       <div class="input-area">
         <div v-if="quickQuestions.length > 0 && !isProcessing" class="quick-questions">
           <button v-for="q in quickQuestions" :key="q" @click="sendQuickQuestion(q)" class="quick-btn">
-            <i class="uil uil-bolt" style="color: #2C5AA0; font-size: 12px;"></i>
-            {{ q }}
+            <unicon name="bolt-alt" fill="hsl(var(--essential2-600))" :width="14" :height="14"></unicon>
+            <span>{{ q }}</span>
           </button>
         </div>
         <div class="input-box">
@@ -115,7 +115,7 @@
                     maxlength="1000"></textarea>
           <button @click="sendMessage" :disabled="!canSendMessage" class="send">
             <div v-if="isProcessing" class="loading-spinner"></div>
-            <i v-else class="uil uil-message" style="color: #FFFFFF; font-size: 18px;"></i>
+            <unicon v-else name="message" fill="hsl(var(--text-secondary))" :width="20" :height="20"></unicon>
           </button>
         </div>
       </div>

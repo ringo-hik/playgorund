@@ -2,26 +2,26 @@
   <div class="feedback-tab">
     <div v-if="resultMessage" class="result" :class="resultType">
       <template v-if="resultType === 'success'">
-        <i class="uil uil-check-circle" style="color: #38B2AC; font-size: 24px;"></i>
+        <i class="uil uil-check-circle success-icon"></i>
         <div>
           <h4>{{ getText('feedbackSuccess') }}</h4>
           <p>{{ resultMessage }}</p>
         </div>
         <button @click="resetForm" class="action-btn">
-          <i class="uil uil-plus" style="color: #FFFFFF; font-size: 16px;"></i>
+          <i class="uil uil-plus plus-icon"></i>
           {{ getText('sendAnother') }}
         </button>
       </template>
       
       <template v-if="resultType === 'error'">
-        <i class="uil uil-exclamation-triangle" style="color: #E53E3E; font-size: 20px;"></i>
+        <i class="uil uil-exclamation-triangle error-icon"></i>
         <span>{{ resultMessage }}</span>
       </template>
     </div>
 
     <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
       <div class="form-header">
-        <i class="uil uil-heart" style="color: #2C5AA0; font-size: 36px;"></i>
+        <i class="uil uil-heart heart-icon"></i>
         <h3>{{ getText('feedbackTitle') }}</h3>
         <p>{{ getText('feedbackDescription') }}</p>
       </div>
@@ -29,7 +29,7 @@
       <div class="feedback-content">
         <div class="group">
           <label>
-            <i class="uil uil-star" style="color: #2C5AA0; font-size: 16px;"></i>
+            <i class="uil uil-star star-icon-static"></i>
             {{ getText('rating') }}
             <span class="required">*</span>
           </label>
@@ -41,7 +41,7 @@
                     @mouseenter="hoverRating = star"
                     @mouseleave="hoverRating = 0"
                     type="button">
-              <i class="uil uil-star" :style="{ color: (star <= selectedRating || star <= hoverRating) ? '#FFD700' : '#E0E0E0', fontSize: '24px' }"></i>
+              <i class="uil uil-star" :style="{ color: (star <= selectedRating || star <= hoverRating) ? 'hsl(var(--warning))' : 'hsl(var(--essential1-300))', fontSize: '24px' }"></i>
             </button>
           </div>
           <div class="rating-text">
@@ -51,7 +51,7 @@
 
         <div class="group">
           <label>
-            <i class="uil uil-tag" style="color: #2C5AA0; font-size: 16px;"></i>
+            <i class="uil uil-tag tag-icon"></i>
             {{ getText('feedbackCategory') }}
           </label>
           <div class="categories">
@@ -60,7 +60,7 @@
                     @click="toggleCategory(category.value)"
                     :class="['category', { active: selectedCategories.includes(category.value) }]"
                     type="button">
-              <i :class="'uil uil-' + category.icon" :style="{ color: selectedCategories.includes(category.value) ? '#FFFFFF' : '#2C5AA0', fontSize: '14px' }"></i>
+              <i :class="'uil uil-' + category.icon" :style="{ color: selectedCategories.includes(category.value) ? 'hsl(var(--white))' : 'hsl(var(--essential3-500))', fontSize: '14px' }"></i>
               {{ category.label }}
             </button>
           </div>
@@ -68,7 +68,7 @@
 
         <div class="group">
           <label>
-            <i class="uil uil-edit" style="color: #2C5AA0; font-size: 16px;"></i>
+            <i class="uil uil-edit edit-icon"></i>
             {{ getText('detailedComment') }}
           </label>
           <textarea v-model="comment" 
@@ -89,7 +89,7 @@
           {{ getText('submitting') }}
         </template>
         <template v-else>
-          <i class="uil uil-message" style="color: #FFFFFF; font-size: 16px;"></i>
+          <i class="uil uil-message message-icon"></i>
           {{ getText('submitFeedback') }}
         </template>
       </button>

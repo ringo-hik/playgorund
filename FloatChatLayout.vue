@@ -3,8 +3,8 @@
     <div class="float-chat-button" 
          :class="{ 'is-active': isOpen }" 
          @click="toggleChat">
-      <i v-if="!isOpen" class="uil uil-comment" style="color: #FFFFFF; font-size: 24px;"></i>
-      <i v-else class="uil uil-times" style="color: #FFFFFF; font-size: 22px;"></i>
+      <unicon v-if="!isOpen" name="comment" fill="var(--text-secondary)" :width="28" :height="28"></unicon>
+      <unicon v-else name="times" fill="var(--text-secondary)" :width="26" :height="26"></unicon>
     </div>
 
     <div v-if="isOpen" 
@@ -17,7 +17,7 @@
       <div class="header">
         <div class="bot-info">
           <div class="avatar">
-            <i class="uil uil-comment" style="color: #FFFFFF; font-size: 20px;"></i>
+            <unicon name="robot" :width="22" :height="22"></unicon>
           </div>
           <div class="details">
             <span class="name">SWP Float Chat</span>
@@ -33,13 +33,13 @@
           </button>
           
           <div class="window-controls">
-            <button @click="minimizeWindow" class="window-control-btn minimize" title="최소화">
+            <button @click="minimizeWindow" class="window-control-btn minimize" title="Minimize">
               <div class="window-control-icon minimize"></div>
             </button>
-            <button @click="toggleMaximizeWindow" class="window-control-btn maximize" title="최대화/복원">
+            <button @click="toggleMaximizeWindow" class="window-control-btn maximize" title="Maximize/Restore">
               <div class="window-control-icon" :class="windowState === 'maximized' ? 'restore' : 'maximize'"></div>
             </button>
-            <button @click="closeChat" class="window-control-btn close" title="닫기">
+            <button @click="closeChat" class="window-control-btn close" title="Close">
               <div class="window-control-icon close"></div>
             </button>
           </div>
@@ -48,12 +48,12 @@
 
       <div class="tabs">
         <button @click="setActiveTab('chat')" :class="{ active: activeTab === 'chat' }" class="tab">
-          <i class="uil uil-comment" :style="{ color: activeTab === 'chat' ? '#2C5AA0' : '#8E99AD', fontSize: '16px' }"></i>
+          <unicon name="comment-alt-dots" :fill="activeTab === 'chat' ? 'var(--essential2-600)' : 'var(--text-tertiary)'" :width="18" :height="18"></unicon>
           <span>{{ getText('chat') }}</span>
           <span v-if="chatProcessingCount > 0" class="indicator"></span>
         </button>
         <button @click="setActiveTab('feedback')" :class="{ active: activeTab === 'feedback' }" :disabled="chatProcessingCount > 0" class="tab">
-          <i class="uil uil-thumbs-up" :style="{ color: activeTab === 'feedback' ? '#2C5AA0' : '#8E99AD', fontSize: '16px' }"></i>
+          <unicon name="heart-alt" :fill="activeTab === 'feedback' ? 'var(--essential2-600)' : 'var(--text-tertiary)'" :width="18" :height="18"></unicon>
           <span>{{ getText('feedback') }}</span>
         </button>
       </div>
