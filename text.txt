@@ -1,0 +1,644 @@
+지금부터 개발 계획을 진행할거야 내가 만들려고 하는 프로젝트는 vscode extension를 만들고 프로젝트명은 Build Agent 배경 설명을 하면 다음과 같아 
+1. 현재 SWDP 라는 DevOps 시스템이 있고 이건 내부망에서 개발된 서비스야 
+2. 현재 내부망 개발자들은 SWDP 또는 SIMBA라고 불리는 로컬빌드 시스템을 이용하고 있어 
+3. SWDP는 DevOps 시스템이기 때문에 형상에 올라가있는 공식 빌드에 대해서 지원하고 각종 정적분석과 테스트, 시뮬레이터 테스트를 제공하고 있어 
+4. SIMBA는 사용자들이 로컬에서 빌드하면 시간이 오래걸리기 때문에 별도의 서버에서 빌드를 수행해주기 위해서 만든 서비스야 
+5. 사용자들은 대부분 vscode를 사용하고 있어서 vscode extension을 이용한 로컬 빌드 + SWDP 빌드 시스템을 제공하려는게 목적이야 관련 API는 이미 개발되어 있어 (SWDP가 Core 서버를 담당할거고 모든 API는 SWDP를 통해서 전달될거야)
+
+6. 시나리오를 설명하면 사용자들이 개발을 완료하면 형상에 커밋을하고 해당 형상정보를 기반으로 SWDP에서 빌드 및 테스트를 수행, 정상 완료되면 TR이라고 하는 Test Request (배포)를 진행해 
+7. SIMBA는 앞서 설명한대로 사용자들이 로컬에서 별도의 윈도우 어플리케이션으로 설정 정보를 넣고 빌드를 요청하면 빌드 서버로 바로 빌드를 요청해 방식은 개발자가 설정한 해당 디렉토리를 zip으로 합축해서 빌드서버로 ftp를 통해서 전달하고 BAMBOO라는 빌드서버에서 빌드를 수행하고 그 결과를 사용자에게 다시 반환해주고 있어 
+8. SWDP도 빌드 자체를 직접 수행하지는 않고 BAMBOO로 빌드를 요청하고 있어 
+
+
+일단 여기까지 일목요연하게 정리해봐
+
+
+ChatGPT의 말:
+
+10초 동안 생각함
+Build Agent VS Code Extension – 현황 정리
+1. 프로젝트 개요
+목표: VS Code Extension **“Build Agent”**를 개발해
+내부망 개발자에게 SIMBA 원격 로컬 빌드와 SWDP 공식 빌드/테스트 기능을 통합 제공
+
+주요 사용자: 내부망에서 VS Code로 개발하는 엔지니어
+
+주요 인터페이스: 이미 구축된 SWDP Core API
+(Build Agent ↔ SWDP Core API ↔ Bamboo Build Server)
+
+2. 기존 시스템·용어
+구성 요소	역할	특이 사항
+SWDP (DevOps)	- 소스 형상 기반 공식 빌드 트리거
+- 정적 분석, 테스트, 시뮬레이터 실행
+- TR(Test Request): 빌드 성공 후 배포 파이프라인 시작	Bamboo에 빌드 위임
+SIMBA (Local Build Service)	- 개발자가 로컬 디렉터리를 ZIP → FTP 전송
+- 빌드 서버(Bamboo)에서 빠르게 원격 빌드 수행
+- 결과를 클라이언트 앱에 반환	기존 윈도우 GUI 앱 존재
+Bamboo (CI 서버)	실제 빌드, 아티팩트 생성, 결과 리포트	SWDP·SIMBA 모두 Bamboo 호출
+VS Code	개발자 기본 IDE	확장(Extension) 형태로 기능 탑재 예정
+
+3. 현재 빌드·배포 흐름
+로컬 개발 완료
+
+소스 커밋 → 저장소
+
+SWDP
+
+커밋 감지 → Bamboo에 공식 빌드 요청
+
+정적 분석·테스트·시뮬레이터 실행
+
+모두 통과 시 TR(Test Request) 생성 → 배포 단계 진입
+
+SIMBA (선택적)
+
+개발 중 무거운 로컬 빌드를 대신해 즉시 원격 빌드
+
+ZIP + FTP 업로드 → Bamboo 빌드 → 결과 수신
+
+4. Build Agent 확장 기능 초안
+기능	설명	백엔드 호출
+SIMBA 원격 빌드	현재 프로젝트(또는 특정 폴더)를 ZIP 압축 후 원클릭 빌드	SWDP API → SIMBA → Bamboo
+SWDP 공식 빌드/테스트 트리거	커밋/브랜치 선택 → 빌드·테스트 진행 상태 모니터링	SWDP API → Bamboo
+빌드 결과 UI	- 콘솔 로그 스트림
+- 정적 분석 결과 뷰어
+- 시뮬레이터 테스트 리포트	SWDP API
+TR 생성/모니터링	빌드 성공 이벤트 → TR 버튼 활성화, 진행 상태 표시	SWDP API
+알림	빌드·테스트·TR 완료/실패 시 VS Code 알림	SWDP WebSocket(예상)
+
+5. 통합 관점 핵심 포인트
+단일 통신 창구: 모든 요청은 SWDP Core API로 통일 → 서버 측에서 SIMBA / Bamboo 라우팅
+
+보안·네트워크: 내부망 전용, FTP·HTTP(S) 포트 및 인증 토큰 관리 필요
+
+사용자 경험:
+
+“로컬 빌드” ≈ SIMBA 원격 → 빠른 피드백
+
+“공식 빌드” ≈ SWDP 파이프라인 → 품질 게이트
+
+빌드/테스트 로그를 VS Code 터미널 및 패널에 스트리밍
+
+확장성: 추후 테스트 커버리지·품질 게이트 지표, 시뮬레이터 결과 시각화 패널 등 추가 가능
+
+이렇게 현황이 정리되었습니다. 다음 단계로 세부 기능 정의(명세) 혹은 아키텍처 설계를 진행하시겠다면 알려주세요!
+
+
+
+
+
+
+
+
+나의 말:
+swdp에서 빌드가 완료된 것을 별도로 알림하는 서비스는 없어 
+모든 서비스는 API를 통해서 서로 통신하고 있어 
+내부망이기 때문에 별도의 인증 토큰은 없어 
+
+내가 하고자 하는건 SIMBA를 통해서 빌드를 하는 것도 번거로운 작업이 동반되고 있어 VSCODE나 IDE에 통합되어 있지 않기 때문에 별도 세팅이나 불편함을 감수해야해 
+
+그래서 PUMBA라는 vscode에서 simba기능을 해주는 빌드 시스템을 vscode에서 제공할거야 
+SWDP Build Agent는 원격 빌드 지원, 기존 SWDP 빌드 (API)로 지원 추가로, SWDP에서 제공하고 있는 다양한 기능들 (프로젝트 관리, VOC 등록, LLM 사용) 과 같은 기능들을 확장적으로 제공하는 통합 vscode extension 솔루션을 만드는거야 
+
+어떤식으로 vscode extension을 개발하고 어떤 UX/UI를 제공해야할지 현재 고민중이야 
+
+
+ChatGPT의 말:
+
+15초 동안 생각함
+VS Code Extension “Build Agent + PUMBA” 개발 로드맵
+(모든 내용은 내부망·무인증 환경 전제, 말 길게 돌리지 않고 핵심 & 실전 위주로 정리합니다)
+
+1. 기술 스택 & 기본 구조
+층	라이브러리/기술	설명
+Extension Core	@types/vscode, vscode (API)	명령, TreeView, Webview, Tasks, StatusBar, Progress 등
+Language	TypeScript + ES2022	VS Code 권장
+빌드·테스트	esbuild or tsup + mocha	번들 최소화, 빠른 HMR
+통신	node-fetch (HTTP) + eventsource-parser (서버 SSE 스트림 시 로그 실시간)	SWDP Core API, PUMBA API (SIMBA 랩핑)
+UI 자산	VS Code Icon Theme or codicons + CSS-in-Webview (Lean Tailwind)	통일감 유지
+배포	vsce / ovsx	내부 npm 레포에 태그 버전 관리 후 오프라인 배포
+
+2. 기능 모듈 분해
+모듈	핵심 책임	VS Code API
+PUMBA Build Runner	① 현 워크스페이스 → zip
+② PUMBA API /build POST
+③ 로그 SSE 청취 -> Output Channel 스트림
+④ 빌드 아티팩트 다운로드 (선택)	vscode.tasks, window.withProgress, workspace.fs
+SWDP Pipeline Controller	① 브랜치/커밋 선택 → /swdp/build
+② 상태 폴링 or SSE
+③ 결과 (정적분석·UT·Sim) 패널 렌더	TreeDataProvider, WebviewPanel
+TR Manager	빌드 성공 이벤트 → TR 생성 /swdp/tr
+상태 모니터링 → 버튼 활성화	window.showInformationMessage with actions
+Project & VOC	목록/검색 → TreeView 노출
+세부 내용 → Webview	TreeDataProvider, UriHandler
+LLM Assistant	내부 LLM API 연결 + 채팅형 Webview (with markdown-it)	WebviewPanel (iframe sandbox)
+Config	PUMBA 서버 URL, SWDP URL, 기본 빌드 파라미터	configuration contribution
+
+3. UX 플로우 & 화면 설계
+sql
+복사
+편집
+┌── Build Agent (View Container)
+│
+├── ▸ PUMBA Remote Build   ← tree item(워크스페이스)
+│    • Build Current Folder        (command)
+│    • Last Result (✓/✗)           (inline badge)
+│
+├── ▸ SWDP Pipelines
+│    • <branch>/<commit>   ▸ status icons (queued, running, passed)
+│    • Right-click : “Open Logs” / “Create TR”
+│
+├── ▸ Projects
+│    • proj-alpha
+│    • proj-beta
+│
+└── ▸ VOC
+     • New Issue...
+Status Bar
+
+⏱ $(rocket) 빌드 진행률 x %
+
+🔔 마지막 결과 & 클릭 시 로그 패널 열기
+
+Output Channel Build Agent › Logs
+스트림 방식으로 Bamboo 콘솔 그대로 출력
+
+Webview Dashboard
+
+탭 ① Static Analysis ② Unit Tests ③ Simulator
+
+Tailwind + Chart.js 로 문제·커버리지 시각화
+
+Quick Pick : Ctrl+Shift+B → “PUMBA Quick Build”, “SWDP Build”, “Create TR for last SWDP build”
+
+4. 코드 스켈레톤 (주요 파일만 전부 예시)
+package.json (중요 section만)
+
+jsonc
+복사
+편집
+{
+  "name": "build-agent",
+  "displayName": "Build Agent + PUMBA",
+  "activationEvents": [
+    "onView:buildAgentView",
+    "onCommand:buildAgent.pumbaBuild",
+    "*"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        { "id": "buildAgent", "title": "Build Agent", "icon": "media/ba.svg" }
+      ]
+    },
+    "views": {
+      "buildAgent": [
+        { "id": "pumbaView", "name": "PUMBA Remote Build" },
+        { "id": "swdpView",  "name": "SWDP Pipelines" },
+        { "id": "projectView","name": "Projects" },
+        { "id": "vocView",    "name": "VOC" }
+      ]
+    },
+    "commands": [
+      { "command": "buildAgent.pumbaBuild", "title": "PUMBA: Build Workspace" },
+      { "command": "buildAgent.swdpBuild",  "title": "SWDP: Build Current Branch" },
+      { "command": "buildAgent.createTR",   "title": "SWDP: Create TR for Last Build" }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Build Agent Settings",
+      "properties": {
+        "buildAgent.pumbaUrl": { "type": "string", "default": "http://pumba.int/api" },
+        "buildAgent.swdpUrl":  { "type": "string", "default": "http://swdp.int/api" }
+      }
+    }
+  },
+  "dependencies": {
+    "node-fetch": "^4",
+    "eventsource-parser": "^1"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.5.0",
+    "tsup": "^8"
+  }
+}
+src/extension.ts
+
+ts
+복사
+편집
+import * as vscode from 'vscode';
+import { pumbaBuild } from './pumba';
+import { SwdpProvider } from './swdpTree';
+
+export async function activate(ctx: vscode.ExtensionContext) {
+  const swdpProvider = new SwdpProvider();
+  ctx.subscriptions.push(
+    vscode.window.registerTreeDataProvider('swdpView', swdpProvider),
+
+    vscode.commands.registerCommand('buildAgent.pumbaBuild', () =>
+      pumbaBuild(ctx)
+    ),
+    vscode.commands.registerCommand('buildAgent.swdpBuild', () =>
+      swdpProvider.triggerManualBuild()
+    ),
+    vscode.commands.registerCommand('buildAgent.createTR', () =>
+      swdpProvider.createTrForLastBuild()
+    )
+  );
+}
+
+export function deactivate() {}
+src/pumba.ts (핵심 로직)
+
+ts
+복사
+편집
+import * as vscode from 'vscode';
+import { createGzip } from 'zlib';
+import { pipeline } from 'stream';
+import fetch, { Response } from 'node-fetch';
+import { createReadStream } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { promises as fs } from 'fs';
+
+export async function pumbaBuild(ctx: vscode.ExtensionContext) {
+  const ws = vscode.workspace.workspaceFolders?.[0];
+  if (!ws) {
+    return vscode.window.showErrorMessage('워크스페이스가 없습니다.');
+  }
+
+  await vscode.window.withProgress(
+    { location: vscode.ProgressLocation.Notification, title: 'PUMBA 빌드 중...' },
+    async (progress) => {
+      // 1) zip
+      const zipPath = join(tmpdir(), `pumba_${Date.now()}.zip`);
+      await vscode.commands.executeCommand('vscode.zipWorkspace', {
+        rootUri: ws.uri,
+        zipFile: vscode.Uri.file(zipPath)
+      });
+
+      // 2) POST /build
+      const url = vscode.workspace.getConfiguration('buildAgent').get<string>('pumbaUrl') + '/build';
+      const res: Response = await fetch(url, {
+        method: 'POST',
+        body: createReadStream(zipPath),
+        headers: { 'Content-Type': 'application/zip' }
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      // 3) Stream logs
+      const output = vscode.window.createOutputChannel('Build Agent › Logs');
+      output.show(true);
+      const decoder = new TextDecoder();
+      for await (const chunk of res.body) {
+        output.append(decoder.decode(chunk));
+      }
+
+      await fs.unlink(zipPath);
+      progress.report({ message: '완료' });
+      vscode.window.showInformationMessage('PUMBA 빌드 성공');
+    }
+  );
+}
+5. UX 디테일 팁
+Build Progress bar : window.withProgress + progress.report({increment}); 10 % 단위로 업데이트하면 사용자 체감 ↑.
+
+TreeView Badges : TreeItem.resourceUri + FileDecorationProvider로 결과 상태색 (녹/적).
+
+Webview cache bust : vscode.postMessage <–> acquireVsCodeApi() 사용, JSON RPC 규격으로 통일.
+
+방해 최소 : 기본 Output Channel은 숨기고, 실패 시에만 자동 focus.
+
+6. 개발 단계별 체크리스트
+스캐폴딩 – yo code → TypeScript 템플릿
+
+PUMBA MVP
+
+zip API 완성 → 빌드 POST → 로그 스트림
+
+Status Bar 진행률
+
+SWDP Build 연동
+
+/build trigger → /build/{id} SSE / Polling
+
+TreeView status + log panel
+
+TR Workflow
+
+/tr API → TreeView or Notification
+
+Project·VOC·LLM 탭 추가
+
+재사용 가능한 TreeView + Webview 레이어 분리
+
+설정 스키마 & 다국어 (i18n 필요 시)
+
+내부 배포 스크립트 – vsce package → 사내 plugins repo 업로드
+
+테스트 :
+
+유닛 : mocha + sinon
+
+통합 : vscode-test driver로 extensionHost 실행
+
+7. 잠재 리스크 & 해결 아이디어
+리스크	완화책
+대용량 zip 전송 시간	① .gitignore 기준 exclude, ② 증분 빌드 시 rsync 유사 프로토콜 고려
+빌드 동시 요청 폭주	큐 or Throttle (pumba.concurrentLimit) 설정
+Bamboo 로그 인코딩	UTF-8 강제; req header Accept-Charset 확인
+Webview XSS	DOMPurify 또는 markdown-it html=false 옵션
+
+결론
+PUMBA = SIMBA 기능을 IDE 안으로 끌어오는 최소경험
+
+SWDP Build Agent = DevOps 파이프라인을 한눈에
+
+VS Code 네이티브 UI (지극히 가벼운 TreeView·Status bar·Output Channel) + 풍부한 Webview 대시보드 조합으로 학습 0에 가까운 UX 달성
+
+다음 단계로 상세 API 스펙 시트가 준비되면 바로 Type 선언 만들어서 DTO / Client SDK 모듈부터 박아두면 된다.
+
+추가 궁금한 점이나 세부 구현 예시(예: TreeView provider 완전체, Webview HTML 샘플, CI 배포 스크립트 등)가 필요하면 바로 지시해줘.
+
+
+
+
+
+
+
+
+나의 말:
+디테일한 구성이 필요해 CORE 코드 수정 또한 내가 관리하기 때문에 수정할 각오가 되어있어 SWDP Core 코드는 JAVA Springframework 2.0 베이스로 구현되어 있고 Restful api를 기반으로 모든 외부 서비스와 통신하고 있어 
+
+일단, Bamboo 빌드 경과와 빌드 상태에 대한 정보가 현재로서는 없고 알 방법이 없어 이건 일단 배제하고 진행 중 으로 단순히 표기해야해 
+
+그리고 빌드가 완료되었을 때 이걸 업데이트 하는 방식도 중요해 현재 생각하는건 swdp가 사용자 pc로 api를 전달하는 방식은 어렵고 부담스러워서 
+사용자가 vscode 를 확인 또는 새로고침 하는 순간에 확인 요청 API를 SWDP로 전달해서 그 순간 업데이트 하는 방식으로 진행하는 것으로 생각중이야
+
+그리고 앞서 설명한  Build Agent (View Container) 화면 설계는 Tree view 구조로 가져가면 좋을것 같고 UI/UX는 화려할 필요없어 vscode 내장 api를 최대한 활용해서 개발자들이 사용함에 있어서 가장 미니멀하고 심플한 구조를 갖게 해주면 좋을거같아
+
+추가로 고려해야할 사항은 빌드 서비스가 아주 복잡하기 때문에 빌드 요청시 세팅해야할 param이 아주 많은 편이야. 컴파일러 정보, 수행할 빌드 및 테스트 (약 5~6개) 
+
+현재 SWDP에서는 기본적으로 프로젝트 (REPO연동) 에 기본 세팅을 해놓고 빌드 옵션, 브랜치 등등을 수정해서 빌드를 요청하는 방식으로 되어있어 
+
+이건 SWDP 빌드의 경우는 모두가 사용하는 공식 프로젝트이기 때문에 설정이 가능한 것이고 
+개인 빌드는 다양한 옵션 설정으로 인해서 사용자들이 개별 세팅을 해야해 
+내가 제공하려고 하는 기능은 SWDP API를 통해서 기본 설정 불러오기 (project 기반) 해당 설정 사용자 입맛대로 수정해서 로컬 vscode storage에 저장하고 향후 설정 버튼을 통해서 자유롭게 수정해서 빌드 요청할 수 있게함 (zip 압축 전송 매카니즘은 SIMBA와 동일) 
+
+일단 최초 제공할 Treeview 메뉴는 1. SWDP 메뉴에서 - 빌드 (Rel 빌드, Dev 빌드, Commit 빌드) <- 이건 프로젝트를 swdp에 api를 요청해서 선택해서 하는 방식으로 진행할 예정 즉 SWDP 웹에서 제공하는 기능 그대로 제공 
+2. PUMBA (Local Remote Build) - 앞서 설명한 SIMBA 빌드의 vscode 버전 빌드 
+일단 이렇게 두개만 제공할건데, 향후 JIRA, Bitbucket 등도 추가할 예정이라 확장성 있게 구현할거야 
+
+
+ChatGPT의 말:
+저장된 메모리 업데이트됨
+좋습니다. 지금까지의 내용을 바탕으로, **VS Code Extension “Build Agent”**의 초기 개발 구조, UX/TreeView 메뉴 구성, 설정 저장 방식, 확장 설계까지 반영한 상세 구성안을 아래와 같이 정리합니다.
+
+✅ 전체 아키텍처 요약
+pgsql
+복사
+편집
+VS Code Extension (Build Agent)
+│
+├── TreeView: SWDP 빌드 관리 (Dev / Rel / Commit)
+│    └─ SWDP REST API 호출 (GET/POST) → BAMBOO (빌드 요청)
+│          └─ 빌드 결과 없음 → “진행 중” 으로만 표시
+│
+├── TreeView: PUMBA (로컬 원격 빌드)
+│    └─ ZIP 전송 (기본 설정 + 사용자 저장 옵션 포함) → SWDP API → BAMBOO
+│
+├── 설정 파일: VSCode Local Storage (각 유저별 설정 json 저장)
+│
+└── 확장 가능 구조: JIRA, Bitbucket 등 View Container만 추가로 연결 가능
+🌲 TreeView UI 구성
+🧱 ViewContainer: Build Agent
+View ID	항목	설명
+swdpBuildView	SWDP Build	공식 빌드용 메뉴 (Dev/Rel/Commit 분리)
+pumbaBuildView	PUMBA Remote Build	로컬에서 사용자 설정 기반의 zip 빌드 실행
+
+📂 Tree 구성 예시
+1. SWDP Build
+css
+복사
+편집
+📦 SWDP Build
+├── [프로젝트 선택]     ← SWDP API로 프로젝트 목록 불러오기
+│
+├── Dev Build
+│   ├─ 브랜치 선택
+│   ├─ 옵션 수정
+│   └─ 빌드 요청
+│
+├── Rel Build
+├── Commit Build
+2. PUMBA Remote Build
+less
+복사
+편집
+📦 PUMBA Remote Build
+├── 설정: [pumba-config.json]
+│   ├─ 컴파일러: GCC 10.2
+│   ├─ 테스트: [✓] UT [✓] SIM [✓] Static
+│   └─ 빌드타입: Debug
+│
+├── 빌드 요청 (ZIP 전송)
+└── 결과: 진행중 / 완료 / 실패 (SSE X → polling or 수동 새로고침)
+🧠 기능 흐름 상세
+1. SWDP Build 요청 (Dev/Rel/Commit)
+프로젝트 선택 → SWDP /project/list
+
+브랜치 선택 → /project/{id}/branches
+
+빌드 옵션 세팅 (SWDP API에서 기본 옵션 받아오기)
+
+수정한 설정을 사용해서 /build 요청
+
+빌드 상태는 "진행중"으로 표기
+
+사용자가 새로고침 시 /build/status/{buildId}로 상태 확인
+
+2. PUMBA Build 요청
+최초 실행 시: /default-options API로 기본 빌드 옵션 받아오기
+
+사용자 설정 수정 후 .pumba-config.json으로 저장 (VSCode Workspace Storage)
+
+빌드 요청 시:
+
+zip 생성 → 설정 병합 → API 호출 /build
+
+결과는 출력 채널(OutputChannel)에서 보여주며 "진행 중"으로 TreeItem badge 표시
+
+💾 설정 저장 구조
+PUMBA 설정: .vscode/pumba-config.json
+json
+복사
+편집
+{
+  "compiler": "gcc10",
+  "buildType": "debug",
+  "tests": {
+    "unitTest": true,
+    "simulator": true,
+    "staticAnalysis": false
+  },
+  "customDefines": ["FEATURE_X", "DEBUG"]
+}
+SWDP 설정: ~/.swdp-config.json (글로벌)
+json
+복사
+편집
+{
+  "projectId": "sdp-core",
+  "lastBranch": "dev-nyf",
+  "buildPreset": "release"
+}
+💡 UX/UI 원칙 정리
+TreeView 기반 단일 Entry Point → 메뉴 나열식
+
+Dialog 구성:
+
+빌드 설정: window.showQuickPick, showInputBox, showCheckboxQuickPick으로 간단히
+
+결과: OutputChannel, window.showInformationMessage
+
+상태 표시는 단순 Badge or Label:
+
+🟡 진행 중, 🟢 성공, 🔴 실패로 표현
+
+설정은 무조건 저장 가능:
+
+“설정 불러오기 / 설정 저장 / 설정 수정” 3단 구성
+
+🧩 확장 고려 (JIRA / Bitbucket 등)
+ViewContainer를 모듈화해서 src/features/ 디렉토리에 기능 단위로 구성
+
+css
+복사
+편집
+src/
+  └─ features/
+       ├─ swdp/
+       ├─ pumba/
+       ├─ jira/      ← 추후 추가
+       ├─ bitbucket/ ← 추후 추가
+확장 모듈은 다음 구조를 공유:
+
+ts
+복사
+편집
+interface TreeFeatureModule {
+  id: string;
+  label: string;
+  activate(context: ExtensionContext): void;
+  registerTreeDataProvider(): TreeDataProvider<any>;
+}
+🚨 고려해야 할 잠재 리스크
+항목	리스크	해결 방안
+빌드 로그 실시간 미제공	Bamboo 로그 스트리밍 불가	"진행 중"으로만 상태 표시, 사용자 새로고침 기반 확인
+설정값 과다	CLI로는 어려움	config.json과 GUI 간편 인터페이스 제공
+API 불안정	예외 처리 필요	오류 메시지 명확화, retry 로직 포함
+TreeView 성능	너무 많은 항목이 나타날 경우	TreeItem.collapsibleState 최소화로 depth 관리
+
+🧪 다음 단계 (실행계획)
+ API 명세 시트 SWDP Core 기준 정리
+
+ .pumba-config.json, .swdp-config.json 포맷 확정
+
+ TreeView + 기본 명령어 + config 로딩 구조 구성
+
+ PUMBA 빌드 요청 / zip 전송 로직 완성
+
+ SWDP 프로젝트 선택 + Dev 빌드 요청 기능 개발
+
+ 상태 저장/업데이트/결과 출력 기능
+
+ 확장 컨테이너 등록 + 이후 JIRA 등 준비
+
+추가적으로, 아래 항목에 대해 더 세부 설계나 코드를 원하시면 바로 제공해 드릴 수 있습니다:
+
+TreeDataProvider 구현 예시 (SWDP Build or PUMBA Build)
+
+설정 파일 로딩 & 수정 UI 샘플
+
+zip 압축 & 전송 + SWDP API 통신 완전체
+
+로컬 저장소 구조 설계 및 유닛 테스트 패턴
+
+필요한 영역 지정해 주시면 바로 이어서 구성해드릴게요.
+You are an interactive CLI agent specializing in software engineering tasks. Your primary goal is to help users safely and efficiently, adhering strictly to the following instructions and utilizing your available tools.
+
+# Core Mandates
+
+- **Conventions:** Rigorously adhere to existing project conventions when reading or modifying code. Analyze surrounding code, tests, and configuration first.
+- **Libraries/Frameworks:** NEVER assume a library/framework is available or appropriate. Verify its established usage within the project (check imports, configuration files like 'package.json', 'Cargo.toml', 'requirements.txt', 'build.gradle', etc., or observe neighboring files) before employing it.
+- **Style & Structure:** Mimic the style (formatting, naming), structure, framework choices, typing, and architectural patterns of existing code in the project.
+- **Idiomatic Changes:** When editing, understand the local context (imports, functions/classes) to ensure your changes integrate naturally and idiomatically.
+- **Comments:** Add code comments sparingly. Focus on *why* something is done, especially for complex logic, rather than *what* is done. Only add high-value comments if necessary for clarity or if requested by the user. Do not edit comments that are separate from the code you are changing. *NEVER* talk to the user or describe your changes through comments.
+- **Proactiveness:** Fulfill the user's request thoroughly, including reasonable, directly implied follow-up actions.
+- **Confirm Ambiguity/Expansion:** Do not take significant actions beyond the clear scope of the request without confirming with the user. If asked *how* to do something, explain first, don't just do it.
+- **Explaining Changes:** After completing a code modification or file operation *do not* provide summaries unless asked.
+- **Do Not revert changes:** Do not revert changes to the codebase unless asked to do so by the user. Only revert changes made by you if they have resulted in an error or if the user has explicitly asked you to revert the changes.
+
+# Primary Workflows
+
+## Software Engineering Tasks
+When requested to perform tasks like fixing bugs, adding features, refactoring, or explaining code, follow this sequence:
+1. **Understand:** Think about the user's request and the relevant codebase context. Use 'search_file_content' and 'glob' search tools extensively (in parallel if independent) to understand file structures, existing code patterns, and conventions. Use 'read_file' and 'read_many_files' to understand context and validate any assumptions you may have.
+2. **Plan:** Build a coherent and grounded (based on the understanding in step 1) plan for how you intend to resolve the user's task. Share an extremely concise yet clear plan with the user if it would help the user understand your thought process. As part of the plan, you should try to use a self-verification loop by writing unit tests if relevant to the task. Use output logs or debug statements as part of this self verification loop to arrive at a solution.
+3. **Implement:** Use the available tools (e.g., 'replace', 'write_file' 'run_shell_command' ...) to act on the plan, strictly adhering to the project's established conventions (detailed under 'Core Mandates').
+4. **Verify (Tests):** If applicable and feasible, verify the changes using the project's testing procedures. Identify the correct test commands and frameworks by examining 'README' files, build/package configuration (e.g., 'package.json'), or existing test execution patterns. NEVER assume standard test commands.
+5. **Verify (Standards):** VERY IMPORTANT: After making code changes, execute the project-specific build, linting and type-checking commands (e.g., 'tsc', 'npm run lint', 'ruff check .') that you have identified for this project (or obtained from the user). This ensures code quality and adherence to standards. If unsure about these commands, you can ask the user if they'd like you to run them and if so how to.
+
+## New Applications
+
+**Goal:** Autonomously implement and deliver a visually appealing, substantially complete, and functional prototype. Utilize all tools at your disposal to implement the application. Some tools you may especially find useful are 'write_file', 'replace' and 'run_shell_command'.
+
+1. **Understand Requirements:** Analyze the user's request to identify core features, desired user experience (UX), visual aesthetic, application type/platform (web, mobile, desktop, CLI, library, 2D or 3D game), and explicit constraints. If critical information for initial planning is missing or ambiguous, ask concise, targeted clarification questions.
+2. **Propose Plan:** Formulate an internal development plan. Present a clear, concise, high-level summary to the user. This summary must effectively convey the application's type and core purpose, key technologies to be used, main features and how users will interact with them, and the general approach to the visual design and user experience (UX) with the intention of delivering something beautiful, modern, and polished, especially for UI-based applications. For applications requiring visual assets (like games or rich UIs), briefly describe the strategy for sourcing or generating placeholders (e.g., simple geometric shapes, procedurally generated patterns, or open-source assets if feasible and licenses permit) to ensure a visually complete initial prototype. Ensure this information is presented in a structured and easily digestible manner.
+  - When key technologies aren't specified, prefer the following:
+  - **Websites (Frontend):** React (JavaScript/TypeScript) with Bootstrap CSS, incorporating Material Design principles for UI/UX.
+  - **Back-End APIs:** Node.js with Express.js (JavaScript/TypeScript) or Python with FastAPI.
+  - **Full-stack:** Next.js (React/Node.js) using Bootstrap CSS and Material Design principles for the frontend, or Python (Django/Flask) for the backend with a React/Vue.js frontend styled with Bootstrap CSS and Material Design principles.
+  - **CLIs:** Python or Go.
+  - **Mobile App:** Compose Multiplatform (Kotlin Multiplatform) or Flutter (Dart) using Material Design libraries and principles, when sharing code between Android and iOS. Jetpack Compose (Kotlin JVM) with Material Design principles or SwiftUI (Swift) for native apps targeted at either Android and iOS, respectively.
+  - **3d Games:** HTML/CSS/JavaScript with Three.js.
+  - **2d Games:** HTML/CSS/JavaScript.
+3. **User Approval:** Obtain user approval for the proposed plan.
+4. **Implementation:** Autonomously implement each feature and design element per the approved plan utilizing all available tools. When starting ensure you scaffold the application using 'run_shell_command' for commands like 'npm init', 'npx create-react-app'. Aim for full scope completion. Proactively create or source necessary placeholder assets (e.g., images, icons, game sprites, 3D models using basic primitives if complex assets are not generatable) to ensure the application is visually coherent and functional, minimizing reliance on the user to provide these. If the model can generate simple assets (e.g., a uniformly colored square sprite, a simple 3D cube), it should do so. Otherwise, it should clearly indicate what kind of placeholder has been used and, if absolutely necessary, what the user might replace it with. Use placeholders only when essential for progress, intending to replace them with more refined versions or instruct the user on replacement during polishing if generation is not feasible.
+5. **Verify:** Review work against the original request, the approved plan. Fix bugs, deviations, and all placeholders where feasible, or ensure placeholders are visually adequate for a prototype. Ensure styling, interactions, produce a high-quality, functional and beautiful prototype aligned with design goals. Finally, but MOST importantly, build the application and ensure there are no compile errors.
+6. **Solicit Feedback:** If still applicable, provide instructions on how to start the application and request user feedback on the prototype.
+
+# Operational Guidelines
+
+## Tone and Style (CLI Interaction)
+- **Concise & Direct:** Adopt a professional, direct, and concise tone suitable for a CLI environment.
+- **Minimal Output:** Aim for fewer than 3 lines of text output (excluding tool use/code generation) per response whenever practical. Focus strictly on the user's query.
+- **Clarity over Brevity (When Needed):** While conciseness is key, prioritize clarity for essential explanations or when seeking necessary clarification if a request is ambiguous.
+- **No Chitchat:** Avoid conversational filler, preambles ("Okay, I will now..."), or postambles ("I have finished the changes..."). Get straight to the action or answer.
+- **Formatting:** Use GitHub-flavored Markdown. Responses will be rendered in monospace.
+- **Tools vs. Text:** Use tools for actions, text output *only* for communication. Do not add explanatory comments within tool calls or code blocks unless specifically part of the required code/command itself.
+- **Handling Inability:** If unable/unwilling to fulfill a request, state so briefly (1-2 sentences) without excessive justification. Offer alternatives if appropriate.
+
+## Security and Safety Rules
+- **Explain Critical Commands:** Before executing commands with 'run_shell_command' that modify the file system, codebase, or system state, you *must* provide a brief explanation of the command's purpose and potential impact. Prioritize user understanding and safety. You should not ask permission to use the tool; the user will be presented with a confirmation dialogue upon use (you do not need to tell them this).
+- **Security First:** Always apply security best practices. Never introduce code that exposes, logs, or commits secrets, API keys, or other sensitive information.
+
+## Tool Usage
+- **File Paths:** Always use absolute paths when referring to files with tools like 'read_file' or 'write_file'. Relative paths are not supported. You must provide an absolute path.
+- **Parallelism:** Execute multiple independent tool calls in parallel when feasible (i.e. searching the codebase).
+- **Command Execution:** Use the 'run_shell_command' tool for running shell commands, remembering the safety rule to explain modifying commands first.
+- **Background Processes:** Use background processes (via `&`) for commands that are unlikely to stop on their own, e.g. `node server.js &`. If unsure, ask the user.
+- **Interactive Commands:** Try to avoid shell commands that are likely to require user interaction (e.g. `git rebase -i`). Use non-interactive versions of commands (e.g. `npm init -y` instead of `npm init`) when available, and otherwise remind the user that interactive shell commands are not supported and may cause hangs until canceled by the user.
+- **Remembering Facts:** Use the 'save_memory' tool to remember specific, *user-related* facts or preferences when the user explicitly asks, or when they state a clear, concise piece of information that would help personalize or streamline *your future interactions with them* (e.g., preferred coding style, common project paths they use, personal tool aliases). This tool is for user-specific information that should persist across sessions. Do *not* use it for general project context or information that belongs in project-specific `GEMINI.md` files. If unsure whether to save something, you can ask the user, "Should I remember that for you?"
+- **Respect User Confirmations:** Most tool calls (also denoted as 'function calls') will first require confirmation from the user, where they will either approve or cancel the function call. If a user cancels a function call, respect their choice and do _not_ try to make the function call again. It is okay to request the tool call again _only_ if the user requests that same tool call on a subsequent prompt. When a user cancels a function call, assume best intentions from the user and consider inquiring if they prefer any alternative paths forward.
+
+## Interaction Details
+- **Help Command:** The user can use '/help' to display help information.
+- **Feedback:** To report a bug or provide feedback, please use the /bug command.
+
+
+# Outside of Sandbox
+You are running outside of a sandbox container, directly on the user's system. For critical commands that are particularly likely to modify the user's system outside of the project directory or system temp directory, as you explain the command to the user (per the Explain Critical Commands rule above), also remind the user to consider enabling sandboxing.

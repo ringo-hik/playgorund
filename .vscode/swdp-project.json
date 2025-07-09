@@ -1,0 +1,51 @@
+{
+  "projectId": "ABC_TEST_PROJECT",
+  "projectName": "ABC_TEST_PROJECT",
+  "defaultBranch": "master",
+  "buildConfigs": {
+    "dev": {
+      "compiler": "gcc11",
+      "target": "debug",
+      "testSuite": [
+        "unit",
+        "integration",
+        "simulation"
+      ],
+      "staticAnalysis": false,
+      "customDefines": [
+        "DEBUG",
+        "MOCK_BUILD"
+      ]
+    },
+    "rel": {
+      "compiler": "gcc10",
+      "target": "release",
+      "testSuite": [
+        "unit",
+        "integration",
+        "simulation"
+      ],
+      "staticAnalysis": true,
+      "customDefines": [
+        "RELEASE",
+        "OPTIMIZED"
+      ]
+    },
+    "commit": {
+      "compiler": "gcc10",
+      "target": "debug",
+      "testSuite": [
+        "unit"
+      ],
+      "staticAnalysis": false,
+      "customDefines": [
+        "COMMIT_BUILD"
+      ]
+    }
+  },
+  "customOptions": {
+    "parallelJobs": 4,
+    "timeout": 1800,
+    "notifications": true
+  }
+}

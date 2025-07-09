@@ -1,0 +1,167 @@
+{
+  "name": "build-agent",
+  "displayName": "Build Agent",
+  "description": "VS Code Extension for SWDP & PUMBA Build Integration",
+  "version": "0.0.1",
+  "publisher": "nyf-development",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:buildAgentView",
+    "onCommand:buildAgent.selectProject",
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "buildAgent",
+          "title": "Build Agent",
+          "icon": "$(wrench)"
+        }
+      ]
+    },
+    "views": {
+      "buildAgent": [
+        {
+          "id": "swdpView",
+          "name": "SWDP Build",
+          "when": "buildAgent:hasProject"
+        },
+        {
+          "id": "projectView",
+          "name": "Project Manager",
+          "when": "!buildAgent:hasProject"
+        },
+        {
+          "id": "pumbaView",
+          "name": "PUMBA Remote Build"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "buildAgent.selectProject",
+        "title": "Select Project",
+        "icon": "$(search)"
+      },
+      {
+        "command": "buildAgent.changeProject",
+        "title": "Change Project",
+        "icon": "$(refresh-cw)"
+      },
+      {
+        "command": "buildAgent.editProjectSettings",
+        "title": "Edit Project Settings",
+        "icon": "$(cog)"
+      },
+      {
+        "command": "buildAgent.devBuild",
+        "title": "Start Dev Build",
+        "icon": "$(play)"
+      },
+      {
+        "command": "buildAgent.relBuild",
+        "title": "Start Rel Build",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "buildAgent.commitBuild",
+        "title": "Start Commit Build",
+        "icon": "$(git-commit-horizontal)"
+      },
+      {
+        "command": "buildAgent.editBuildConfig",
+        "title": "Edit Build Config",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "buildAgent.showBuildDetails",
+        "title": "Show Build Details",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "buildAgent.pumbaBuild",
+        "title": "Start PUMBA Build",
+        "icon": "$(upload)"
+      },
+      {
+        "command": "buildAgent.refreshView",
+        "title": "Refresh",
+        "icon": "$(refresh-cw)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "buildAgent.selectProject",
+          "when": "view == projectView",
+          "group": "navigation"
+        },
+        {
+          "command": "buildAgent.changeProject",
+          "when": "view == swdpView",
+          "group": "navigation"
+        },
+        {
+          "command": "buildAgent.refreshView",
+          "when": "view == swdpView || view == pumbaView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "buildAgent.editBuildConfig",
+          "when": "view == swdpView && viewItem == buildConfig",
+          "group": "inline"
+        },
+        {
+          "command": "buildAgent.showBuildDetails",
+          "when": "view == swdpView && viewItem == buildResult",
+          "group": "inline"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Build Agent Settings",
+      "properties": {
+        "buildAgent.swdpUrl": {
+          "type": "string",
+          "default": "http://swdp.int/api",
+          "description": "SWDP API endpoint URL"
+        },
+        "buildAgent.pumbaUrl": {
+          "type": "string",
+          "default": "http://pumba.int/api",
+          "description": "PUMBA API endpoint URL"
+        },
+        "buildAgent.pollingInterval": {
+          "type": "number",
+          "default": 5000,
+          "description": "Build status polling interval in milliseconds"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "lucide": "^0.525.0",
+    "lucide-react": "^0.525.0",
+    "node-fetch": "^3.3.0"
+  }
+}
