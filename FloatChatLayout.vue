@@ -45,9 +45,7 @@
           <button @click="openRandomEasterEgg" class="easter-egg-trigger" title="✨">
             <span class="easter-dot"></span>
           </button>
-          <button @click="changeColorTheme" class="theme-btn" :title="getCurrentThemeName()">
-            <span class="theme-indicator" :class="currentTheme"></span>
-          </button>
+          <ThemeManager :current-language="currentLanguage" />
           <button @click="toggleLanguage" class="action-btn">
             <span>{{ currentLanguage === 'ko' ? 'EN' : 'KR' }}</span>
           </button>
@@ -81,52 +79,40 @@
           </div>
           
           <div class="category-grid">
-            <button 
-              @click="selectCategory('personal')" 
-              class="category-card personal"
+            <CategoryCard
+              category="personal"
+              icon="user"
+              :title="getText('personalCategory')"
+              :description="getText('personalCategoryDesc')"
               :disabled="chatProcessingCount > 0"
-            >
-              <div class="category-icon personal">
-                <unicon name="user" fill="white" :width="24" :height="24" />
-              </div>
-              <h4>{{ getText('personalCategory') }}</h4>
-              <p>{{ getText('personalCategoryDesc') }}</p>
-            </button>
-            
-            <button 
-              @click="selectCategory('user')" 
-              class="category-card user"
+              @select="selectCategory('personal')"
+            />
+            <CategoryCard
+              category="user"
+              icon="users-alt"
+              :title="getText('userCategory')"
+              :description="getText('userCategoryDesc')"
               :disabled="chatProcessingCount > 0"
-            >
-              <div class="category-icon user">
-                <unicon name="users-alt" fill="white" :width="24" :height="24" />
-              </div>
-              <h4>{{ getText('userCategory') }}</h4>
-              <p>{{ getText('userCategoryDesc') }}</p>
-            </button>
-            
-            <button 
-              @click="selectCategory('devops')" 
-              class="category-card devops"
+              @select="selectCategory('user')"
+            />
+            <CategoryCard
+              category="devops"
+              icon="cog"
+              :title="getText('devopsCategory')"
+              :description="getText('devopsCategoryDesc')"
               :disabled="chatProcessingCount > 0"
-            >
-              <div class="category-icon devops">
-                <unicon name="cog" fill="white" :width="24" :height="24" />
-              </div>
-              <h4>{{ getText('devopsCategory') }}</h4>
-              <p>{{ getText('devopsCategoryDesc') }}</p>
-            </button>
+              @select="selectCategory('devops')"
+            />
           </div>
           
           <div class="feedback-section">
-            <button 
+            <LuxuryButton 
               @click="goToFeedback" 
-              class="feedback-btn"
+              variant="luxury-cyan"
+              icon="heart"
+              :text="getText('sendFeedback')"
               :disabled="chatProcessingCount > 0"
-            >
-              <unicon name="heart" fill="white" :width="16" :height="16" />
-              <span>{{ getText('sendFeedback') }}</span>
-            </button>
+            />
           </div>
         </div>
 
@@ -154,46 +140,35 @@
 
           <div class="persona-content">
             <div v-if="loadingPersonas" class="loading-container">
-              <div class="spinner"></div>
-              <span>{{ getText('loadingPersonas') }}</span>
+              <LoadingSpinner 
+                size="large" 
+                variant="luxury" 
+                :text="getText('loadingPersonas')"
+              />
             </div>
 
             <div v-else-if="filteredPersonas.length === 0" class="no-personas">
               <unicon name="info-circle" fill="#6B7280" :width="48" :height="48" />
               <h4>{{ getText('noPersonas') }}</h4>
               <p>{{ getText('noPersonasDesc') }}</p>
-              <button @click="goToCategorySelect" class="btn-luxury-cyan">
-                <unicon name="home" fill="white" :width="16" :height="16" />
-                <span>{{ getText('goHome') }}</span>
-              </button>
+              <LuxuryButton 
+                @click="goToCategorySelect" 
+                variant="luxury-cyan"
+                icon="home"
+                :text="getText('goHome')"
+              />
             </div>
 
             <div v-else class="persona-grid">
-              <button 
+              <PersonaCard
                 v-for="persona in filteredPersonas" 
                 :key="persona.personaCode"
-                @click="selectPersona(persona)"
-                class="persona-card"
+                :icon="getPersonaIconName(persona)"
+                :title="persona.title || persona.personaCode"
+                :description="getPersonaDescription(persona)"
                 :disabled="loadingPersonas"
-              >
-                <div class="persona-icon">
-                  <unicon 
-                    :name="getPersonaIconName(persona)" 
-                    fill="var(--primary-gold)" 
-                    :width="24" 
-                    :height="24"
-                  />
-                </div>
-                
-                <div class="persona-info">
-                  <h4>{{ persona.title || persona.personaCode }}</h4>
-                  <p>{{ getPersonaDescription(persona) }}</p>
-                </div>
-                
-                <div class="arrow-icon">
-                  <unicon name="angle-right" fill="#CBD1DA" :width="16" :height="16" />
-                </div>
-              </button>
+                @select="selectPersona(persona)"
+              />
             </div>
           </div>
         </div>
@@ -252,10 +227,15 @@ import '@style/dwp/custom/FloatChat.css';
 import floatChatService from '@service/floatChatService';
 import ChatTab from './ChatTab.vue';
 import FeedbackTab from './FeedbackTab.vue';
+import LoadingSpinner from './components/LoadingSpinner.vue';
+import LuxuryButton from './components/LuxuryButton.vue';
+import CategoryCard from './CategoryCard.vue';
+import PersonaCard from './PersonaCard.vue';
+import ThemeManager from './ThemeManager.vue';
 
 export default {
   name: 'FloatChatLayout',
-  components: { ChatTab, FeedbackTab },
+  components: { ChatTab, FeedbackTab, LoadingSpinner, LuxuryButton, CategoryCard, PersonaCard, ThemeManager },
   
   data() {
     return {
@@ -268,7 +248,7 @@ export default {
       loadingPersonas: false,
       isConnected: true,
       currentLanguage: this.getInitialLanguage(),
-      currentTheme: this.getInitialTheme(),
+      
       personaSessionMap: {},
       windowState: 'normal',
       windowSize: {
@@ -360,13 +340,7 @@ export default {
       }
     },
     
-    getInitialTheme() {
-      try {
-        return localStorage.getItem('float-chat-theme') || 'default';
-      } catch (error) {
-        return 'default';
-      }
-    },
+    
     
     getCategoryIcon(category) {
       const iconMap = {
@@ -487,182 +461,9 @@ export default {
       window.open(easterEggUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
     },
     
-    changeColorTheme() {
-      const themes = ['default', 'gucci', 'hermes'];
-      const currentIndex = themes.indexOf(this.currentTheme);
-      const nextIndex = (currentIndex + 1) % themes.length;
-      this.currentTheme = themes[nextIndex];
-      
-      this.applyTheme(this.currentTheme);
-      
-      try {
-        localStorage.setItem('float-chat-theme', this.currentTheme);
-      } catch (error) {
-      }
-    },
     
-    getCurrentThemeName() {
-      const themeNames = {
-        ko: {
-          'default': '기본 테마',
-          'gucci': '구찌 테마',
-          'hermes': '에르메스 테마'
-        },
-        en: {
-          'default': 'Default Theme',
-          'gucci': 'Gucci Theme', 
-          'hermes': 'Hermès Theme'
-        }
-      };
-      
-      return themeNames[this.currentLanguage][this.currentTheme] || '테마 변경';
-    },
     
-    applyTheme(themeName) {
-      const root = document.documentElement;
-      
-      // 기존 테마 클래스 제거
-      root.classList.remove('theme-default', 'theme-gucci', 'theme-hermes');
-      
-      // 새 테마 클래스 추가
-      root.classList.add(`theme-${themeName}`);
-      
-      const themeColors = {
-        default: {
-          // 기본 레이아웃 변수
-          '--float-size': '60px',
-          '--chat-width': '455px', 
-          '--chat-height': '676px',
-          '--header-height': '72px',
-          '--font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          '--radius-full': '50%',
-          '--radius-md': '8px',
-          '--radius-sm': '4px',
-          '--shadow-lg': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          '--shadow-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-          '--shadow-sm': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-          '--transition-smooth': '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          // 색상 변수
-          '--primary-blue': '#318CE7',
-          '--primary-navy': '#0C2340',
-          '--primary-gold': '#C8A257',
-          '--primary-gray': '#CBD1DA',
-          '--surface-white': '#FFFFFF',
-          '--surface-light': '#F8FAFC',
-          '--bg-light': '#F1F5F9',
-          '--bg-medium': '#E2E8F0',
-          '--text-primary': '#0F172A',
-          '--text-secondary': '#334155',
-          '--text-muted': '#64748B',
-          '--text-light': '#FFFFFF',
-          '--border-light': '#E2E8F0',
-          '--border-gray': '#CBD5E1',
-          '--luxury-emerald': '#00A86B',
-          '--luxury-emerald-dark': '#008A5A',
-          '--luxury-burgundy': '#800020',
-          '--luxury-burgundy-dark': '#6B001B',
-          '--luxury-sapphire': '#0F52BA',
-          '--luxury-sapphire-dark': '#0A4399',
-          '--luxury-cyan': '#00B4D8',
-          '--luxury-cyan-dark': '#0096B8',
-          '--success-color': '#059669',
-          '--error-color': '#DC2626',
-          '--delete-color': '#EF4444',
-          '--delete-hover': '#DC2626'
-        },
-        gucci: {
-          // 기본 레이아웃 변수 (동일)
-          '--float-size': '60px',
-          '--chat-width': '455px',
-          '--chat-height': '676px', 
-          '--header-height': '72px',
-          '--font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          '--radius-full': '50%',
-          '--radius-md': '8px',
-          '--radius-sm': '4px',
-          '--shadow-lg': '0 20px 25px -5px rgba(13, 91, 60, 0.15), 0 10px 10px -5px rgba(13, 91, 60, 0.08)',
-          '--shadow-md': '0 4px 6px -1px rgba(13, 91, 60, 0.12), 0 2px 4px -1px rgba(13, 91, 60, 0.08)',
-          '--shadow-sm': '0 1px 2px 0 rgba(13, 91, 60, 0.06)',
-          '--transition-smooth': '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          // 구찌 색상 변수
-          '--primary-blue': '#0D5B3C',
-          '--primary-navy': '#0A3D29',
-          '--primary-gold': '#F4E4BC',
-          '--primary-gray': '#E8F2E8',
-          '--surface-white': '#FEFEFE',
-          '--surface-light': '#F9FDF9',
-          '--bg-light': '#F0F8F0',
-          '--bg-medium': '#E1F0E1',
-          '--text-primary': '#1A3A1A',
-          '--text-secondary': '#2D5A2D',
-          '--text-muted': '#5A7A5A',
-          '--text-light': '#FFFFFF',
-          '--border-light': '#D1E7D1',
-          '--border-gray': '#B8D8B8',
-          '--luxury-emerald': '#0D5B3C',
-          '--luxury-emerald-dark': '#0A3D29',
-          '--luxury-burgundy': '#8B0000',
-          '--luxury-burgundy-dark': '#6B0000',
-          '--luxury-sapphire': '#228B22',
-          '--luxury-sapphire-dark': '#1C6B1C',
-          '--luxury-cyan': '#2E8B57',
-          '--luxury-cyan-dark': '#256B47',
-          '--success-color': '#0D5B3C',
-          '--error-color': '#8B0000',
-          '--delete-color': '#CD5C5C',
-          '--delete-hover': '#B22222'
-        },
-        hermes: {
-          // 기본 레이아웃 변수 (동일)
-          '--float-size': '60px',
-          '--chat-width': '455px',
-          '--chat-height': '676px',
-          '--header-height': '72px',
-          '--font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-          '--radius-full': '50%',
-          '--radius-md': '8px', 
-          '--radius-sm': '4px',
-          '--shadow-lg': '0 20px 25px -5px rgba(243, 112, 33, 0.15), 0 10px 10px -5px rgba(243, 112, 33, 0.08)',
-          '--shadow-md': '0 4px 6px -1px rgba(243, 112, 33, 0.12), 0 2px 4px -1px rgba(243, 112, 33, 0.08)',
-          '--shadow-sm': '0 1px 2px 0 rgba(243, 112, 33, 0.06)',
-          '--transition-smooth': '0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          // 에르메스 색상 변수
-          '--primary-blue': '#F37021',
-          '--primary-navy': '#8B4513',
-          '--primary-gold': '#F5F5DC',
-          '--primary-gray': '#FAF0E6',
-          '--surface-white': '#FFFEF7',
-          '--surface-light': '#FDF8F0',
-          '--bg-light': '#FBF5E8',
-          '--bg-medium': '#F5EBDC',
-          '--text-primary': '#5D4037',
-          '--text-secondary': '#795548',
-          '--text-muted': '#8D6E63',
-          '--text-light': '#FFFFFF',
-          '--border-light': '#E6D7C8',
-          '--border-gray': '#D7C4B0',
-          '--luxury-emerald': '#A0522D',
-          '--luxury-emerald-dark': '#8B4513',
-          '--luxury-burgundy': '#CD853F',
-          '--luxury-burgundy-dark': '#B8751F',
-          '--luxury-sapphire': '#D2691E',
-          '--luxury-sapphire-dark': '#B8541A',
-          '--luxury-cyan': '#F37021',
-          '--luxury-cyan-dark': '#E55A00',
-          '--success-color': '#A0522D',
-          '--error-color': '#CD5C5C',
-          '--delete-color': '#DC7633',
-          '--delete-hover': '#CA6F1E'
-        }
-      };
-      
-      const colors = themeColors[themeName] || themeColors.default;
-      
-      // CSS 변수 적용
-      Object.keys(colors).forEach(property => {
-        root.style.setProperty(property, colors[property]);
-      });
-    },
+    
     
     loadPersonas() {
       if (this.loadingPersonas) return Promise.resolve();
@@ -693,7 +494,8 @@ export default {
       this.updateProcessingState();
       
       if (!data.sessionId && this.personaSessionMap[data.personaCode]) {
-        data.sessionId = this.personaSessionMap[data.personaCode];
+        const sessionInfo = this.personaSessionMap[data.personaCode];
+        data.sessionId = typeof sessionInfo === 'object' ? sessionInfo.sessionId : sessionInfo;
       }
       
       floatChatService.sendMessage(data, true)
@@ -716,7 +518,10 @@ export default {
     
     handleSuccessResponse(data, response) {
       if (response.sessionId) {
-        this.personaSessionMap[data.personaCode] = response.sessionId;
+        this.personaSessionMap[data.personaCode] = {
+          sessionId: response.sessionId,
+          timestamp: Date.now()
+        };
         try {
           localStorage.setItem('float-chat-sessions', JSON.stringify(this.personaSessionMap));
         } catch (error) {
@@ -780,10 +585,37 @@ export default {
       try {
         const sessionData = localStorage.getItem('float-chat-sessions');
         if (sessionData) {
-          this.personaSessionMap = JSON.parse(sessionData);
+          const parsedData = JSON.parse(sessionData);
+          const now = Date.now();
+          const sessionExpiry = 24 * 60 * 60 * 1000; // 24시간
+          
+          // 만료된 세션 필터링
+          const validSessions = {};
+          Object.keys(parsedData).forEach(personaCode => {
+            const sessionInfo = parsedData[personaCode];
+            if (sessionInfo && typeof sessionInfo === 'object') {
+              if (sessionInfo.timestamp && (now - sessionInfo.timestamp < sessionExpiry)) {
+                validSessions[personaCode] = sessionInfo;
+              }
+            } else if (typeof sessionInfo === 'string') {
+              // 기존 형식 호환성을 위해 24시간 후 만료로 간주
+              validSessions[personaCode] = {
+                sessionId: sessionInfo,
+                timestamp: now
+              };
+            }
+          });
+          
+          this.personaSessionMap = validSessions;
+          
+          // 정리된 세션 데이터 저장
+          if (Object.keys(validSessions).length !== Object.keys(parsedData).length) {
+            localStorage.setItem('float-chat-sessions', JSON.stringify(validSessions));
+          }
         }
       } catch (error) {
         this.personaSessionMap = {};
+        localStorage.removeItem('float-chat-sessions');
       }
     },
     
@@ -810,7 +642,6 @@ export default {
   mounted() {
     this.loadStoredSessions();
     this.startHealthCheck();
-    this.applyTheme(this.currentTheme);
   },
   
   beforeDestroy() {
@@ -1091,15 +922,23 @@ export default {
 }
 
 .theme-indicator.default {
-  background: linear-gradient(45deg, #318CE7 0%, #C8A257 50%, #0C2340 100%);
+  background: linear-gradient(45deg, #4A90E2 0%, #D4B896 50%, #2C3E50 100%);
 }
 
 .theme-indicator.gucci {
-  background: linear-gradient(45deg, #0D5B3C 0%, #F4E4BC 50%, #8B0000 100%);
+  background: linear-gradient(45deg, #2E8B57 0%, #E6D7C3 50%, #9B1C31 100%);
 }
 
 .theme-indicator.hermes {
-  background: linear-gradient(45deg, #F37021 0%, #F5F5DC 50%, #8B4513 100%);
+  background: linear-gradient(45deg, #D2691E 0%, #F0E5D0 50%, #8B4513 100%);
+}
+
+.theme-indicator.harry-winston {
+  background: linear-gradient(45deg, #1E3A8A 0%, #E5E7EB 50%, #0F172A 100%);
+}
+
+.theme-indicator.bugatti {
+  background: linear-gradient(45deg, #2563EB 0%, #FED7AA 50%, #1E293B 100%);
 }
 
 .theme-indicator::after {
@@ -1219,417 +1058,11 @@ export default {
   overflow: hidden;
 }
 
-/* 카테고리 선택 스타일 */
-.category-select {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background: var(--bg-light);
-}
 
-/* 웰컴 메시지 섹션 */
-.welcome-section {
-  text-align: center;
-  margin-bottom: 18px;
-  padding: 12px 0;
-}
 
-.welcome-icon {
-  margin-bottom: 12px;
-}
+/* 페르소나 카드 스타일이 FloatChat.css로 이동됨 */
 
-.welcome-content h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
-  letter-spacing: -0.01em;
-  line-height: 1.4;
-}
 
-.welcome-content p {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin: 0;
-  line-height: 1.5;
-  padding: 0 8px;
-}
-
-.category-grid {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 13px; /* 기존 14px에서 13px로 조정 */
-}
-
-.category-card {
-  width: 100%;
-  background: var(--surface-white);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 16px 20px; /* 상하 패딩을 20px에서 16px로 줄임 */
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  text-align: left;
-  box-shadow: var(--shadow-sm);
-}
-
-.category-card:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.category-card.personal {
-  border-color: var(--luxury-emerald);
-}
-
-.category-card.personal:hover:not(:disabled) {
-  border-color: var(--luxury-emerald-dark);
-  background: rgba(0, 168, 107, 0.02);
-}
-
-.category-card.user {
-  border-color: var(--luxury-sapphire);
-}
-
-.category-card.user:hover:not(:disabled) {
-  border-color: var(--luxury-sapphire-dark);
-  background: rgba(15, 82, 186, 0.02);
-}
-
-.category-card.devops {
-  border-color: var(--luxury-burgundy);
-}
-
-.category-card.devops:hover:not(:disabled) {
-  border-color: var(--luxury-burgundy-dark);
-  background: rgba(128, 0, 32, 0.02);
-}
-
-.category-card:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.category-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.category-icon::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
-  border-radius: 12px;
-}
-
-.category-icon.personal {
-  background: var(--luxury-emerald);
-}
-
-.category-icon.user {
-  background: var(--luxury-sapphire);
-}
-
-.category-icon.devops {
-  background: var(--luxury-burgundy);
-}
-
-.category-card h4 {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
-  line-height: 1.3;
-}
-
-.category-card p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.feedback-section {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-light);
-  text-align: center;
-}
-
-.feedback-btn {
-  background: var(--luxury-cyan);
-  color: white;
-  border: 1px solid var(--luxury-cyan);
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: var(--shadow-sm);
-}
-
-.feedback-btn:hover:not(:disabled) {
-  background: var(--luxury-cyan-dark);
-  border-color: var(--luxury-cyan-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.feedback-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* 페르소나 리스트 스타일 */
-.persona-list-tab {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-light);
-}
-
-.persona-header {
-  padding: 16px 20px;
-  background: var(--bg-light);
-  border-bottom: 1px solid var(--border-light);
-  flex-shrink: 0;
-}
-
-.back-btn {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--primary-blue);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 12px;
-  padding: 6px 0;
-}
-
-.back-btn:hover {
-  color: var(--primary-navy);
-  transform: translateX(-2px);
-}
-
-.header-content {
-  text-align: center;
-}
-
-.category-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: white;
-  margin-bottom: 12px;
-  box-shadow: var(--shadow-sm);
-}
-
-.category-badge.personal {
-  background: var(--luxury-emerald);
-}
-
-.category-badge.user {
-  background: var(--luxury-sapphire);
-}
-
-.category-badge.devops {
-  background: var(--luxury-burgundy);
-}
-
-.header-content h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.persona-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px 20px 20px;
-  min-height: 0;
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 200px;
-  gap: 16px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.loading-container .spinner {
-  width: 32px;
-  height: 32px;
-  margin-bottom: 0;
-}
-
-.no-personas {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 250px;
-  text-align: center;
-  gap: 16px;
-}
-
-.no-personas h4 {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.no-personas p {
-  font-size: 14px;
-  color: var(--text-muted);
-  margin: 0;
-  line-height: 1.5;
-}
-
-.persona-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.persona-card {
-  width: 100%;
-  background: var(--surface-white);
-  border: 2px solid var(--border-light);
-  border-radius: 12px;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  text-align: left;
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.persona-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0;
-  height: 100%;
-  background: var(--primary-blue);
-  transition: width 0.3s ease;
-}
-
-.persona-card:hover:not(:disabled) {
-  border-color: var(--primary-gold);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.persona-card:hover:not(:disabled)::before {
-  width: 4px;
-}
-
-.persona-card:hover:not(:disabled) .arrow-icon unicon {
-  fill: var(--primary-blue) !important;
-  transform: translateX(2px);
-}
-
-.persona-card:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.persona-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(200, 162, 87, 0.1);
-  border: 1px solid rgba(200, 162, 87, 0.3);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 1;
-  transition: all var(--transition-smooth);
-}
-
-.persona-card:hover:not(:disabled) .persona-icon {
-  background: rgba(200, 162, 87, 0.2);
-  border-color: var(--primary-gold);
-  transform: scale(1.05);
-}
-
-.persona-info {
-  flex: 1;
-  position: relative;
-  z-index: 1;
-}
-
-.persona-info h4 {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
-  line-height: 1.3;
-}
-
-.persona-info p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.arrow-icon {
-  position: relative;
-  z-index: 1;
-  transition: all var(--transition-smooth);
-}
-
-.arrow-icon unicon {
-  transition: all var(--transition-smooth);
-}
 
 .chat-footer {
   background: rgba(255, 255, 255, 0.02);

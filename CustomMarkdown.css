@@ -198,10 +198,33 @@
 .markdown-content .markdown-table-container {
   margin: var(--md-spacing-md) 0 !important;
   overflow-x: auto !important;
+  overflow-y: hidden !important;
   border: 1px solid var(--md-border-light) !important;
   border-radius: 6px !important;
   box-shadow: var(--md-shadow-table) !important;
   background: var(--md-bg-white) !important;
+  max-width: 100% !important;
+  /* 플로팅 창 내에서 테이블 크기 제한 */
+  max-height: 300px !important;
+  position: relative !important;
+}
+
+/* 스크롤 가능 표시를 위한 그라데이션 오버레이 */
+.markdown-content .markdown-table-container::after {
+  content: '' !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 20px !important;
+  background: linear-gradient(to left, var(--md-bg-white) 0%, transparent 100%) !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.3s ease !important;
+}
+
+.markdown-content .markdown-table-container:hover::after {
+  opacity: 1 !important;
 }
 
 .markdown-content .markdown-table {
@@ -209,6 +232,10 @@
   border-collapse: collapse !important;
   font-size: var(--md-font-small) !important;
   background: transparent !important;
+  /* 플로팅 창에서 테이블 최소 너비 설정 */
+  min-width: 200px !important;
+  /* 너무 큰 테이블에 대한 최대 너비 제한 해제하여 스크롤 허용 */
+  table-layout: auto !important;
 }
 
 .markdown-content .markdown-table thead th {
@@ -247,6 +274,12 @@
   color: var(--md-text-secondary) !important;
   font-size: var(--md-font-small) !important;
   line-height: 1.4 !important;
+  /* 플로팅 창에서 셀 내용 오버플로우 처리 */
+  word-wrap: break-word !important;
+  word-break: break-word !important;
+  max-width: 150px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .markdown-content .markdown-table tbody td:last-child {
@@ -457,6 +490,14 @@
   }
   
   .markdown-content .markdown-table-container {
+    font-size: 9px !important;
+    /* 모바일에서 테이블 높이 제한 더 엄격하게 */
+    max-height: 200px !important;
+    overflow-y: auto !important;
+  }
+  
+  .markdown-content .markdown-table tbody td {
+    max-width: 100px !important;
     font-size: 9px !important;
   }
   

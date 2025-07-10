@@ -65,8 +65,11 @@
         </div>
 
         <div v-if="loadingHistory" class="loading-history">
-          <div class="spinner"></div>
-          <span>{{ getText('loadingHistory') }}</span>
+          <LoadingSpinner 
+            size="medium" 
+            variant="luxury" 
+            :text="getText('loadingHistory')"
+          />
         </div>
 
         <div 
@@ -77,10 +80,11 @@
         >
           <div class="bubble" :class="{ 'loading': message.isLoading }">
             <template v-if="message.isLoading">
-              <div class="dots">
-                <span></span><span></span><span></span>
-              </div>
-              <div class="loading-text">{{ currentLoadingMessage }}</div>
+              <LoadingSpinner 
+                size="small" 
+                dots 
+                :text="currentLoadingMessage"
+              />
             </template>
             
             <template v-else>
@@ -139,7 +143,7 @@
                   :disabled="!improvePromptText.trim() || isSubmittingImprove" 
                   class="btn-submit btn-luxury-cyan"
                 >
-                  <div v-if="isSubmittingImprove" class="spinner small"></div>
+                  <LoadingSpinner v-if="isSubmittingImprove" size="small" variant="white" />
                   <template v-else>{{ getText('improve') }}</template>
                 </button>
               </div>
@@ -203,7 +207,7 @@
                 :disabled="!canSendMessage" 
                 class="send-button"
               >
-                <div v-if="isProcessing" class="loading-spinner"></div>
+                <LoadingSpinner v-if="isProcessing" size="small" variant="white" />
                 <unicon v-else name="message" fill="white" :width="14" :height="14" />
               </button>
             </div>
@@ -212,19 +216,30 @@
       </div>
     </div>
 
-    <div v-if="showCopyToast" class="copy-toast">
-      <unicon name="check-circle" fill="#10B981" :width="16" :height="16" />
-      <span>{{ getText('copySuccess') }}</span>
-    </div>
+    <ResultMessage 
+      v-if="showCopyToast"
+      type="success"
+      :message="getText('copySuccess')"
+      :show="showCopyToast"
+      :auto-hide="2000"
+      :dismissible="false"
+      size="small"
+      @dismiss="showCopyToast = false"
+    />
   </div>
 </template>
 
 <script>
 import floatChatService from '@service/floatChatService';
+import LoadingSpinner from './components/LoadingSpinner.vue';
+import LuxuryButton from './components/LuxuryButton.vue';
+import FormField from './components/FormField.vue';
+import ResultMessage from './components/ResultMessage.vue';
 import llmContextService from '@service/llmContext';
 
 export default {
   name: 'ChatTab',
+  components: { LoadingSpinner, LuxuryButton, FormField, ResultMessage },
   
   props: {
     personas: {
@@ -363,7 +378,8 @@ export default {
     },
     
     handleInput(event) {
-      if (this.currentMessage.includes('\n')) {
+      if (this.currentMessage.includes('
+')) {
         this.adjustTextareaHeight();
       } else {
         const textarea = this.$refs.messageInput;
@@ -806,585 +822,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.chat-tab {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-.chat-area {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
-
-.loading-history {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
-
-.loading-history .spinner {
-  width: 20px;
-  height: 20px;
-  margin-bottom: 0;
-}
-
-.chat-header {
-  padding: 12px 20px;
-  background: var(--surface-white);
-  border-bottom: 1px solid var(--primary-gray);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  flex-shrink: 0;
-  z-index: 5;
-}
-
-.chat-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 20px;
-  right: 20px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--primary-gold) 50%, transparent 100%);
-  opacity: 0.4;
-}
-
-.persona-info {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex: 1;
-}
-
-.badge {
-  background: var(--primary-blue);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-smooth);
-  border: 1px solid var(--primary-gold);
-  line-height: 1;
-}
-
-.badge:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
-}
-
-.controls {
-  display: flex;
-  gap: 6px;
-}
-
-.icon-btn {
-  width: 32px;
-  height: 32px;
-  background: rgba(49, 140, 231, 0.1);
-  border: 1px solid var(--primary-blue);
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.icon-btn:hover:not(:disabled) {
-  background: rgba(49, 140, 231, 0.2);
-  transform: translateY(-0.5px);
-  box-shadow: var(--shadow-sm);
-}
-
-.icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.clear-btn {
-  background: var(--delete-color) !important;
-  border-color: var(--delete-color) !important;
-}
-
-.clear-btn:hover {
-  background: var(--delete-hover) !important;
-  border-color: var(--delete-hover) !important;
-}
-
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: var(--bg-light);
-  scroll-behavior: smooth;
-  padding: 0;
-  position: relative;
-  z-index: 1;
-  min-height: 0;
-}
-
-.welcome {
-  text-align: center;
-  padding: 48px 20px;
-}
-
-.welcome h4 {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 16px 0 8px 0;
-  line-height: 1.5;
-}
-
-.welcome-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0 0 12px 0;
-  line-height: 1.4;
-}
-
-.welcome-tip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 8px;
-  padding: 8px 12px;
-  background: rgba(200, 162, 87, 0.1);
-  border: 1px solid rgba(200, 162, 87, 0.3);
-  border-radius: 20px;
-  display: inline-flex;
-}
-
-.no-persona {
-  text-align: center;
-  padding: 48px 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.no-persona h4 {
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-primary);
-  margin: 16px 0 8px 0;
-  line-height: 1.5;
-}
-
-.no-persona p {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 0 0 20px 0;
-  line-height: 1.4;
-}
-
-.go-home-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  font-size: 14px;
-}
-
-.message {
-  padding: 8px 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.message.user {
-  align-items: flex-end;
-}
-
-.message.ai {
-  align-items: flex-start;
-}
-
-.bubble {
-  max-width: 80%;
-  padding: 14px 18px 40px 18px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
-  line-height: 1.5;
-  word-wrap: break-word;
-  position: relative;
-  transition: all 0.1s ease;
-}
-
-.message.user .bubble {
-  background: var(--primary-blue);
-  color: white;
-  border-bottom-right-radius: var(--radius-sm);
-  box-shadow: var(--shadow-md);
-  border: none;
-  padding: 14px 18px;
-}
-
-.message.ai .bubble {
-  background: var(--surface-light);
-  color: var(--text-primary);
-  border: 1px solid var(--primary-gray);
-  border-bottom-left-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-}
-
-.bubble.loading {
-  background: var(--surface-light);
-  padding: 14px 18px;
-}
-
-.loading-text {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.bubble:hover .message-action {
-  opacity: 1;
-}
-
-.copy-toast {
-  position: fixed;
-  bottom: 120px;
-  right: 50%;
-  transform: translateX(50%);
-  background: var(--surface-white);
-  border: 1px solid var(--success-color);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-  z-index: 1000;
-  animation: toastSlideIn 0.3s ease-out;
-}
-
-.improve-input-container {
-  margin-top: 12px;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-.improve-input-box {
-  background: var(--bg-medium);
-  border: 1px solid var(--primary-gray);
-  border-radius: 10px;
-  padding: 16px;
-  width: calc(100% + 80px);
-  max-width: 600px;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-smooth);
-  margin: 0;
-  position: relative;
-}
-
-.improve-input-box:focus-within {
-  border-color: var(--primary-gold);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.improve-textarea {
-  min-height: 120px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.improve-textarea:focus {
-  z-index: 11;
-}
-
-.improve-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.btn-cancel {
-  padding: 8px 16px;
-  background: var(--primary-gray);
-  border: 1px solid var(--primary-gray);
-  border-radius: 5px;
-  color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel:hover {
-  background: var(--text-light);
-  transform: translateY(-0.5px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-submit {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.input-area {
-  padding: 12px 16px 12px;
-  background: var(--bg-light);
-  border-top: 1px solid var(--primary-gray);
-  flex-shrink: 0;
-  position: relative;
-}
-
-.quick-dropdown {
-  position: absolute;
-  bottom: 100%;
-  left: 20px;
-  right: 20px;
-  margin-bottom: 8px;
-  background: var(--surface-white);
-  border: 1px solid var(--primary-gray);
-  border-radius: 10px;
-  box-shadow: var(--shadow-lg);
-  z-index: 10;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.quick-questions {
-  padding: 8px;
-}
-
-.quick-item {
-  width: 100%;
-  background: none;
-  border: none;
-  text-align: left;
-  padding: 12px 16px;
-  font-size: 14px;
-  color: var(--text-primary);
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  line-height: 1.4;
-}
-
-.quick-item:hover {
-  background: var(--bg-light);
-  transform: translateX(4px);
-}
-
-.input-container {
-  transition: all var(--transition-smooth);
-}
-
-.input-box {
-  background: var(--surface-white);
-  border: 2px solid var(--primary-gray);
-  border-radius: 12px;
-  padding: 8px 12px;
-  transition: all var(--transition-smooth);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.input-box:focus-within {
-  border-color: var(--primary-gold);
-  box-shadow: 0 0 0 3px rgba(200, 162, 87, 0.1);
-  transform: translateY(-1px);
-}
-
-.message-textarea {
-  width: 100%;
-  height: 21px;
-  min-height: 21px;
-  max-height: 200px;
-  border: none;
-  background: transparent;
-  resize: none;
-  outline: none;
-  font-size: 14px;
-  font-family: inherit;
-  color: var(--text-primary);
-  line-height: 1.5;
-  padding: 0;
-  margin: 0;
-  transition: none;
-  overflow: hidden;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-}
-
-.message-textarea::placeholder {
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.message-textarea:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.input-bottom-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.left-actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.action-btn {
-  width: 24px;
-  height: 24px;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  position: relative;
-}
-
-.action-btn:hover:not(:disabled) {
-  background: var(--bg-light);
-  transform: scale(1.05);
-}
-
-.action-btn:hover:not(:disabled) unicon {
-  fill: var(--primary-gold) !important;
-}
-
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.action-btn.active {
-  background: rgba(200, 162, 87, 0.15);
-  border: 1px solid rgba(200, 162, 87, 0.3);
-}
-
-.action-btn.active unicon {
-  fill: var(--primary-gold) !important;
-}
-
-.send-button {
-  width: 28px;
-  height: 28px;
-  background: var(--luxury-cyan);
-  border: 1px solid var(--luxury-cyan);
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--transition-smooth);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.send-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.send-button:hover:not(:disabled) {
-  background: var(--luxury-cyan-dark);
-  border-color: var(--luxury-cyan-dark);
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: var(--shadow-md);
-}
-
-.send-button:hover:not(:disabled)::before {
-  left: 100%;
-}
-
-.send-button:disabled {
-  background: var(--primary-gray);
-  border-color: var(--primary-gray);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-  opacity: 0.7;
-}
-
-.send-button .loading-spinner {
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: var(--radius-full);
-  animation: spin 1s linear infinite;
-}
-
-@media (max-width: 640px) {
-  .input-area {
-    padding: 10px 12px 10px;
-  }
-  
-  .input-box {
-    padding: 6px 10px;
-    gap: 6px;
-  }
-  
-  .message-textarea {
-    height: 21px;
-    min-height: 21px;
-  }
-  
-  .left-actions {
-    gap: 4px;
-  }
-  
-  .action-btn {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .send-button {
-    width: 26px;
-    height: 26px;
-  }
-}
-</style>

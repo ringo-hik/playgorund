@@ -1,29 +1,33 @@
 <template>
   <div class="feedback-tab">
-    <div v-if="resultMessage" class="result" :class="resultType">
-      <template v-if="resultType === 'success'">
-        <unicon name="check-circle" fill="#10B981" :width="24" :height="24" />
-        <div class="result-content">
-          <h4>{{ getText('feedbackSuccess') }}</h4>
-          <p>{{ resultMessage }}</p>
-        </div>
+    <ResultMessage 
+      v-if="resultMessage"
+      :type="resultType"
+      :message="resultMessage"
+      :title="resultType === 'success' ? getText('feedbackSuccess') : ''"
+      :show="!!resultMessage"
+      :show-dismiss="resultType === 'success'"
+      :action-text="resultType === 'success' ? getText('sendAnother') : ''"
+      @action="resetForm"
+      @dismiss="clearResult"
+    >
+      <template v-if="resultType === 'success'" #default>
         <div class="result-actions">
-          <button @click="resetForm" class="action-btn btn-luxury-cyan">
-            <unicon name="plus" fill="white" :width="16" :height="16" />
-            {{ getText('sendAnother') }}
-          </button>
-          <button @click="$emit('go-home')" class="action-btn btn-luxury-emerald">
-            <unicon name="home" fill="white" :width="16" :height="16" />
-            {{ getText('goHome') }}
-          </button>
+          <LuxuryButton 
+            @click="resetForm" 
+            variant="luxury-cyan"
+            icon="plus"
+            :text="getText('sendAnother')"
+          />
+          <LuxuryButton 
+            @click="$emit('go-home')" 
+            variant="luxury-emerald"
+            icon="home"
+            :text="getText('goHome')"
+          />
         </div>
       </template>
-      
-      <template v-if="resultType === 'error'">
-        <unicon name="exclamation-triangle" fill="#E00610" :width="20" :height="20" />
-        <span>{{ resultMessage }}</span>
-      </template>
-    </div>
+    </ResultMessage>
 
     <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
       <div class="form-header">
@@ -57,55 +61,49 @@
       </div>
 
       <div class="comment-section">
-        <label class="section-label">
-          <unicon name="edit" fill="#318CE7" :width="16" :height="16" />
-          {{ getText('feedbackComment') }}
-        </label>
-        
-        <textarea 
+        <FormField 
           v-model="comment" 
+          type="textarea"
+          :label="getText('feedbackComment')"
           :placeholder="getText('commentPlaceholder')"
-          maxlength="1000"
+          :max-length="1000"
+          :show-char-count="true"
+          icon="edit"
+          rows="6"
           @input="updateCharCount"
-          class="comment-textarea form-textarea"
         />
-        
-        <div class="char-count">
-          {{ comment.length }} / 1000
-        </div>
       </div>
 
       <div class="form-actions">
-        <button 
+        <LuxuryButton 
           @click="submitFeedback" 
           :disabled="!isFormValid || isSubmitting" 
-          class="submit-btn btn-luxury-cyan"
-        >
-          <template v-if="isSubmitting">
-            <div class="spinner small"></div>
-            <span>{{ getText('submitting') }}</span>
-          </template>
-          <template v-else>
-            <unicon name="message" fill="white" :width="16" :height="16" />
-            <span>{{ getText('submitFeedback') }}</span>
-          </template>
-        </button>
+          variant="luxury-cyan"
+          icon="message"
+          :text="isSubmitting ? getText('submitting') : getText('submitFeedback')"
+          :loading="isSubmitting"
+        />
         
-        <button 
+        <LuxuryButton 
           @click="$emit('go-home')" 
-          class="home-btn btn-luxury-emerald"
-        >
-          <unicon name="home" fill="white" :width="16" :height="16" />
-          <span>{{ getText('goHome') }}</span>
-        </button>
+          variant="luxury-emerald"
+          icon="home"
+          :text="getText('goHome')"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import LoadingSpinner from './components/LoadingSpinner.vue';
+import LuxuryButton from './components/LuxuryButton.vue';
+import FormField from './components/FormField.vue';
+import ResultMessage from './components/ResultMessage.vue';
+
 export default {
   name: 'FeedbackTab',
+  components: { LoadingSpinner, LuxuryButton, FormField, ResultMessage },
   
   props: {
     currentLanguage: {
@@ -218,6 +216,11 @@ export default {
       this.hoverRating = 0;
       this.comment = '';
       this.isSubmitting = false;
+      this.resultMessage = '';
+      this.resultType = '';
+    },
+    
+    clearResult() {
       this.resultMessage = '';
       this.resultType = '';
     }

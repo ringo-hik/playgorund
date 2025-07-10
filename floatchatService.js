@@ -2,269 +2,87 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api/v1/devportal/float-chat';
 
+// Axios 인스턴스 생성
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// 응답 인터셉터
+apiClient.interceptors.response.use(
+  response => {
+    // 성공적인 응답은 그대로 반환
+    return {
+      success: true,
+      data: response.data.data || response.data,
+      message: response.data.message
+    };
+  },
+  error => {
+    // 에러 처리
+    return Promise.reject({
+      success: false,
+      errorMessage: getErrorMessage(error),
+      error: error
+    });
+  }
+);
+
 const floatChatService = {
 
   async healthCheck() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/health`, {
-        timeout: 10000
-      });
-
-      return {
-        success: true,
-        data: response.data,
-        message: response.data.message || 'Health check successful'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.get('/health', { timeout: 10000 });
   },
 
   async getPersonas() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 15000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Personas loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.get('/personas', { timeout: 15000 });
   },
 
   async getPersonasByCategory(category) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas`, {
-        params: { category: category },
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 15000
-      });
-
-      let personas = response.data.data || response.data;
-      
-      // 클라이언트 사이드 필터링 (백엔드에서 지원하지 않는 경우)
+    const response = await apiClient.get('/personas', { params: { category }, timeout: 15000 });
+    if (response.success) {
+      let personas = response.data;
       if (Array.isArray(personas) && category) {
         personas = personas.filter(persona => {
           return persona.category === category || 
                  persona.personaCode.includes(category) ||
                  (persona.tags && persona.tags.includes(category));
         });
+        response.data = personas;
       }
-
-      return {
-        success: true,
-        data: personas,
-        message: response.data.message || 'Category personas loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
     }
+    return response;
   },
 
   async getPersonaByCode(personaCode) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Persona loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.get(`/personas/${personaCode}`, { timeout: 10000 });
   },
 
   async getSystemPrompt(personaCode) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'System prompt loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.get(`/personas/${personaCode}/prompt`, { timeout: 10000 });
   },
 
   async updateSystemPrompt(personaCode, systemPrompt) {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
-        systemPrompt: systemPrompt
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 20000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'System prompt updated successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.put(`/personas/${personaCode}/prompt`, { systemPrompt }, { timeout: 20000 });
   },
 
   async sendMessage(messageData, useAsync = false) {
-    try {
-      const endpoint = useAsync ? '/message/async' : '/message';
-      
-      const response = await axios.post(`${API_BASE_URL}${endpoint}`, {
-        personaCode: messageData.personaCode,
-        userQuestion: messageData.userQuestion,
-        sessionId: messageData.sessionId
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 60000
-      });
-
-      return {
-        success: true,
-        aiResponse: response.data.aiResponse,
-        conversationId: response.data.conversationId,
-        sessionId: response.data.sessionId,
-        message: response.data.message || 'Message sent successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    const endpoint = useAsync ? '/message/async' : '/message';
+    return apiClient.post(endpoint, messageData, { timeout: 60000 });
   },
 
   async getConversations(personaCode) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/conversations/${personaCode}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 15000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Conversations loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.get(`/conversations/${personaCode}`, { timeout: 15000 });
   },
 
   async deleteConversations(personaCode) {
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/conversations/${personaCode}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 15000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Conversations deleted successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.delete(`/conversations/${personaCode}`, { timeout: 15000 });
   },
 
   async sendFeedback(feedbackData) {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/feedback`, {
-        rating: feedbackData.rating,
-        feedbackPersona: feedbackData.feedbackPersona,
-        comment: feedbackData.comment
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 20000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Feedback sent successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
+    return apiClient.post('/feedback', feedbackData, { timeout: 20000 });
   },
 
   // 카테고리 관련 유틸리티 함수들
