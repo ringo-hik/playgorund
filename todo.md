@@ -104,3 +104,26 @@ CHECKLIST.MD를 작성하여 최종 완성본을 만들기 위해서 수행해�
 
 ### 2.2 빌드 진행 중 Workflow
 *   `PUMBA Remote Build` 뷰 컨테이너 내에 `🚧 Workflow (In Progress)` 섹션을 추가하여 현재 빌드 진행 중인 항목들을 표시합니다 (SWDP Build와 동일한 형식).
+
+# 임시 CheckList
+
+## 1. SWDP BUILD
+- [ ] 프로젝트 선택/변경 버튼 구현
+- [ ] Rel·Layer·Commit Build 트리 및 설정 파일 경로 분리
+- [ ] SWDP API → 설정 JSON 덮어쓰기 로직
+- [ ] Build Configuration(5 항목) 체크박스·상태 표시
+- [ ] Configuration Setting 편집 패널
+- [ ] Build History(번호·결과·시간) 표시
+- [ ] ▶ Start Build + 확인 알림
+- [ ] Build In Progress 실시간 표기
+
+## 2. PUMBA REMOTE BUILD
+- [ ] Start Build / Configuration Setting / Build History 트리
+- [ ] PUMBA 설정 로딩·편집·저장
+- [ ] History 완료 빌드 목록 표시
+
+## 3. 공통
+- [ ] TreeView 새로고침 시 상태 Polling
+- [ ] “Dev Build” → “Layer Build” 명칭 교체
+- [ ] Build Agent Help/Info 화면 (이모지 제거)
+- [ ] 프로젝트 명 규칙 준수 예시 적용
