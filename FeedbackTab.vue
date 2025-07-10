@@ -2,184 +2,162 @@
   <div class="feedback-tab">
     <div v-if="resultMessage" class="result" :class="resultType">
       <template v-if="resultType === 'success'">
-        <i class="uil uil-check-circle success-icon"></i>
-        <div>
+        <unicon name="check-circle" fill="#10B981" :width="24" :height="24" />
+        <div class="result-content">
           <h4>{{ getText('feedbackSuccess') }}</h4>
           <p>{{ resultMessage }}</p>
         </div>
-        <button @click="resetForm" class="action-btn">
-          <i class="uil uil-plus plus-icon"></i>
-          {{ getText('sendAnother') }}
-        </button>
+        <div class="result-actions">
+          <button @click="resetForm" class="action-btn btn-luxury-cyan">
+            <unicon name="plus" fill="white" :width="16" :height="16" />
+            {{ getText('sendAnother') }}
+          </button>
+          <button @click="$emit('go-home')" class="action-btn btn-luxury-emerald">
+            <unicon name="home" fill="white" :width="16" :height="16" />
+            {{ getText('goHome') }}
+          </button>
+        </div>
       </template>
       
       <template v-if="resultType === 'error'">
-        <i class="uil uil-exclamation-triangle error-icon"></i>
+        <unicon name="exclamation-triangle" fill="#E00610" :width="20" :height="20" />
         <span>{{ resultMessage }}</span>
       </template>
     </div>
 
     <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
       <div class="form-header">
-        <i class="uil uil-heart heart-icon"></i>
+        <unicon name="heart" fill="#318CE7" :width="32" :height="32" />
         <h3>{{ getText('feedbackTitle') }}</h3>
         <p>{{ getText('feedbackDescription') }}</p>
       </div>
 
-      <div class="feedback-content">
-        <div class="group">
-          <label>
-            <i class="uil uil-star star-icon-static"></i>
-            {{ getText('rating') }}
-            <span class="required">*</span>
-          </label>
-          <div class="rating-stars">
-            <button v-for="star in 5" 
-                    :key="star"
-                    @click="setRating(star)"
-                    :class="['star', { active: star <= selectedRating, hover: star <= hoverRating }]"
-                    @mouseenter="hoverRating = star"
-                    @mouseleave="hoverRating = 0"
-                    type="button">
-              <i class="uil uil-star" :style="{ color: (star <= selectedRating || star <= hoverRating) ? 'hsl(var(--warning))' : 'hsl(var(--essential1-300))', fontSize: '24px' }"></i>
-            </button>
-          </div>
-          <div class="rating-text">
-            {{ getRatingText(selectedRating || hoverRating) }}
-          </div>
-        </div>
-
-        <div class="group">
-          <label>
-            <i class="uil uil-tag tag-icon"></i>
-            {{ getText('feedbackCategory') }}
-          </label>
-          <div class="categories">
-            <button v-for="category in feedbackCategories" 
-                    :key="category.value"
-                    @click="toggleCategory(category.value)"
-                    :class="['category', { active: selectedCategories.includes(category.value) }]"
-                    type="button">
-              <i :class="'uil uil-' + category.icon" :style="{ color: selectedCategories.includes(category.value) ? 'hsl(var(--white))' : 'hsl(var(--essential3-500))', fontSize: '14px' }"></i>
-              {{ category.label }}
-            </button>
-          </div>
-        </div>
-
-        <div class="group">
-          <label>
-            <i class="uil uil-edit edit-icon"></i>
-            {{ getText('detailedComment') }}
-          </label>
-          <textarea v-model="comment" 
-                    :placeholder="getText('commentPlaceholder')"
-                    maxlength="1000"
-                    @input="updateCharCount"></textarea>
-          <div class="char-count">
-            {{ comment.length }} / 1000
-          </div>
+      <div class="rating-section">
+        <div class="rating-stars">
+          <button 
+            v-for="star in 5" 
+            :key="star"
+            @click="setRating(star)"
+            :class="['star', { 
+              active: star <= selectedRating, 
+              hover: star <= hoverRating 
+            }]"
+            @mouseenter="hoverRating = star"
+            @mouseleave="hoverRating = 0"
+            type="button"
+          >
+            <unicon 
+              name="star" 
+              :fill="getStarFill(star)" 
+              :width="18" 
+              :height="18"
+            />
+          </button>
         </div>
       </div>
 
-      <button @click="submitFeedback" 
-              :disabled="!isFormValid || isSubmitting" 
-              class="submit">
-        <template v-if="isSubmitting">
-          <div class="spinner"></div>
-          {{ getText('submitting') }}
-        </template>
-        <template v-else>
-          <i class="uil uil-message message-icon"></i>
-          {{ getText('submitFeedback') }}
-        </template>
-      </button>
+      <div class="comment-section">
+        <label class="section-label">
+          <unicon name="edit" fill="#318CE7" :width="16" :height="16" />
+          {{ getText('feedbackComment') }}
+        </label>
+        
+        <textarea 
+          v-model="comment" 
+          :placeholder="getText('commentPlaceholder')"
+          maxlength="1000"
+          @input="updateCharCount"
+          class="comment-textarea form-textarea"
+        />
+        
+        <div class="char-count">
+          {{ comment.length }} / 1000
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          @click="submitFeedback" 
+          :disabled="!isFormValid || isSubmitting" 
+          class="submit-btn btn-luxury-cyan"
+        >
+          <template v-if="isSubmitting">
+            <div class="spinner small"></div>
+            <span>{{ getText('submitting') }}</span>
+          </template>
+          <template v-else>
+            <unicon name="message" fill="white" :width="16" :height="16" />
+            <span>{{ getText('submitFeedback') }}</span>
+          </template>
+        </button>
+        
+        <button 
+          @click="$emit('go-home')" 
+          class="home-btn btn-luxury-emerald"
+        >
+          <unicon name="home" fill="white" :width="16" :height="16" />
+          <span>{{ getText('goHome') }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-module.exports = {
+export default {
   name: 'FeedbackTab',
+  
   props: {
     currentLanguage: {
       type: String,
       default: 'ko'
     }
   },
+  
   data() {
     return {
       selectedRating: 0,
       hoverRating: 0,
-      selectedCategories: [],
       comment: '',
       isSubmitting: false,
       resultMessage: '',
       resultType: '',
     };
   },
+  
   computed: {
     texts() {
       return {
         ko: {
           feedbackTitle: '피드백 보내기',
           feedbackDescription: '서비스 개선을 위해 소중한 의견을 들려주세요.',
-          rating: '전체적인 만족도',
-          feedbackCategory: '피드백 유형',
-          detailedComment: '상세 의견',
-          commentPlaceholder: '서비스에 대한 자세한 의견이나 개선사항을 알려주세요...',
+          feedbackComment: '피드백 의견',
+          commentPlaceholder: '서비스에 대한 의견이나 개선사항을 자유롭게 작성해주세요.\n\n• 좋았던 점이나 아쉬웠던 점\n• 개선되었으면 하는 기능\n• 추가로 필요한 기능 등',
           submitFeedback: '피드백 보내기',
           submitting: '전송 중...',
           feedbackSuccess: '피드백 전송 완료',
           sendAnother: '다른 피드백 보내기',
-          ratingTexts: ['평점을 선택해주세요', '매우 불만족', '불만족', '보통', '만족', '매우 만족'],
-          categories: {
-            usability: '사용성',
-            performance: '성능',
-            content: '콘텐츠',
-            design: '디자인',
-            bug: '버그 신고',
-            suggestion: '개선 제안'
-          }
+          goHome: '홈으로 가기'
         },
         en: {
           feedbackTitle: 'Send Feedback',
           feedbackDescription: 'Please share your valuable opinions to help us improve our service.',
-          rating: 'Overall Satisfaction',
-          feedbackCategory: 'Feedback Type',
-          detailedComment: 'Detailed Comments',
-          commentPlaceholder: 'Please tell us your detailed opinions or suggestions for improvement...',
+          feedbackComment: 'Feedback Comments',
+          commentPlaceholder: 'Please freely write your opinions or suggestions about the service.\n\n• What you liked or found lacking\n• Features you\'d like to see improved\n• Additional features needed, etc.',
           submitFeedback: 'Send Feedback',
           submitting: 'Submitting...',
           feedbackSuccess: 'Feedback Sent Successfully',
           sendAnother: 'Send Another Feedback',
-          ratingTexts: ['Please select a rating', 'Very Dissatisfied', 'Dissatisfied', 'Neutral', 'Satisfied', 'Very Satisfied'],
-          categories: {
-            usability: 'Usability',
-            performance: 'Performance',
-            content: 'Content',
-            design: 'Design',
-            bug: 'Bug Report',
-            suggestion: 'Suggestion'
-          }
+          goHome: 'Go Home'
         }
       }[this.currentLanguage];
     },
     
-    feedbackCategories() {
-      return [
-        { value: 'usability', label: this.texts.categories.usability, icon: 'mouse-alt' },
-        { value: 'performance', label: this.texts.categories.performance, icon: 'rocket' },
-        { value: 'content', label: this.texts.categories.content, icon: 'document' },
-        { value: 'design', label: this.texts.categories.design, icon: 'palette' },
-        { value: 'bug', label: this.texts.categories.bug, icon: 'bug' },
-        { value: 'suggestion', label: this.texts.categories.suggestion, icon: 'lightbulb-alt' }
-      ];
-    },
-    
     isFormValid() {
-      return this.selectedRating > 0;
+      return this.comment.trim().length > 0;
     }
   },
+  
   methods: {
     getText(key) {
       return this.texts[key] || key;
@@ -190,21 +168,11 @@ module.exports = {
       this.clearResult();
     },
     
-    toggleCategory(categoryValue) {
-      const index = this.selectedCategories.indexOf(categoryValue);
-      if (index > -1) {
-        this.selectedCategories.splice(index, 1);
-      } else {
-        this.selectedCategories.push(categoryValue);
+    getStarFill(star) {
+      if (star <= this.selectedRating || star <= this.hoverRating) {
+        return '#C8A257';
       }
-      this.clearResult();
-    },
-    
-    getRatingText(rating) {
-      if (!rating || rating < 1 || rating > 5) {
-        return this.texts.ratingTexts[0];
-      }
-      return this.texts.ratingTexts[rating];
+      return '#CBD1DA';
     },
     
     updateCharCount() {
@@ -226,8 +194,7 @@ module.exports = {
       this.resultType = '';
       
       const feedbackData = {
-        rating: this.selectedRating,
-        feedbackCategory: this.selectedCategories.join(','),
+        rating: this.selectedRating || null,
         comment: this.comment.trim()
       };
       
@@ -249,7 +216,6 @@ module.exports = {
     resetForm() {
       this.selectedRating = 0;
       this.hoverRating = 0;
-      this.selectedCategories = [];
       this.comment = '';
       this.isSubmitting = false;
       this.resultMessage = '';
@@ -258,3 +224,273 @@ module.exports = {
   }
 };
 </script>
+
+<style scoped>
+.feedback-tab {
+  height: 100%;
+  background: var(--bg-light);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.form-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.01em;
+}
+
+.form-header p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.feedback-form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.comment-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-white);
+  border: 1px solid var(--border-gray);
+  border-radius: 10px;
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  min-height: 0;
+}
+
+.comment-section:hover {
+  border-color: var(--primary-gold);
+  box-shadow: var(--shadow-md);
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.comment-textarea {
+  flex: 1;
+  min-height: 120px;
+  background: var(--bg-light);
+  margin-bottom: 0;
+}
+
+.comment-textarea:focus {
+  background: var(--surface-white);
+}
+
+.char-count {
+  text-align: right;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.rating-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.star {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.star:hover {
+  background: var(--bg-light);
+  border-color: var(--primary-gold);
+  transform: translateY(-1px);
+}
+
+.star.active,
+.star.hover {
+  background: rgba(200, 162, 87, 0.1);
+  border-color: var(--primary-gold);
+}
+
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.submit-btn,
+.home-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-btn::before,
+.home-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.submit-btn:hover::before,
+.home-btn:hover::before {
+  left: 100%;
+}
+
+.result {
+  background: var(--surface-white);
+  border: 1px solid var(--border-gray);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-md);
+  flex-shrink: 0;
+}
+
+.result.success {
+  border-color: var(--success-color);
+  background: #f0fdf4;
+  flex-direction: column;
+  text-align: center;
+}
+
+.result.error {
+  border-color: var(--error-color);
+  background: #fef2f2;
+  color: var(--error-color);
+  flex-direction: row;
+  text-align: left;
+}
+
+.result-content h4 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.result-content p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.result-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.action-btn {
+  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-smooth);
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 640px) {
+  .feedback-tab {
+    padding: 12px 16px 16px;
+  }
+  
+  .form-header {
+    margin-bottom: 16px;
+  }
+  
+  .comment-section {
+    padding: 14px;
+  }
+  
+  .rating-section {
+    padding: 12px 0;
+  }
+  
+  .rating-stars {
+    gap: 4px;
+  }
+  
+  .star {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .submit-btn,
+  .home-btn {
+    height: 44px;
+    font-size: 13px;
+  }
+  
+  .result-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>

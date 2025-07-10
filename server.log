@@ -258,3 +258,12 @@
 127.0.0.1 - - [09/Jul/2025 00:44:42] "GET /FloatChat.css HTTP/1.1" 200 -
 127.0.0.1 - - [09/Jul/2025 00:45:48] "GET / HTTP/1.1" 304 -
 127.0.0.1 - - [09/Jul/2025 00:45:49] "GET /FloatChat.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 00:59:32] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 00:59:32] "GET /FloatChat.css HTTP/1.1" 200 -
+127.0.0.1 - - [09/Jul/2025 00:59:32] "GET /CustomMarkdown.css HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 00:59:32] "GET /floatchatService.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 00:59:32] "GET /llmContext.js HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 00:59:33] "GET /FloatChatLayout.vue HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 00:59:34] "GET /ChatTab.vue HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 01:02:37] "GET / HTTP/1.1" 304 -
+127.0.0.1 - - [09/Jul/2025 01:02:37] "GET /FloatChat.css HTTP/1.1" 304 -
