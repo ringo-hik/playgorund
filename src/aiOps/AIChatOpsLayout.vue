@@ -1,4 +1,11 @@
 <template>
+<style scoped>
+.ai-chatops-chat {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+</style>
+</insert_content>
   <div class="ai-chatops-chat">
     <button
       :class="['ai-chatops-chat-button', 'btn-system', 'btn-system--icon-only', { 'is-active': isOpen }]"
@@ -77,7 +84,7 @@
         <div v-show="currentView === 'categorySelect'" class="category-select">
           <div class="welcome-section">
             <div class="welcome-icon">
-              <unicon name="heart" fill="var(--primary-color)" :width="28" :height="28" />
+              <unicon name="heart" fill="var(--color-primary)" :width="28" :height="28" />
             </div>
             <div class="welcome-content">
               <h3>{{ getText('welcomeTitle') }}</h3>
@@ -264,8 +271,6 @@ export default {
       cacheCleanupInterval: null,
       availableThemes: [
         { key: 'theme-default', name: 'Default', displayName: 'D' },
-        { key: 'theme-corporate-pro', name: 'Corporate Pro', displayName: 'C' },
-        { key: 'theme-nature-calm', name: 'Nature Calm', displayName: 'N' },
         { key: 'theme-timeless', name: 'Timeless', displayName: 'T' },
         { key: 'theme-heritage', name: 'Heritage', displayName: 'H' },
         { key: 'theme-modern', name: 'Modern', displayName: 'M' },
@@ -812,7 +817,7 @@ export default {
 /* 기존 스타일 유지... */
 .chat-header {
   background: var(--header-bg) !important;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--space-md) var(--spacing-lg);
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
@@ -836,7 +841,7 @@ export default {
 .bot-info {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
 }
 
 .avatar {
@@ -966,7 +971,7 @@ export default {
 
 .welcome-section {
   text-align: center;
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl) var(--space-md);
   flex-shrink: 0;
 }
 
@@ -974,7 +979,7 @@ export default {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--text-primary);
-  margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+  margin: var(--space-md) 0 var(--spacing-sm) 0;
   letter-spacing: -0.01em;
   line-height: 1.4;
 }
@@ -984,7 +989,7 @@ export default {
   color: var(--text-secondary);
   margin: 0;
   line-height: 1.5;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--space-md);
 }
 
 .category-container {
@@ -1000,7 +1005,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
   margin-bottom: var(--spacing-lg);
   overflow-y: auto;
 }
@@ -1008,9 +1013,9 @@ export default {
 .category-card {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
   min-height: 64px;
-  padding: var(--spacing-md);
+  padding: var(--space-md);
 }
 
 .category-card.disabled {
@@ -1031,7 +1036,7 @@ export default {
 }
 
 .category-icon--personal {
-  background: var(--primary-color);
+  background: var(--color-primary);
 }
 
 .category-icon--general {
@@ -1077,16 +1082,16 @@ export default {
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  transition: all var(--transition-fast);
+  transition: all var(--motion-fast);
 }
 
 .category-card:hover .category-arrow {
-  color: var(--primary-color);
+  color: var(--color-primary);
   transform: translateX(2px);
 }
 
 .feedback-section {
-  padding-top: var(--spacing-md);
+  padding-top: var(--space-md);
   border-top: 1px solid var(--border-light);
   text-align: center;
   flex-shrink: 0;
@@ -1101,7 +1106,7 @@ export default {
 }
 
 .persona-header {
-  padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-xl) var(--space-md);
   background: var(--surface-light);
   border-bottom: 1px solid var(--border-light);
   flex-shrink: 0;
@@ -1120,9 +1125,9 @@ export default {
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: white;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--space-md);
   box-shadow: var(--shadow-md);
-  background: var(--primary-color);
+  background: var(--color-primary);
 }
 
 .header-content h3 {
@@ -1136,7 +1141,7 @@ export default {
 .persona-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-md) var(--spacing-xl) var(--spacing-lg);
+  padding: var(--space-md) var(--spacing-xl) var(--spacing-lg);
   min-height: 0;
 }
 
@@ -1179,11 +1184,11 @@ export default {
 .persona-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
 }
 
 .persona-card {
-  padding: var(--spacing-md);
+  padding: var(--space-md);
   min-height: 80px;
   max-height: 80px;
 }
@@ -1196,7 +1201,7 @@ export default {
 .persona-card-content {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
   height: 100%;
 }
 
@@ -1258,18 +1263,18 @@ export default {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  transition: all var(--transition-fast);
+  transition: all var(--motion-fast);
 }
 
 .persona-card:hover .persona-arrow {
-  color: var(--primary-color);
+  color: var(--color-primary);
   transform: translateX(2px);
 }
 
 .ai-chatops-chat-button {
   width: var(--float-size);
   height: var(--float-size);
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-dark) 100%);
   border: 2px solid var(--surface-white);
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -1329,15 +1334,15 @@ export default {
   }
   
   .welcome-section {
-    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-sm);
+    padding: var(--space-md) var(--spacing-lg) var(--spacing-sm);
   }
   
   .category-container {
-    padding: 0 var(--spacing-lg) var(--spacing-md);
+    padding: 0 var(--spacing-lg) var(--space-md);
   }
   
   .persona-content {
-    padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg) var(--space-md);
   }
   
   .category-card,

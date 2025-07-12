@@ -35,14 +35,14 @@
 
     <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
       <div class="form-header">
-        <unicon name="heart" fill="var(--primary-color)" :width="32" :height="32" />
+        <unicon name="heart" fill="var(--color-primary)" :width="32" :height="32" />
         <h3>{{ getText('feedbackTitle') }}</h3>
         <p>{{ getText('feedbackDescription') }}</p>
       </div>
 
       <div class="rating-section">
         <label class="section-label">
-          <unicon name="star" fill="var(--primary-color)" :width="16" :height="16" />
+          <unicon name="star" fill="var(--color-primary)" :width="16" :height="16" />
           {{ getText('ratingLabel') }}
         </label>
         
@@ -59,7 +59,7 @@
 
       <div class="comment-section">
         <label class="section-label" for="feedback-comment">
-          <unicon name="edit" fill="var(--primary-color)" :width="16" :height="16" />
+          <unicon name="edit" fill="var(--color-primary)" :width="16" :height="16" />
           {{ getText('feedbackComment') }}
           <span class="required">*</span>
         </label>
@@ -249,7 +249,7 @@ export default {
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  transition: all var(--motion-fast);
 }
 
 .rating-section:hover {
@@ -266,7 +266,7 @@ export default {
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   box-shadow: var(--shadow-sm);
-  transition: all var(--transition-fast);
+  transition: all var(--motion-fast);
   min-height: 0;
 }
 
@@ -282,7 +282,7 @@ export default {
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--space-md);
   cursor: pointer;
 }
 
@@ -369,12 +369,12 @@ export default {
 .result-actions {
   display: flex;
   gap: var(--spacing-sm);
-  margin-top: var(--spacing-md);
+  margin-top: var(--space-md);
 }
 
 @media (max-width: 640px) {
   .feedback-tab {
-    padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+    padding: var(--space-md) var(--spacing-lg) var(--spacing-lg);
   }
   
   .form-header {
@@ -383,7 +383,7 @@ export default {
   
   .rating-section,
   .comment-section {
-    padding: var(--spacing-md);
+    padding: var(--space-md);
   }
   
   .submit-btn,

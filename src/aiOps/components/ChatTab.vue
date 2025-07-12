@@ -77,7 +77,7 @@
       <div class="messages-container">
         <div class="messages" :class="messagesClasses" ref="messagesContainer" @scroll="handleScroll">
           <div v-if="!selectedPersona" class="no-persona">
-            <unicon name="grid" fill="var(--primary-color)" :width="48" :height="48" />
+            <unicon name="grid" fill="var(--color-primary)" :width="48" :height="48" />
             <h4>{{ getText('noPersonaSelected') }}</h4>
             <p>{{ getText('noPersonaDesc') }}</p>
             <button
@@ -90,7 +90,7 @@
           </div>
           
           <div v-else-if="selectedPersona && messages.length === 0 && !isProcessing && !loadingHistory" class="welcome">
-            <unicon name="star" fill="var(--primary-color)" :width="36" :height="36" />
+            <unicon name="star" fill="var(--color-primary)" :width="36" :height="36" />
             <h4>
               {{ getText('welcomeChat', { persona: selectedPersona.title }) }}
             </h4>
@@ -991,7 +991,7 @@ export default {
 
 /* 기존 스타일들 유지... */
 .chat-header {
-  padding: var(--spacing-md) var(--spacing-xl);
+  padding: var(--space-md) var(--spacing-xl);
   background: var(--surface-white);
   border-bottom: 1px solid var(--border-light);
   display: flex;
@@ -1022,9 +1022,9 @@ export default {
 }
 
 .badge {
-  background: var(--primary-color);
+  background: var(--color-primary);
   color: white;
-  padding: 6px var(--spacing-md);
+  padding: 6px var(--space-md);
   border-radius: 20px;
   font-size: var(--font-size-sm);
   font-weight: 600;
@@ -1083,7 +1083,7 @@ export default {
 
 .dev-info-header {
   background: linear-gradient(90deg, rgba(6, 182, 212, 0.2), rgba(14, 165, 233, 0.2));
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--space-md);
   border-bottom: 1px solid rgba(6, 182, 212, 0.3);
   display: flex;
   align-items: center;
@@ -1095,14 +1095,14 @@ export default {
 }
 
 .dev-info-content {
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--space-md);
 }
 
 .dev-info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
   margin-bottom: 4px;
 }
 
@@ -1168,7 +1168,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
+  gap: var(--space-md);
   padding: var(--spacing-xl);
   color: var(--text-secondary);
   font-size: var(--font-size-base);
@@ -1190,7 +1190,7 @@ export default {
 .welcome-desc {
   font-size: var(--font-size-sm);
   color: var(--text-muted);
-  margin: 0 0 var(--spacing-md) 0;
+  margin: 0 0 var(--space-md) 0;
   line-height: 1.4;
 }
 
@@ -1202,7 +1202,7 @@ export default {
   font-size: var(--font-size-xs);
   color: var(--text-secondary);
   margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: var(--spacing-sm) var(--space-md);
   background: rgba(6, 182, 212, 0.1);
   border: 1px solid rgba(6, 182, 212, 0.3);
   border-radius: 20px;
@@ -1235,11 +1235,11 @@ export default {
 }
 
 .go-home-btn {
-  padding: var(--spacing-md) var(--spacing-xl) !important;
+  padding: var(--space-md) var(--spacing-xl) !important;
 }
 
 .input-area {
-  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-md);
+  padding: var(--space-md) var(--spacing-lg) var(--space-md);
   background: var(--surface-white);
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
@@ -1270,7 +1270,7 @@ export default {
 .quick-item {
   width: 100% !important;
   text-align: left !important;
-  padding: var(--spacing-sm) var(--spacing-md) !important;
+  padding: var(--spacing-sm) var(--space-md) !important;
   justify-content: flex-start !important;
   line-height: 1.4;
   font-size: var(--font-size-sm) !important;
@@ -1325,7 +1325,7 @@ export default {
   background: var(--accent-primary);
   border-radius: 4px;
   opacity: 0.6;
-  transition: opacity var(--transition-fast);
+  transition: opacity var(--motion-fast);
 }
 
 .enhanced-input::-webkit-scrollbar-thumb:hover {
@@ -1476,7 +1476,7 @@ export default {
 
 @media (max-width: 640px) {
   .input-area {
-    padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm);
+    padding: var(--spacing-sm) var(--space-md) var(--spacing-sm);
   }
   
   .input-container {
