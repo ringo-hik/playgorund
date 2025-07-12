@@ -262,7 +262,7 @@ export default {
 }
 
 .loading-spinner--accent {
-  border-top-color: var(--accent-primary);
+  border-top-color: var(--color-accent);
 }
 
 /* === PREMIUM RATING SYSTEM === */
@@ -275,27 +275,27 @@ export default {
 
 .star-rating__stars {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--space-sm);
 }
 
 .star-rating__star {
   width: 36px !important;
   height: 36px !important;
   min-height: 36px !important;
-  background: var(--surface-light) !important;
-  border: 1px solid var(--border-light) !important;
-  transition: all var(--transition-smooth) !important;
+  background: var(--color-surface-light) !important;
+  border: 1px solid var(--color-border-light) !important;
+  transition: all var(--motion-normal) !important;
 }
 
 .star-rating__star:hover:not(.star-rating__star--disabled) {
-  background: rgba(6, 182, 212, 0.1) !important;
-  border-color: var(--accent-primary) !important;
-  box-shadow: var(--shadow-md) !important;
+  background: var(--color-accent-subtle) !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: var(--shadow-soft) !important;
 }
 
 .star-rating__star--active:not(.star-rating__star--disabled) {
-  background: rgba(6, 182, 212, 0.15) !important;
-  border-color: var(--accent-primary) !important;
+  background: var(--color-accent-medium) !important;
+  border-color: var(--color-accent) !important;
 }
 
 .star-rating__star--disabled {
@@ -310,7 +310,7 @@ export default {
 
 .star-rating__text {
   font-size: var(--font-size-sm);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-weight: 500;
   min-height: 20px;
   text-align: center;
@@ -320,10 +320,10 @@ export default {
 /* === ENHANCED MESSAGE SYSTEM - CLAUDE.AI STYLE === */
 .message {
   width: 100%;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--space-lg) var(--space-xl);
   display: flex;
   flex-direction: column;
-  animation: fadeInUp 0.3s var(--transition-smooth);
+  animation: fadeInUp 0.3s var(--motion-normal);
   align-items: flex-start;
 }
 
@@ -332,8 +332,6 @@ export default {
   position: relative;
   transition: all var(--motion-fast);
 }
-
-
 
 /* === USER MESSAGE STYLING - CLAUDE.AI STYLE === */
 .message-bubble--user {
@@ -345,15 +343,15 @@ export default {
 }
 
 .message-bubble--user .message-bubble__content {
-  background: #f1f3f4;
-  color: var(--text-primary);
-  padding: var(--space-md) var(--spacing-lg);
+  background: var(--color-surface-medium);
+  color: var(--color-text-primary);
+  padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
   border-left: 4px solid var(--color-primary);
   font-size: var(--font-size-base);
   line-height: 1.6;
   word-wrap: break-word;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-minimal);
   margin-bottom: var(--space-md);
 }
 
@@ -382,19 +380,19 @@ export default {
 }
 
 .message-bubble--error .message-bubble__content {
-  background: #fef2f2 !important;
-  color: var(--error-color) !important;
-  border-left-color: var(--error-color) !important;
-  padding: var(--space-md) var(--spacing-lg) !important;
+  background: var(--alert-error-bg) !important;
+  color: var(--color-error) !important;
+  border-left-color: var(--color-error) !important;
+  padding: var(--space-md) var(--space-lg) !important;
   border-radius: var(--radius-lg) !important;
-  border-left: 4px solid var(--error-color) !important;
-  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.1) !important;
+  border-left: 4px solid var(--color-error) !important;
+  box-shadow: var(--shadow-subtle) !important;
 }
 
 .message-bubble--ai .message-bubble__content {
   background: transparent;
-  color: var(--text-primary);
-  padding: var(--space-md) 0 var(--spacing-lg);
+  color: var(--color-text-primary);
+  padding: var(--space-md) 0 var(--space-lg);
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: -0.01em;
@@ -403,7 +401,7 @@ export default {
 /* === BOT MESSAGE BRANDING === */
 .bot-message-brand {
   position: relative;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--space-sm);
   z-index: 2;
 }
 
@@ -412,15 +410,15 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  background: linear-gradient(90deg, var(--accent-primary), #0891b2);
+  background: linear-gradient(90deg, var(--color-accent), var(--color-primary-dark));
   color: white;
   border-radius: 14px;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  box-shadow: 0 2px 6px rgba(6, 182, 212, 0.3);
-  backdrop-filter: blur(4px);
+  box-shadow: var(--shadow-accent-subtle);
+  backdrop-filter: blur(var(--blur-subtle));
 }
 
 .bot-emoji {
@@ -434,7 +432,7 @@ export default {
   flex-direction: column;
   gap: var(--space-md);
   align-items: center;
-  padding: var(--spacing-lg);
+  padding: var(--space-lg);
 }
 
 .loading-dots {
@@ -445,9 +443,9 @@ export default {
 .loading-dots span {
   width: 8px;
   height: 8px;
-  background: var(--accent-primary);
+  background: var(--color-accent);
   border-radius: var(--radius-full);
-  animation: loading-pulse 1.4s ease-in-out infinite both;
+  animation: loading-pulse var(--duration-loading) ease-in-out infinite both;
 }
 
 .loading-dots span:nth-child(2) {
@@ -460,7 +458,7 @@ export default {
 
 .loading-text {
   font-size: var(--font-size-sm);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-weight: 500;
   text-align: center;
 }
@@ -469,16 +467,16 @@ export default {
 .message-bubble__content {
   word-wrap: break-word;
   line-height: 1.6;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
 /* === ENHANCED ACTIONS - 좌하단 배치 === */
 .message-bubble__actions {
   position: absolute;
-  bottom: var(--spacing-sm);
+  bottom: var(--space-sm);
   left: 0;
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--space-sm);
   opacity: 0;
   transition: opacity var(--motion-fast);
   z-index: 3;
@@ -493,29 +491,29 @@ export default {
   height: 32px !important;
   min-height: 32px !important;
   background: rgba(255, 255, 255, 0.95) !important;
-  border: 1px solid var(--border-medium) !important;
-  backdrop-filter: blur(8px) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid var(--color-border-medium) !important;
+  backdrop-filter: blur(var(--blur-subtle)) !important;
+  box-shadow: var(--shadow-moderate) !important;
   border-radius: var(--radius-md) !important;
 }
 
 .message-action:hover {
-  background: var(--surface-white) !important;
-  border-color: var(--accent-primary) !important;
-  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.25) !important;
+  background: var(--color-surface-white) !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: var(--shadow-accent-medium) !important;
 }
 
 .message-action--copied {
-  background: var(--success-color) !important;
-  border-color: var(--success-color) !important;
+  background: var(--color-success) !important;
+  border-color: var(--color-success) !important;
   color: white !important;
-  transform: scale(1.1) !important;
+  transform: scale(var(--transform-gentle)) !important;
 }
 
 .message-action--copied:hover {
   background: #047857 !important;
   border-color: #047857 !important;
-  transform: scale(1.1) !important;
+  transform: scale(var(--transform-gentle)) !important;
 }
 
 /* === ACCESSIBILITY === */
@@ -539,10 +537,10 @@ export default {
 @keyframes loading-pulse {
   0%, 80%, 100% {
     transform: translateY(0) scale(1);
-    opacity: 0.8;
+    opacity: 0.9;
   }
   40% {
-    transform: translateY(-8px) scale(1.1);
+    transform: translateY(-6px) scale(var(--transform-gentle));
     opacity: 1;
   }
 }
@@ -561,18 +559,18 @@ export default {
 /* === RESPONSIVE DESIGN === */
 @media (max-width: 640px) {
   .message {
-    padding: var(--space-md) var(--spacing-lg);
+    padding: var(--space-md) var(--space-lg);
   }
   
   .message-bubble--user .message-bubble__content,
   .message-bubble--error .message-bubble__content {
-    padding: var(--spacing-sm) var(--space-md) !important;
+    padding: var(--space-sm) var(--space-md) !important;
     font-size: var(--font-size-sm) !important;
   }
   
   .message-bubble--ai .message-bubble__content {
     font-size: var(--font-size-sm);
-    padding: var(--spacing-sm) 0 var(--space-md);
+    padding: var(--space-sm) 0 var(--space-md);
   }
   
   .bot-badge {

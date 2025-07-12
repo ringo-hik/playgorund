@@ -816,13 +816,13 @@ export default {
 
 /* 기존 스타일 유지... */
 .chat-header {
-  background: var(--header-bg) !important;
-  padding: var(--space-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--border-light);
+  background: var(--color-header-bg) !important;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: var(--header-height);
+  min-height: var(--layout-header-height);
   position: relative;
   z-index: 10;
 }
@@ -831,10 +831,10 @@ export default {
   content: '';
   position: absolute;
   bottom: -1px;
-  left: var(--spacing-lg);
-  right: var(--spacing-lg);
+  left: var(--space-lg);
+  right: var(--space-lg);
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--header-accent) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--color-header-accent) 50%, transparent 100%);
   opacity: 0.6;
 }
 
@@ -847,13 +847,13 @@ export default {
 .avatar {
   width: 36px;
   height: 36px;
-  background: var(--header-accent) !important;
+  background: var(--color-header-accent) !important;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-soft);
   position: relative;
 }
 
@@ -868,7 +868,7 @@ export default {
 .details .name {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--header-text) !important;
+  color: var(--color-header-text) !important;
   margin-bottom: 2px;
   letter-spacing: -0.01em;
 }
@@ -878,29 +878,29 @@ export default {
   align-items: center;
   gap: 6px;
   font-size: var(--font-size-sm);
-  color: var(--header-text-secondary) !important;
+  color: var(--color-header-text-secondary) !important;
   font-weight: 500;
 }
 
 .status-dot {
   width: 6px;
   height: 6px;
-  background: var(--success-color);
+  background: var(--color-success);
   border-radius: var(--radius-full);
-  box-shadow: 0 0 8px var(--success-color);
+  box-shadow: 0 0 8px var(--color-success);
   animation: pulse 2s infinite;
 }
 
 .status.offline .status-dot {
-  background: var(--error-color);
-  box-shadow: 0 0 8px var(--error-color);
+  background: var(--color-error);
+  box-shadow: 0 0 8px var(--color-error);
   animation: none;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--space-sm);
 }
 
 .easter-egg-trigger {
@@ -913,7 +913,7 @@ export default {
 
 .easter-egg-trigger:hover {
   background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--header-accent) !important;
+  border-color: var(--color-header-accent) !important;
 }
 
 .easter-dot {
@@ -926,27 +926,27 @@ export default {
 }
 
 .theme-selector {
-  color: var(--header-text) !important;
+  color: var(--color-header-text) !important;
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .theme-selector:hover {
   background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--header-accent) !important;
+  border-color: var(--color-header-accent) !important;
 }
 
 .language-btn,
 .window-control-btn {
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: var(--header-text) !important;
+  color: var(--color-header-text) !important;
 }
 
 .language-btn:hover,
 .window-control-btn:hover {
   background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--header-accent) !important;
+  border-color: var(--color-header-accent) !important;
 }
 
 .window-controls {
@@ -965,28 +965,28 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--surface-light);
+  background: var(--color-surface-light);
   overflow: hidden;
 }
 
 .welcome-section {
   text-align: center;
-  padding: var(--spacing-lg) var(--spacing-xl) var(--space-md);
+  padding: var(--space-lg) var(--space-xl) var(--space-md);
   flex-shrink: 0;
 }
 
 .welcome-content h3 {
   font-size: var(--font-size-lg);
   font-weight: 600;
-  color: var(--text-primary);
-  margin: var(--space-md) 0 var(--spacing-sm) 0;
+  color: var(--color-text-primary);
+  margin: var(--space-md) 0 var(--space-sm) 0;
   letter-spacing: -0.01em;
   line-height: 1.4;
 }
 
 .welcome-content p {
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.5;
   padding: 0 var(--space-md);
@@ -996,7 +996,7 @@ export default {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0 var(--spacing-xl) var(--spacing-lg);
+  padding: 0 var(--space-xl) var(--space-lg);
   min-height: 0;
   overflow: hidden;
 }
@@ -1006,7 +1006,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: var(--space-lg);
   overflow-y: auto;
 }
 
@@ -1040,11 +1040,11 @@ export default {
 }
 
 .category-icon--general {
-  background: var(--primary-dark);
+  background: var(--color-primary-dark);
 }
 
 .category-icon--operation {
-  background: var(--accent-primary);
+  background: var(--color-accent);
 }
 
 .category-icon::before {
@@ -1066,20 +1066,20 @@ export default {
 .category-content h4 {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
 .category-content p {
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.4;
 }
 
 .category-arrow {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   transition: all var(--motion-fast);
@@ -1092,7 +1092,7 @@ export default {
 
 .feedback-section {
   padding-top: var(--space-md);
-  border-top: 1px solid var(--border-light);
+  border-top: 1px solid var(--color-border-light);
   text-align: center;
   flex-shrink: 0;
 }
@@ -1101,14 +1101,14 @@ export default {
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--surface-light);
+  background: var(--color-surface-light);
   overflow: hidden;
 }
 
 .persona-header {
-  padding: var(--spacing-lg) var(--spacing-xl) var(--space-md);
-  background: var(--surface-light);
-  border-bottom: 1px solid var(--border-light);
+  padding: var(--space-lg) var(--space-xl) var(--space-md);
+  background: var(--color-surface-light);
+  border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -1119,21 +1119,21 @@ export default {
 .category-badge {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-sm) var(--spacing-lg);
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
   border-radius: 20px;
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: white;
   margin-bottom: var(--space-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-soft);
   background: var(--color-primary);
 }
 
 .header-content h3 {
   font-size: var(--font-size-lg);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -1141,7 +1141,7 @@ export default {
 .persona-content {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-md) var(--spacing-xl) var(--spacing-lg);
+  padding: var(--space-md) var(--space-xl) var(--space-lg);
   min-height: 0;
 }
 
@@ -1151,8 +1151,8 @@ export default {
   align-items: center;
   justify-content: center;
   height: 200px;
-  gap: var(--spacing-lg);
-  color: var(--text-secondary);
+  gap: var(--space-lg);
+  color: var(--color-text-secondary);
   font-size: var(--font-size-base);
   font-weight: 500;
 }
@@ -1164,19 +1164,19 @@ export default {
   justify-content: center;
   height: 200px;
   text-align: center;
-  gap: var(--spacing-lg);
+  gap: var(--space-lg);
 }
 
 .no-personas h4 {
   font-size: var(--font-size-lg);
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
 .no-personas p {
   font-size: var(--font-size-base);
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
 }
@@ -1238,7 +1238,7 @@ export default {
 .persona-title {
   font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.01em;
@@ -1246,7 +1246,7 @@ export default {
 
 .persona-description {
   font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.3;
   
@@ -1259,7 +1259,7 @@ export default {
 }
 
 .persona-arrow {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -1272,36 +1272,36 @@ export default {
 }
 
 .ai-chatops-chat-button {
-  width: var(--float-size);
-  height: var(--float-size);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-dark) 100%);
-  border: 2px solid var(--surface-white);
+  width: var(--layout-float-size);
+  height: var(--layout-float-size);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  border: 2px solid var(--color-surface-white);
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-premium);
-  transition: all var(--transition-premium);
+  box-shadow: var(--shadow-floating);
+  transition: all var(--motion-normal);
   position: relative;
   overflow: hidden;
-  color: var(--surface-white);
+  color: var(--color-surface-white);
 }
 
 .ai-chatops-chat-button .unicon {
-  color: var(--surface-white) !important;
-  fill: var(--surface-white) !important;
+  color: var(--color-surface-white) !important;
+  fill: var(--color-surface-white) !important;
 }
 
 .ai-chatops-chat-button.is-active {
   transform: scale(0.95);
-  background: linear-gradient(135deg, var(--accent-primary) 0%, #0891b2 100%);
-  box-shadow: var(--shadow-md);
+  background: linear-gradient(135deg, var(--color-accent) 0%, #0891b2 100%);
+  box-shadow: var(--shadow-soft);
 }
 
 .ai-chatops-chat-button.is-active .unicon {
-  color: var(--surface-white) !important;
-  fill: var(--surface-white) !important;
+  color: var(--color-surface-white) !important;
+  fill: var(--color-surface-white) !important;
 }
 
 @keyframes sparkle {
@@ -1334,21 +1334,21 @@ export default {
   }
   
   .welcome-section {
-    padding: var(--space-md) var(--spacing-lg) var(--spacing-sm);
+    padding: var(--space-md) var(--space-lg) var(--space-sm);
   }
   
   .category-container {
-    padding: 0 var(--spacing-lg) var(--space-md);
+    padding: 0 var(--space-lg) var(--space-md);
   }
   
   .persona-content {
-    padding: var(--spacing-sm) var(--spacing-lg) var(--space-md);
+    padding: var(--space-sm) var(--space-lg) var(--space-md);
   }
   
   .category-card,
   .persona-card {
-    padding: var(--spacing-sm);
-    gap: var(--spacing-sm);
+    padding: var(--space-sm);
+    gap: var(--space-sm);
     min-height: 60px;
   }
   
