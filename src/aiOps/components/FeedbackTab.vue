@@ -8,22 +8,22 @@
           <p>{{ resultMessage }}</p>
         </div>
         <div class="result-actions">
-          <AIOpsComponents
+          <Elements
             component-type="button"
             @click="resetForm"
             variant="primary"
             icon="plus"
           >
             {{ getText('sendAnother') }}
-          </AIOpsComponents>
-          <AIOpsComponents
+          </Elements>
+          <Elements
             component-type="button"
             @click="$emit('go-home')"
             variant="accent"
             icon="home"
           >
             {{ getText('goHome') }}
-          </AIOpsComponents>
+          </Elements>
         </div>
       </template>
       
@@ -46,7 +46,7 @@
           {{ getText('ratingLabel') }}
         </label>
         
-        <AIOpsComponents
+        <Elements
           component-type="rating"
           v-model="selectedRating"
           :disabled="isSubmitting"
@@ -81,7 +81,7 @@
       </div>
 
       <div class="form-actions">
-        <AIOpsComponents
+        <Elements
           component-type="button"
           @click="submitFeedback" 
           :disabled="!isFormValid" 
@@ -93,9 +93,9 @@
           class="submit-btn"
         >
           {{ getText('submitFeedback') }}
-        </AIOpsComponents>
+        </Elements>
         
-        <AIOpsComponents
+        <Elements
           component-type="button"
           @click="$emit('go-home')" 
           variant="outline"
@@ -105,7 +105,7 @@
           class="home-btn"
         >
           {{ getText('goHome') }}
-        </AIOpsComponents>
+        </Elements>
       </div>
     </div>
   </div>
@@ -113,12 +113,12 @@
 
 <script>
 import { getText, getTextArray } from './utils/i18n';
-import AIOpsComponents from './components/AIOpsComponents.vue';
+import Elements from './components/Elements.vue';
 
 export default {
   name: 'FeedbackTab',
   components: {
-    AIOpsComponents
+    Elements
   },
   
   props: {

@@ -1,9 +1,21 @@
-<template>
+.enhanced-input::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .input-container.enhanced-input--scrolling::after {
+    content: "↕️ 스크롤";
+    font-size: 9px;
+    bottom: -20px;
+  }<template>
   <div class="chat-tab">
     <div class="chat-area">
       <div class="chat-header">
         <div class="persona-info">
-          <div class="badge">
+          <div 
+            class="badge"
+            @mouseenter="showDevInfo = true"
+            @mouseleave="showDevInfo = false"
+          >
             <unicon 
               :name="getPersonaIconName(selectedPersona)" 
               fill="white" 
@@ -11,102 +23,121 @@
               :height="14"
             />
             {{ selectedPersona ? selectedPersona.title : getText('selectPersona') }}
+            
+            <div v-if="showDevInfo && isDevelopment" class="dev-info-tooltip">
+              <div class="dev-info-header">
+                <unicon name="code-branch" fill="#4ade80" :width="12" :height="12" />
+                <span>Developer Info</span>
+              </div>
+              <div class="dev-info-content">
+                <div class="dev-info-item">
+                  <span class="dev-label">Memory:</span>
+                  <span class="dev-value">{{ memoryUsage.used }}MB</span>
+                </div>
+                <div class="dev-info-item">
+                  <span class="dev-label">Messages:</span>
+                  <span class="dev-value">{{ messages.length }}/{{ maxSessionMessages }}</span>
+                </div>
+                <div class="dev-info-item">
+                  <span class="dev-label">Status:</span>
+                  <span class="dev-value dev-value--active">Active</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="controls">
-          <AIOpsComponents
-            component-type="button"
+          <button
             @click="clearAllMessages" 
             :disabled="isProcessing || !selectedPersona" 
-            variant="danger"
-            size="sm"
-            icon="trash"
-            class="clear-btn"
-          />
-          <AIOpsComponents
-            component-type="button"
+            class="btn-system btn-system--danger btn-system--sm btn-system--icon-only clear-btn"
+            title="전체 삭제"
+          >
+            <unicon name="trash" fill="currentColor" :width="12" :height="12" />
+          </button>
+          <button
             @click="resetPersona" 
             :disabled="isProcessing" 
-            variant="ghost"
-            size="sm"
-            icon="redo"
-          />
-          <AIOpsComponents
-            component-type="button"
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+            title="페르소나 변경"
+          >
+            <unicon name="redo" fill="currentColor" :width="12" :height="12" />
+          </button>
+          <button
             @click="$emit('go-home')" 
             :disabled="isProcessing" 
-            variant="ghost"
-            size="sm"
-            icon="home"
-          />
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+            title="홈으로 가기"
+          >
+            <unicon name="home" fill="currentColor" :width="12" :height="12" />
+          </button>
         </div>
       </div>
 
-      <div class="messages" ref="messagesContainer" @scroll="handleScroll">
-        <div v-if="!selectedPersona" class="no-persona">
-          <unicon name="grid" fill="var(--primary-color)" :width="48" :height="48" />
-          <h4>{{ getText('noPersonaSelected') }}</h4>
-          <p>{{ getText('noPersonaDesc') }}</p>
-          <AIOpsComponents
-            component-type="button"
-            @click="$emit('go-home')"
-            variant="primary"
-            icon="home"
-            class="go-home-btn"
-          >
-            {{ getText('goHome') }}
-          </AIOpsComponents>
-        </div>
-        
-        <div v-else-if="selectedPersona && messages.length === 0 && !isProcessing && !loadingHistory" class="welcome">
-          <unicon name="sparkle" fill="var(--primary-color)" :width="36" :height="36" />
-          <h4>
-            {{ getText('welcomeChat', { persona: selectedPersona.title }) }}
-          </h4>
-          <p class="welcome-desc">{{ getPersonaDescription(selectedPersona) }}</p>
-          <div class="welcome-tip">
-            <unicon name="info-circle" fill="var(--accent-primary)" :width="14" :height="14" />
-            <span>{{ getText('welcomeTip') }}</span>
+      <div class="messages-container">
+        <div class="messages" :class="messagesClasses" ref="messagesContainer" @scroll="handleScroll">
+          <div v-if="!selectedPersona" class="no-persona">
+            <unicon name="grid" fill="var(--primary-color)" :width="48" :height="48" />
+            <h4>{{ getText('noPersonaSelected') }}</h4>
+            <p>{{ getText('noPersonaDesc') }}</p>
+            <button
+              @click="$emit('go-home')"
+              class="btn-system btn-system--primary btn-system--md go-home-btn"
+            >
+              <unicon name="home" fill="currentColor" :width="16" :height="16" />
+              {{ getText('goHome') }}
+            </button>
           </div>
-        </div>
+          
+          <div v-else-if="selectedPersona && messages.length === 0 && !isProcessing && !loadingHistory" class="welcome">
+            <unicon name="star" fill="var(--primary-color)" :width="36" :height="36" />
+            <h4>
+              {{ getText('welcomeChat', { persona: selectedPersona.title }) }}
+            </h4>
+            <p class="welcome-desc">{{ getPersonaDescription(selectedPersona) }}</p>
+            <div class="welcome-tip">
+              <unicon name="info-circle" fill="var(--accent-primary)" :width="14" :height="14" />
+              <span>{{ getText('welcomeTip') }}</span>
+            </div>
+          </div>
 
-        <div v-if="loadingHistory" class="loading-history">
-          <AIOpsComponents component-type="spinner" size="md" />
-          <span>{{ getText('loadingHistory') }}</span>
-        </div>
+          <!-- 🔧 FIX: 로딩 히스토리도 v-show 사용 -->
+          <div v-show="loadingHistory" class="loading-history">
+            <Elements component-type="spinner" size="md" />
+            <span>{{ getText('loadingHistory') }}</span>
+          </div>
 
-        <AIOpsComponents
-          v-for="(message, index) in messages" 
-          :key="message.id"
-          component-type="message"
-          :message-type="message.type"
-          :content="message.content"
-          :loading="message.isLoading"
-          :loading-message="currentLoadingMessage"
-          :is-error="message.isError"
-          :copy-status="message.copyStatus"
-          @copy="copyMessage(message)"
-        />
+          <Elements
+            v-for="(message, index) in messages" 
+            :key="message.id"
+            component-type="message"
+            :message-type="message.type"
+            :content="message.content"
+            :loading="message.isLoading"
+            :loading-message="currentLoadingMessage"
+            :is-error="message.isError"
+            :copy-status="message.copyStatus"
+            @copy="copyMessage(message)"
+          />
+        </div>
       </div>
 
       <div v-if="selectedPersona" class="input-area">
-        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-dropdown">
+        <!-- 🔧 FIX: 빠른 질문도 v-show 사용 -->
+        <div v-show="showQuickQuestions && quickQuestions.length > 0" class="quick-dropdown card-system">
           <div class="quick-questions">
-            <AIOpsComponents
-              component-type="button"
+            <button
               v-for="q in quickQuestions" 
               :key="q" 
               @click="sendQuickQuestion(q)" 
-              variant="ghost"
-              size="sm"
-              class="quick-item"
+              class="btn-system btn-system--ghost btn-system--sm quick-item"
             >
               {{ q }}
-            </AIOpsComponents>
+            </button>
           </div>
         </div>
         
-        <div class="input-container">
+        <div class="input-container card-system">
           <div class="input-box">
             <textarea 
               v-model="currentMessage" 
@@ -117,76 +148,63 @@
               @input="handleInput"
               @focus="handleFocus"
               :disabled="isProcessing" 
-              maxlength="1000"
-              class="message-textarea"
+              class="message-textarea form-input enhanced-input"
             />
             
             <div class="input-bottom-row">
               <div class="left-actions">
-                <AIOpsComponents
-                  component-type="button"
+                <button
                   @click="generateQuickQuestions" 
                   :disabled="isProcessing"
-                  variant="ghost"
-                  size="sm"
-                  icon="lightbulb-alt"
-                  class="action-btn"
-                />
-                <AIOpsComponents
-                  component-type="button"
+                  class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only action-btn"
+                  title="질문 생성하기"
+                >
+                  <unicon name="lightbulb-alt" fill="currentColor" :width="12" :height="12" />
+                </button>
+                <button
                   @click="toggleQuickQuestions" 
                   :disabled="isProcessing"
-                  variant="ghost"
-                  size="sm"
-                  icon="bolt"
-                  :class="{ active: showQuickQuestions }"
-                  class="action-btn"
-                />
-                <AIOpsComponents
-                  component-type="button"
+                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'action-btn', { 'action-btn--active': showQuickQuestions }]"
+                  title="빠른 질문"
+                >
+                  <unicon name="bolt" fill="currentColor" :width="12" :height="12" />
+                </button>
+                <button
                   @click="toggleContinuousChat" 
                   :disabled="isProcessing"
-                  variant="ghost"
-                  size="sm"
-                  icon="exchange-alt"
-                  :class="{ active: continuousChatEnabled }"
-                  class="action-btn continuous-chat-btn"
-                  :title="getText('continuousChat')"
-                />
+                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'action-btn', 'continuous-chat-btn', { 'action-btn--active': continuousChatEnabled }]"
+                  title="연속 대화"
+                >
+                  <unicon name="exchange-alt" fill="currentColor" :width="12" :height="12" />
+                </button>
               </div>
               
-              <AIOpsComponents
-                component-type="button"
+              <button
                 @click="sendMessage" 
                 :disabled="!canSendMessage" 
-                :loading="isProcessing"
-                variant="primary"
-                size="sm"
-                icon="message"
-                class="send-button"
-              />
+                :class="['btn-system', 'btn-system--primary', 'btn-system--sm', 'btn-system--icon-only', 'send-button', { 'loading': isProcessing }]"
+                title="메시지 전송"
+              >
+                <Elements v-if="isProcessing" component-type="spinner" size="sm" color="accent" />
+                <unicon v-else name="message" fill="currentColor" :width="14" :height="14" />
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div v-if="showCopyToast" class="copy-toast fade-in">
-      <unicon name="check-circle" fill="var(--success-color)" :width="16" :height="16" />
-      <span>{{ getText('copySuccess') }}</span>
-    </div>
   </div>
 </template>
 
 <script>
-import aiopsChatService from '@service/aiopsChatService';
-import { getText } from '../utils/i18n';
-import AIOpsComponents from './AIOpsComponents.vue';
+import aiChatOpsService from '@/service/aiChatOpsService';
+import { getText, getTextArray } from './utils/i18n';
+import Elements from './Elements.vue';
 
 export default {
   name: 'ChatTab',
   components: {
-    AIOpsComponents
+    Elements
   },
   
   props: {
@@ -222,8 +240,29 @@ export default {
       loadingMessageId: null,
       showQuickQuestions: false,
       continuousChatEnabled: false,
-      showCopyToast: false,
-      copyToastTimeout: null
+      isInitialLoad: false,
+      maxSessionMessages: 30,
+      memoryUsage: { used: 0, total: 0 },
+      memoryMonitorInterval: null,
+      isDevelopment: process.env.NODE_ENV === 'development',
+      showDevInfo: false,
+      
+      // 🔧 FIX: 배치 처리를 위한 상태 추가
+      pendingMessages: [],
+      renderingScheduled: false,
+      batchUpdateTimeout: null,
+      
+      // 🔧 Enhanced Input Manager
+      enhancedInputManager: {
+        minHeight: 21,
+        maxHeight: 400,           // 200px → 400px 확장
+        scrollThreshold: 300,     // 300px에서 스크롤 시작
+        currentState: {
+          isExpanded: false,
+          hasScrolled: false,
+          lineCount: 1
+        }
+      }
     };
   },
   
@@ -234,7 +273,7 @@ export default {
     
     quickQuestions() {
       if (!this.selectedPersona) return [];
-      return aiopsChatService.getQuickQuestions(this.selectedPersona.personaCode, this.currentLanguage);
+      return aiChatOpsService.getQuickQuestions(this.selectedPersona.personaCode, this.currentLanguage);
     },
     
     recentConversations() {
@@ -250,6 +289,13 @@ export default {
         }
       }
       return conversationPairs.slice(-5);
+    },
+
+    messagesClasses() {
+      return {
+        'smooth-scroll': !this.loadingHistory && !this.isInitialLoad && !this.renderingScheduled,
+        'initial-loading': this.loadingHistory
+      };
     }
   },
   
@@ -260,7 +306,7 @@ export default {
     
     getPersonaIconName(persona) {
       if (!persona) return 'comment';
-      return aiopsChatService.getPersonaIcon(persona.personaCode, persona.iconPath);
+      return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
     },
     
     getPersonaDescription(persona) {
@@ -269,6 +315,126 @@ export default {
         return persona.descriptionEn;
       }
       return persona.description || this.getText('defaultPersonaDesc');
+    },
+
+    generateUniqueId() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+    },
+
+    // 🔧 FIX: 메시지 추가 배치 처리 시스템
+    addMessageWithLimit(newMessage) {
+      // 즉시 DOM 조작 대신 배치로 처리
+      this.pendingMessages.push(newMessage);
+      this.scheduleBatchUpdate();
+    },
+
+    scheduleBatchUpdate() {
+      if (this.renderingScheduled) return;
+      
+      this.renderingScheduled = true;
+      
+      // 마이크로태스크 큐에 등록하여 다른 동기 작업들과 함께 처리
+      this.$nextTick(() => {
+        this.processBatchMessages();
+        this.renderingScheduled = false;
+      });
+    },
+
+    processBatchMessages() {
+      if (this.pendingMessages.length === 0) return;
+
+      // 모든 대기 중인 메시지를 한 번에 추가
+      this.messages.push(...this.pendingMessages);
+      
+      // 메시지 수 제한 처리
+      if (this.messages.length > this.maxSessionMessages) {
+        const excessCount = this.messages.length - this.maxSessionMessages;
+        const removeCount = Math.ceil(excessCount / 2) * 2;
+        this.messages.splice(0, removeCount);
+      }
+      
+      // 배치 정리
+      this.pendingMessages = [];
+      
+      // 스크롤은 DOM 업데이트 후 처리
+      this.$nextTick(() => {
+        this.scrollToBottomSmooth();
+      });
+    },
+
+    scrollToBottomInstantly() {
+      this.$nextTick(() => {
+        const container = this.$refs.messagesContainer;
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'auto'
+          });
+        }
+      });
+    },
+
+    scrollToBottomSmooth() {
+      // 렌더링 중이면 스크롤 지연
+      if (this.renderingScheduled) {
+        this.$nextTick(() => {
+          this.scrollToBottomSmooth();
+        });
+        return;
+      }
+
+      this.$nextTick(() => {
+        const container = this.$refs.messagesContainer;
+        if (container) {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth'
+          });
+        }
+      });
+    },
+
+    setInitialScrollPosition() {
+      this.$nextTick(() => {
+        const container = this.$refs.messagesContainer;
+        if (container) {
+          container.style.scrollBehavior = 'auto';
+          container.scrollTop = container.scrollHeight;
+          
+          setTimeout(() => {
+            container.style.scrollBehavior = 'smooth';
+          }, 100);
+        }
+      });
+    },
+
+    measureMemoryUsage() {
+      if (performance.memory) {
+        const memory = performance.memory;
+        this.memoryUsage = {
+          used: Math.round(memory.usedJSHeapSize / 1024 / 1024),
+          total: Math.round(memory.totalJSHeapSize / 1024 / 1024)
+        };
+      }
+    },
+
+    startMemoryMonitoring() {
+      if (this.isDevelopment && performance.memory) {
+        this.memoryMonitorInterval = setInterval(() => {
+          this.measureMemoryUsage();
+        }, 30000);
+        this.measureMemoryUsage();
+      }
+    },
+
+    stopMemoryMonitoring() {
+      if (this.memoryMonitorInterval) {
+        clearInterval(this.memoryMonitorInterval);
+        this.memoryMonitorInterval = null;
+      }
     },
     
     toggleQuickQuestions() {
@@ -292,14 +458,8 @@ export default {
     },
     
     handleInput(event) {
-      if (this.currentMessage.includes('\n')) {
-        this.adjustTextareaHeight();
-      } else {
-        const textarea = this.$refs.messageInput;
-        if (textarea && textarea.style.height !== '21px') {
-          textarea.style.height = '21px';
-        }
-      }
+      // 강화된 입력 처리
+      this.trackInputChanges();
     },
     
     handleFocus(event) {
@@ -313,25 +473,38 @@ export default {
       if (!this.selectedPersona) return;
       
       this.loadingHistory = true;
+      this.isInitialLoad = true;
+      
+      this.setInitialScrollPosition();
       
       setTimeout(() => {
-        aiopsChatService.getConversations(this.selectedPersona.personaCode)
+        aiChatOpsService.getConversations(this.selectedPersona.personaCode)
           .then(response => {
             if (response.success && response.data) {
-              this.messages = aiopsChatService.convertConversationsToMessages(response.data);
+              // 🔧 FIX: 히스토리 로딩 시에도 배치 처리 적용
+              const convertedMessages = aiChatOpsService.convertConversationsToMessages(response.data);
+              this.messages = convertedMessages;
             }
           })
           .catch(error => {
-            
+            console.log('Error loading history:', error);
           })
           .finally(() => {
             this.loadingHistory = false;
+            
+            if (this.isInitialLoad) {
+              this.scrollToBottomInstantly();
+              setTimeout(() => {
+                this.isInitialLoad = false;
+              }, 200);
+            }
+            
             this.$nextTick(() => {
-              this.scrollToBottom();
               this.$refs.messageInput?.focus();
               const textarea = this.$refs.messageInput;
               if (textarea) {
-                textarea.style.height = '21px';
+                textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+                this.applyInputVisualFeedback();
               }
             });
           });
@@ -345,59 +518,83 @@ export default {
     clearAllMessages() {
       if (!this.selectedPersona) return;
       
-      aiopsChatService.deleteConversations(this.selectedPersona.personaCode)
+      aiChatOpsService.deleteConversations(this.selectedPersona.personaCode)
         .then(response => {
           if (response.success) {
-            this.messages = [];
-            this.currentMessage = '';
-            this.showQuickQuestions = false;
-            this.continuousChatEnabled = false;
+            // 🔧 FIX: 상태 일괄 정리
+            Object.assign(this, {
+              messages: [],
+              currentMessage: '',
+              showQuickQuestions: false,
+              continuousChatEnabled: false,
+              pendingMessages: [],
+              renderingScheduled: false
+            });
+            
             this.stopLoadingMessages();
             this.$nextTick(() => {
               const textarea = this.$refs.messageInput;
               if (textarea) {
-                textarea.style.height = '21px';
+                textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+                this.applyInputVisualFeedback();
               }
             });
           }
         })
         .catch(error => {
-          
+          console.log('Error clearing messages:', error);
         });
     },
     
     resetToInitialState() {
-      this.messages = [];
-      this.currentMessage = '';
-      this.showQuickQuestions = false;
-      this.continuousChatEnabled = false;
+      // 🔧 FIX: 상태 일괄 초기화
+      Object.assign(this, {
+        messages: [],
+        currentMessage: '',
+        showQuickQuestions: false,
+        continuousChatEnabled: false,
+        pendingMessages: [],
+        renderingScheduled: false
+      });
+      
       this.stopLoadingMessages();
-      this.hideCopyToast();
+      this.stopMemoryMonitoring();
+      
+      if (this.batchUpdateTimeout) {
+        clearTimeout(this.batchUpdateTimeout);
+        this.batchUpdateTimeout = null;
+      }
+      
       this.$nextTick(() => {
         const textarea = this.$refs.messageInput;
         if (textarea) {
-          textarea.style.height = '21px';
+          textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+          textarea.style.overflowY = 'hidden';
+          this.enhancedInputManager.currentState.isExpanded = false;
+          this.enhancedInputManager.currentState.hasScrolled = false;
+          this.applyInputVisualFeedback();
+          textarea.blur();
         }
       });
     },
     
+    // 🔧 FIX: 메시지 전송 최적화
     sendMessage() {
       if (!this.canSendMessage) return;
       
       const messageContent = this.currentMessage.trim();
       const timestamp = Date.now();
       
+      // 🔧 FIX: 메시지 객체들을 미리 생성
       const userMessage = {
-        id: `user-${timestamp}`,
+        id: `user-${this.generateUniqueId()}`,
         type: 'user', 
         content: messageContent,
         timestamp,
         isLoading: false
       };
       
-      this.messages.push(userMessage);
-      
-      this.loadingMessageId = `ai-${timestamp}`;
+      this.loadingMessageId = `ai-${this.generateUniqueId()}`;
       const loadingMessage = {
         id: this.loadingMessageId,
         type: 'ai',
@@ -406,17 +603,28 @@ export default {
         isLoading: true
       };
       
-      this.messages.push(loadingMessage);
+      // 🔧 FIX: UI 상태 업데이트를 배치로 처리
+      Object.assign(this, {
+        currentMessage: '',
+        showQuickQuestions: false
+      });
       
-      this.currentMessage = '';
-      this.showQuickQuestions = false;
+      // 🔧 FIX: 메시지들을 배치로 추가
+      this.pendingMessages.push(userMessage, loadingMessage);
+      this.scheduleBatchUpdate();
+      
+      // 텍스트에어리어 높이 조정
       this.$nextTick(() => {
         const textarea = this.$refs.messageInput;
         if (textarea) {
-          textarea.style.height = '21px';
+          textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+          textarea.style.overflowY = 'hidden';
+          this.enhancedInputManager.currentState.isExpanded = false;
+          this.enhancedInputManager.currentState.hasScrolled = false;
+          this.applyInputVisualFeedback();
         }
       });
-      this.scrollToBottom();
+      
       this.startLoadingMessages();
       
       let finalUserQuestion = messageContent;
@@ -439,12 +647,13 @@ export default {
       this.currentMessage = question;
       this.showQuickQuestions = false;
       this.$nextTick(() => {
-        this.adjustTextareaHeight();
+        this.trackInputChanges();
       });
       this.sendMessage();
     },
     
     addAiResponse(response) {
+      // 🔧 FIX: 로딩 메시지 제거도 배치 처리
       if (this.loadingMessageId) {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
         if (loadingIndex !== -1) {
@@ -455,9 +664,11 @@ export default {
       
       this.stopLoadingMessages();
       
+      let responseMessage;
+      
       if (response.success) {
-        const aiMessage = {
-          id: `ai-${Date.now()}`,
+        responseMessage = {
+          id: `ai-${this.generateUniqueId()}`,
           type: 'ai',
           content: response.aiResponse || response.message || '응답을 받았습니다.',
           timestamp: Date.now(),
@@ -465,11 +676,9 @@ export default {
           conversationId: response.conversationId,
           copyStatus: null
         };
-        
-        this.messages.push(aiMessage);
       } else {
-        const errorMessage = {
-          id: `error-${Date.now()}`,
+        responseMessage = {
+          id: `error-${this.generateUniqueId()}`,
           type: 'ai',
           content: response.message || this.getText('aiError'),
           timestamp: Date.now(),
@@ -477,28 +686,14 @@ export default {
           isError: true,
           copyStatus: null
         };
-        
-        this.messages.push(errorMessage);
       }
       
-      this.scrollToBottom();
+      // 🔧 FIX: 응답 메시지도 배치 처리
+      this.addMessageWithLimit(responseMessage);
     },
     
     startLoadingMessages() {
-      const loadingMessages = {
-        ko: [
-          '분석 중입니다',
-          '정보를 수집하고 있습니다',
-          '응답을 준비하고 있습니다'
-        ],
-        en: [
-          'Analyzing...',
-          'Gathering information...',
-          'Preparing response...'
-        ]
-      };
-      
-      const messages = loadingMessages[this.currentLanguage];
+      const messages = getTextArray(this.currentLanguage, 'loadingMessages');
       let index = 0;
       
       this.currentLoadingMessage = messages[index];
@@ -514,6 +709,7 @@ export default {
         clearInterval(this.loadingInterval);
         this.loadingInterval = null;
       }
+      this.currentLoadingMessage = '';
     },
     
     copyMessage(message) {
@@ -521,9 +717,9 @@ export default {
 
       let textToCopy = '';
       if (message.content.includes('markdown-table')) {
-        textToCopy = aiopsChatService.htmlToMarkdown(message.content);
+        textToCopy = aiChatOpsService.htmlToMarkdown(message.content);
       } else {
-        textToCopy = aiopsChatService.htmlToPlainText(message.content);
+        textToCopy = aiChatOpsService.htmlToPlainText(message.content);
       }
       
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -556,7 +752,7 @@ export default {
           this.showCopySuccess(message);
         }
       } catch (err) {
-        
+        console.log('Fallback copy failed:', err);
       }
       
       document.body.removeChild(textArea);
@@ -564,53 +760,107 @@ export default {
     
     showCopySuccess(message) {
       this.$set(message, 'copyStatus', 'copied');
-      this.showCopyToast = true;
       
       setTimeout(() => {
         this.$set(message, 'copyStatus', null);
       }, 3000);
-      
-      this.hideCopyToast();
     },
     
-    hideCopyToast() {
-      if (this.copyToastTimeout) {
-        clearTimeout(this.copyToastTimeout);
-      }
-      
-      this.copyToastTimeout = setTimeout(() => {
-        this.showCopyToast = false;
-      }, 2000);
-    },
-    
+    // 🔧 Enhanced: 강화된 텍스트에어리어 높이 조절
     adjustTextareaHeight() {
       const textarea = this.$refs.messageInput;
       if (!textarea) return;
       
-      const lineHeight = 21;
-      const maxHeight = 200;
+      const manager = this.enhancedInputManager;
       
       if (!textarea.value.trim()) {
-        if (textarea.style.height !== `${lineHeight}px`) {
-          textarea.style.height = `${lineHeight}px`;
-        }
+        // 빈 내용일 때 최소 높이로 설정
+        textarea.style.height = `${manager.minHeight}px`;
+        textarea.style.overflowY = 'hidden';
+        manager.currentState.isExpanded = false;
+        manager.currentState.hasScrolled = false;
+        manager.currentState.lineCount = 1;
         return;
       }
       
+      // 높이 자동 계산
       textarea.style.height = 'auto';
       const scrollHeight = textarea.scrollHeight;
+      const lineCount = (textarea.value.match(/\n/g) || []).length + 1;
       
-      const newHeight = Math.max(lineHeight, Math.min(scrollHeight, maxHeight));
-      textarea.style.height = `${newHeight}px`;
+      // 상태 업데이트
+      manager.currentState.lineCount = lineCount;
+      manager.currentState.isExpanded = lineCount > 1;
+      
+      if (scrollHeight <= manager.scrollThreshold) {
+        // 스크롤 임계점 이하: 높이 자동 조절
+        const newHeight = Math.max(manager.minHeight, Math.min(scrollHeight, manager.maxHeight));
+        textarea.style.height = `${newHeight}px`;
+        textarea.style.overflowY = 'hidden';
+        manager.currentState.hasScrolled = false;
+      } else {
+        // 스크롤 임계점 초과: 고정 높이 + 스크롤
+        textarea.style.height = `${manager.scrollThreshold}px`;
+        textarea.style.overflowY = 'auto';
+        manager.currentState.hasScrolled = true;
+        
+        // 자동으로 맨 아래로 스크롤
+        this.$nextTick(() => {
+          textarea.scrollTop = textarea.scrollHeight;
+        });
+      }
+      
+      // 시각적 피드백 적용
+      this.applyInputVisualFeedback();
     },
     
-    scrollToBottom() {
-      this.$nextTick(() => {
-        const container = this.$refs.messagesContainer;
-        if (container) {
-          container.scrollTop = container.scrollHeight;
-        }
-      });
+    // 🔧 NEW: 입력창 시각적 피드백
+    applyInputVisualFeedback() {
+      const textarea = this.$refs.messageInput;
+      const container = textarea?.closest('.input-container');
+      if (!textarea || !container) return;
+      
+      const manager = this.enhancedInputManager;
+      
+      // 확장 상태 클래스 적용
+      if (manager.currentState.isExpanded) {
+        container.classList.add('enhanced-input--expanded');
+      } else {
+        container.classList.remove('enhanced-input--expanded');
+      }
+      
+      // 스크롤 상태 클래스 적용
+      if (manager.currentState.hasScrolled) {
+        container.classList.add('enhanced-input--scrolling');
+      } else {
+        container.classList.remove('enhanced-input--scrolling');
+      }
+    },
+    
+    // 🔧 Enhanced: 입력 상태 추적
+    trackInputChanges() {
+      this.adjustTextareaHeight();
+      
+      // 키보드 단축키 처리
+      const textarea = this.$refs.messageInput;
+      if (textarea) {
+        textarea.addEventListener('keydown', this.handleKeyboardShortcuts);
+      }
+    },
+    
+    // 🔧 NEW: 키보드 단축키 지원
+    handleKeyboardShortcuts(event) {
+      // Ctrl + A: 전체 선택 (기본 동작 유지)
+      if (event.ctrlKey && event.key === 'a') {
+        // 기본 동작 허용
+        return;
+      }
+      
+      // Ctrl + Enter: 강제 전송  
+      if (event.ctrlKey && event.key === 'Enter') {
+        event.preventDefault();
+        this.sendMessage();
+      }
     },
     
     handleScroll() {
@@ -622,20 +872,40 @@ export default {
     this.$nextTick(() => {
       const textarea = this.$refs.messageInput;
       if (textarea) {
-        textarea.style.height = '21px';
+        textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+        this.applyInputVisualFeedback();
       }
     });
+    
+    this.startMemoryMonitoring();
   },
   
   beforeDestroy() {
     this.stopLoadingMessages();
-    this.hideCopyToast();
+    this.stopMemoryMonitoring();
+    
+    // 🔧 FIX: 배치 처리 관련 정리
+    if (this.batchUpdateTimeout) {
+      clearTimeout(this.batchUpdateTimeout);
+      this.batchUpdateTimeout = null;
+    }
+    
+    // 상태 일괄 정리
+    Object.assign(this, {
+      messages: [],
+      currentMessage: '',
+      pendingMessages: [],
+      renderingScheduled: false,
+      loadingMessageId: null,
+      loadingInterval: null,
+      memoryMonitorInterval: null
+    });
   },
   
   watch: {
     currentLanguage() {
       this.$nextTick(() => {
-        this.adjustTextareaHeight();
+        this.trackInputChanges();
       });
     },
     
@@ -661,11 +931,15 @@ export default {
 </script>
 
 <style scoped>
+/* 🔧 FIX: GPU 가속 및 플리커링 방지 스타일 추가 */
 .chat-tab {
   display: flex;
   flex-direction: column;
   height: 100%;
   position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .chat-area {
@@ -673,18 +947,49 @@ export default {
   flex-direction: column;
   height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
-.loading-history {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl);
-  color: var(--text-secondary);
-  font-size: var(--font-size-base);
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--surface-light);
+  scroll-behavior: smooth;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  
+  /* 🔧 FIX: 부드러운 스크롤을 위한 GPU 가속 */
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
+.messages.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.messages.initial-loading {
+  overflow: hidden;
+}
+
+.messages.initial-loading::-webkit-scrollbar {
+  display: none;
+}
+
+/* 🔧 FIX: 렌더링 최적화를 위한 레이어 분리 */
+.input-area {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.quick-dropdown {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 기존 스타일들 유지... */
 .chat-header {
   padding: var(--spacing-md) var(--spacing-xl);
   background: var(--surface-white);
@@ -713,6 +1018,7 @@ export default {
   align-items: center;
   justify-content: flex-start;
   flex: 1;
+  position: relative;
 }
 
 .badge {
@@ -729,11 +1035,109 @@ export default {
   transition: all var(--transition-smooth);
   border: 1px solid var(--accent-primary);
   line-height: 1;
+  position: relative;
+  cursor: pointer;
 }
 
 .badge:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg);
+  border-radius: 24px;
+}
+
+.dev-info-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+  color: white;
+  padding: 0;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: 1000;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  min-width: 160px;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  overflow: hidden;
+}
+
+.dev-info-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 16px;
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-bottom: none;
+  border-right: none;
+  transform: rotate(45deg);
+}
+
+.dev-info-header {
+  background: linear-gradient(90deg, rgba(6, 182, 212, 0.2), rgba(14, 165, 233, 0.2));
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid rgba(6, 182, 212, 0.3);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dev-info-content {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.dev-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: 4px;
+}
+
+.dev-info-item:last-child {
+  margin-bottom: 0;
+}
+
+.dev-label {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.dev-value {
+  color: #4ade80;
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.dev-value--active {
+  color: #22c55e;
+  position: relative;
+}
+
+.dev-value--active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: #22c55e;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 4px #22c55e;
+  animation: pulse-dot 2s infinite;
 }
 
 .controls {
@@ -744,23 +1148,30 @@ export default {
 .clear-btn {
   background: var(--error-color) !important;
   border-color: var(--error-color) !important;
+  color: white !important;
 }
 
-.clear-btn:hover {
+.clear-btn:hover:not(:disabled) {
   background: #B91C1C !important;
   border-color: #B91C1C !important;
 }
 
-.messages {
+.messages-container {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: var(--surface-light);
-  scroll-behavior: smooth;
-  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   position: relative;
-  z-index: 1;
-  min-height: 0;
+}
+
+.loading-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl);
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
 }
 
 .welcome {
@@ -792,8 +1203,8 @@ export default {
   color: var(--text-secondary);
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: rgba(200, 162, 87, 0.1);
-  border: 1px solid rgba(200, 162, 87, 0.3);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.3);
   border-radius: 20px;
   display: inline-flex;
 }
@@ -829,38 +1240,40 @@ export default {
 
 .input-area {
   padding: var(--spacing-md) var(--spacing-lg) var(--spacing-md);
-  background: var(--surface-light);
+  background: var(--surface-white);
   border-top: 1px solid var(--border-light);
   flex-shrink: 0;
-  position: relative;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .quick-dropdown {
   position: absolute;
   bottom: 100%;
-  left: var(--spacing-xl);
-  right: var(--spacing-xl);
+  left: var(--spacing-lg);
+  right: var(--spacing-lg);
   margin-bottom: var(--spacing-sm);
   background: var(--surface-white);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
   z-index: 10;
   max-height: 200px;
   overflow-y: auto;
+  padding: var(--spacing-sm);
 }
 
 .quick-questions {
-  padding: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .quick-item {
   width: 100% !important;
   text-align: left !important;
-  padding: var(--spacing-md) var(--spacing-lg) !important;
-  border-radius: 6px !important;
-  line-height: 1.4;
+  padding: var(--spacing-sm) var(--spacing-md) !important;
   justify-content: flex-start !important;
+  line-height: 1.4;
+  font-size: var(--font-size-sm) !important;
 }
 
 .quick-item:hover {
@@ -870,39 +1283,95 @@ export default {
 
 .input-container {
   transition: all var(--transition-smooth);
+  padding: var(--spacing-sm);
+  background: var(--surface-white);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+}
+
+.input-container:focus-within {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
 }
 
 .input-box {
-  background: var(--surface-white);
-  border: 2px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-sm) var(--spacing-md);
-  transition: all var(--transition-smooth);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
 }
 
-.input-box:focus-within {
+/* === ENHANCED INPUT SYSTEM === */
+.enhanced-input {
+  resize: none;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  transition: all var(--transition-smooth);
+  
+  /* 사용자 정의 스크롤바 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent-primary) var(--surface-light);
+}
+
+.enhanced-input::-webkit-scrollbar {
+  width: 8px;
+}
+
+.enhanced-input::-webkit-scrollbar-track {
+  background: var(--surface-light);
+  border-radius: 4px;
+}
+
+.enhanced-input::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+}
+
+.enhanced-input::-webkit-scrollbar-thumb:hover {
+  opacity: 1;
+}
+
+/* 확장 상태 표시 */
+.input-container.enhanced-input--expanded {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(200, 162, 87, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+/* 스크롤 활성 상태 */
+.input-container.enhanced-input--scrolling {
+  position: relative;
+}
+
+.input-container.enhanced-input--scrolling::after {
+  content: "↕️ 스크롤하여 전체 내용 확인";
+  position: absolute;
+  bottom: -22px;
+  right: 0;
+  font-size: 10px;
+  color: var(--text-muted);
+  background: var(--surface-white);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-light);
+  z-index: 5;
 }
 
 .message-textarea {
   width: 100%;
   height: 21px;
   min-height: 21px;
-  max-height: 200px;
+  max-height: 400px;
   border: none;
-  background: transparent;
+  background: var(--surface-white);
   resize: none;
   outline: none;
   font-size: var(--font-size-base);
   font-family: var(--font-family);
   color: var(--text-primary);
   line-height: 1.5;
-  padding: 0;
+  padding: var(--spacing-sm);
   margin: 0;
   transition: none;
   overflow: hidden;
@@ -913,6 +1382,7 @@ export default {
 .message-textarea::placeholder {
   color: var(--text-muted);
   font-size: var(--font-size-base);
+  opacity: 0.7;
 }
 
 .message-textarea:disabled {
@@ -933,49 +1403,75 @@ export default {
 }
 
 .action-btn {
-  width: 24px !important;
-  height: 24px !important;
-  min-height: 24px !important;
-  border-radius: 6px !important;
-  padding: 0 !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-height: 28px !important;
+  transition: all var(--transition-smooth) !important;
 }
 
-.action-btn.active {
-  background: rgba(200, 162, 87, 0.15) !important;
-  border-color: rgba(200, 162, 87, 0.3) !important;
+.action-btn:hover:not(:disabled) {
+  background: var(--surface-white) !important;
+  border-color: var(--accent-primary) !important;
+  transform: scale(1.05) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
-.continuous-chat-btn.active {
+.action-btn--active {
+  background: rgba(6, 182, 212, 0.15) !important;
+  border-color: rgba(6, 182, 212, 0.3) !important;
+  color: var(--accent-primary) !important;
+}
+
+.action-btn--active:hover {
+  background: rgba(6, 182, 212, 0.25) !important;
+  border-color: rgba(6, 182, 212, 0.5) !important;
+}
+
+.continuous-chat-btn.action-btn--active {
   background: rgba(34, 197, 94, 0.15) !important;
   border-color: rgba(34, 197, 94, 0.3) !important;
   color: var(--success-color) !important;
 }
 
-.send-button {
-  width: 28px !important;
-  height: 28px !important;
-  min-height: 28px !important;
-  border-radius: 6px !important;
-  padding: 0 !important;
+.continuous-chat-btn.action-btn--active:hover {
+  background: rgba(34, 197, 94, 0.25) !important;
+  border-color: rgba(34, 197, 94, 0.5) !important;
 }
 
-.copy-toast {
-  position: fixed;
-  bottom: 120px;
-  right: 50%;
-  transform: translateX(50%);
-  background: var(--surface-white);
-  border: 1px solid var(--success-color);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  box-shadow: var(--shadow-lg);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  color: var(--text-primary);
-  z-index: 1000;
+.send-button {
+  width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  transition: all var(--transition-smooth) !important;
+}
+
+.send-button:hover:not(:disabled) {
+  transform: scale(1.05) translateY(-1px) !important;
+  box-shadow: var(--shadow-hover) !important;
+}
+
+.send-button.loading {
+  animation: pulse-send 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+@keyframes pulse-send {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(37, 99, 235, 0);
+  }
 }
 
 @media (max-width: 640px) {
@@ -983,8 +1479,11 @@ export default {
     padding: var(--spacing-sm) var(--spacing-md) var(--spacing-sm);
   }
   
+  .input-container {
+    padding: 6px;
+  }
+  
   .input-box {
-    padding: 6px var(--spacing-sm);
     gap: 6px;
   }
   
@@ -998,15 +1497,26 @@ export default {
   }
   
   .action-btn {
-    width: 22px !important;
-    height: 22px !important;
-    min-height: 22px !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
   }
   
   .send-button {
-    width: 26px !important;
-    height: 26px !important;
-    min-height: 26px !important;
+    width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+  }
+
+  .dev-info-tooltip {
+    font-size: 10px;
+    min-width: 140px;
+  }
+
+  .dev-info-header,
+  .dev-label,
+  .dev-value {
+    font-size: 9px;
   }
 }
 </style>

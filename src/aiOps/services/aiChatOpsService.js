@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1/devportal/aiops-chat';
+const API_BASE_URL = '/api/v1/devportal/ai-chatops-chat';
 
-const aiopsChatService = {
+const aiChatOpsService = {
 
   async healthCheck() {
     try {
@@ -538,42 +538,16 @@ const aiopsChatService = {
   },
 
   getErrorMessage(error) {
-    if (error.response) {
-      const { status, data } = error.response;
-      
-      if (data && data.errorMessage) {
-        return data.errorMessage;
-      } else if (data && data.message) {
-        return data.message;
-      } else if (status === 400) {
-        return '잘못된 요청입니다. 입력 정보를 확인해주세요.';
-      } else if (status === 401) {
-        return '인증이 필요합니다. 다시 로그인해주세요.';
-      } else if (status === 403) {
-        return '접근 권한이 없습니다.';
-      } else if (status === 404) {
-        return '요청한 리소스를 찾을 수 없습니다.';
-      } else if (status === 429) {
-        return '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.';
-      } else if (status === 500) {
-        return '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.';
-      } else if (status === 503) {
-        return '서비스를 일시적으로 사용할 수 없습니다.';
-      } else {
-        return `서버 오류가 발생했습니다. (상태 코드: ${status})`;
-      }
-    } else if (error.request) {
-      if (error.code === 'ECONNABORTED') {
-        return '요청 시간이 초과되었습니다. 다시 시도해주세요.';
-      } else if (error.code === 'NETWORK_ERROR') {
-        return '네트워크 연결에 문제가 있습니다. 인터넷 연결을 확인해주세요.';
-      } else {
-        return '서버에 연결할 수 없습니다. 네트워크 상태를 확인해주세요.';
-      }
-    } else {
-      return error.message || '알 수 없는 오류가 발생했습니다.';
-    }
+  if (error?.response?.status !== undefined) {
+    return error.response.status; 
   }
+
+  if (error?.request) {
+    return error.code || 'REQUEST_ERROR';
+  }
+
+  return error?.message || 'UNKNOWN_ERROR';
+}
 };
 
-export default aiopsChatService;
+export default aiChatOpsService;
