@@ -148,7 +148,7 @@
                 <button
                   @click="generateQuickQuestions" 
                   :disabled="isProcessing"
-                  class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only action-btn"
+                  class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
                   title="질문 생성하기"
                 >
                   <unicon name="lightbulb-alt" fill="currentColor" :width="12" :height="12" />
@@ -156,7 +156,7 @@
                 <button
                   @click="toggleQuickQuestions" 
                   :disabled="isProcessing"
-                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'action-btn', { 'action-btn--active': showQuickQuestions }]"
+                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'btn-system--accent': showQuickQuestions }]"
                   title="빠른 질문"
                 >
                   <unicon name="bolt" fill="currentColor" :width="12" :height="12" />
@@ -164,7 +164,7 @@
                 <button
                   @click="toggleContinuousChat" 
                   :disabled="isProcessing"
-                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'action-btn', 'continuous-chat-btn', { 'action-btn--active': continuousChatEnabled }]"
+                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'continuous-chat-btn', { 'btn-system--success': continuousChatEnabled }]"
                   title="연속 대화"
                 >
                   <unicon name="exchange-alt" fill="currentColor" :width="12" :height="12" />
@@ -1392,45 +1392,24 @@ export default {
   gap: 6px;
 }
 
-.action-btn {
+/* btn-system 재정의 - 채팅 액션 버튼 전용 */
+.chat-input-controls .btn-system--sm.btn-system--icon-only {
   width: 28px !important;
   height: 28px !important;
   min-height: 28px !important;
-  transition: all var(--motion-normal) !important;
 }
 
-.action-btn:hover:not(:disabled) {
-  background: var(--color-surface-white) !important;
-  border-color: var(--color-accent) !important;
-  transform: scale(var(--transform-subtle)) !important;
-  box-shadow: var(--shadow-soft) !important;
-}
-
-.action-btn--active {
-  background: var(--color-accent-medium) !important;
-  border-color: var(--color-accent-strong) !important;
-  color: var(--color-accent) !important;
-}
-
-.action-btn--active:hover {
-  background: var(--color-accent-strong) !important;
-}
-
-.continuous-chat-btn.action-btn--active {
+.continuous-chat-btn.btn-system--success {
   background: var(--color-success-subtle) !important;
+  border-color: var(--color-success) !important;
   color: var(--color-success) !important;
 }
 
-.send-button {
+/* btn-system 재정의 - 전송 버튼 전용 */
+.send-button.btn-system--sm.btn-system--icon-only {
   width: 32px !important;
   height: 32px !important;
   min-height: 32px !important;
-  transition: all var(--motion-normal) !important;
-}
-
-.send-button:hover:not(:disabled) {
-  transform: scale(var(--transform-subtle)) translateY(-1px) !important;
-  box-shadow: var(--shadow-gentle) !important;
 }
 
 .send-button.loading {
@@ -1479,13 +1458,13 @@ export default {
     gap: 4px;
   }
   
-  .action-btn {
+  .chat-input-controls .btn-system--sm.btn-system--icon-only {
     width: 24px !important;
     height: 24px !important;
     min-height: 24px !important;
   }
   
-  .send-button {
+  .send-button.btn-system--sm.btn-system--icon-only {
     width: 28px !important;
     height: 28px !important;
     min-height: 28px !important;

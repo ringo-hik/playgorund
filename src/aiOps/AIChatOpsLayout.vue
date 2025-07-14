@@ -91,7 +91,7 @@
                 v-for="category in categories"
                 :key="category.key"
                 @click="selectCategory(category.key)"
-                class="category-card card-system card-system--interactive"
+                class="category-card btn-system btn-system--secondary btn-system--lg card-system card-system--interactive"
                 :class="{ disabled: chatProcessingCount > 0 }"
               >
                 <div class="category-icon" :class="`category-icon--${category.key}`">
@@ -170,7 +170,7 @@
                 v-for="(persona, index) in filteredPersonas"
                 :key="persona.personaCode"
                 @click="selectPersona(persona)"
-                class="persona-card card-system card-system--interactive"
+                class="persona-card btn-system btn-system--secondary btn-system--lg card-system card-system--interactive"
                 :class="{ disabled: loadingPersonas }"
               >
                 <div class="persona-card-content">
@@ -1007,18 +1007,21 @@ export default {
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  justify-content: flex-start;
+  text-align: left;
+  width: 100%;
+}
+
+/* btn-system 재정의 - 카테고리 카드 전용 */
+.category-card.btn-system--lg {
   min-height: 64px;
   padding: var(--space-md);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--motion-fast);
-  background: var(--color-surface-white);
 }
 
 .category-card.disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .category-icon {
@@ -1084,19 +1087,12 @@ export default {
   transition: all var(--motion-fast);
 }
 
-.category-card:hover {
-  border-color: var(--color-primary);
-  background: var(--color-surface-light);
-  box-shadow: var(--shadow-soft);
-  transform: translateY(-1px);
-}
-
-.category-card:hover .category-arrow {
+.category-card:hover:not(.disabled) .category-arrow {
   color: var(--color-primary);
   transform: translateX(2px);
 }
 
-.category-card:hover .category-icon {
+.category-card:hover:not(.disabled) .category-icon {
   transform: scale(1.05);
 }
 
@@ -1198,19 +1194,26 @@ export default {
 }
 
 .persona-card {
-  padding: var(--space-md);
   min-height: 80px;
   max-height: 80px;
-  cursor: pointer;
-  border-radius: var(--radius-lg);
-  transition: all var(--motion-fast);
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  width: 100%;
+}
+
+/* btn-system 재정의 - 페르소나 카드 전용 */
+.persona-card.btn-system--lg {
+  min-height: 80px;
+  max-height: 80px;
+  padding: var(--space-md);
 }
 
 .persona-card.disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 .persona-card-content {
@@ -1282,19 +1285,12 @@ export default {
   transition: all var(--motion-fast);
 }
 
-.persona-card:hover {
-  border-color: var(--color-primary);
-  background: var(--color-surface-light);
-  box-shadow: var(--shadow-soft);
-  transform: translateY(-1px);
-}
-
-.persona-card:hover .persona-arrow {
+.persona-card:hover:not(.disabled) .persona-arrow {
   color: var(--color-primary);
   transform: translateX(2px);
 }
 
-.persona-card:hover .persona-icon {
+.persona-card:hover:not(.disabled) .persona-icon {
   transform: scale(1.05);
 }
 
