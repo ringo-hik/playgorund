@@ -9,35 +9,30 @@
   --ai-chatops-accent: #06B6D4;
   --ai-chatops-neutral: #64748B;
   --ai-chatops-background: #F8FAFC;
-    --ai-chatops-redundancy: #6a89a8;
 
   --hermes-primary: #FF7F00;
   --hermes-secondary: #8B4513;
   --hermes-accent: #FFD700;
   --hermes-neutral: #F5DEB3;
   --hermes-background: #FFF8F0;
-      --hermes-redundancy: #68594f;
 
   --timeless-primary: #FFFDD0;
   --timeless-secondary: #000000;
   --timeless-accent: #C31B26;
   --timeless-neutral: #C0C0C0;
   --timeless-background: #FEFEFE;
-    --timeless-redundancy: #741c1c;
 
   --heritage-primary: #B8A081;
   --heritage-secondary: #1B2A47;
   --heritage-accent: #A70100;
   --heritage-neutral: #747674;
   --heritage-background: #F5F3F0;
-    --heritage-redundancy: #80581d;
 
   --modern-primary: #0F403F;
   --modern-secondary: #A11826;
   --modern-accent: #BD9302;
   --modern-neutral: #2D2D2D;
   --modern-background: #F7F8F7;
-    --modern-redundancy: #2d8a2d;
 
   /* ----- 통일된 컬러 시스템 ---------------------------- */
   --color-primary: var(--ai-chatops-primary);
@@ -125,6 +120,12 @@
   --radius-2xl: 20px;
   --radius-full: 50%;
 
+  /* ----- 누락된 변수 추가 ----- */
+  --color-text-accent: var(--color-accent);
+  --success-color: var(--color-success);
+  --error-color: var(--color-error);
+  --border-medium: var(--color-border-medium);
+
   /* ----- 호환성을 위한 레거시 변수들 (단계적 제거 예정) ----- */
   /* 기존 코드와의 호환성 유지를 위해 임시로 유지 */
   --primary-dark: var(--color-primary-dark);
@@ -138,7 +139,6 @@
   --spacing-sm: var(--space-sm);
   --spacing-lg: var(--space-lg);
   --spacing-xl: var(--space-xl);
-  --motion-fast: var(--motion-duration-fast) var(--motion-ease-out);
   --shadow-sm: var(--shadow-minimal);
   --shadow-md: var(--shadow-soft);
   --shadow-lg: var(--shadow-gentle);
@@ -158,12 +158,7 @@
   --color-error-subtle: rgba(239, 68, 68, var(--opacity-subtle));
 
   /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
-  --shadow-minimal: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));    /* 새로 추가 */
-  --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-gentle: 0 4px 6px rgba(0, 0, 0, 0.05);
-  --shadow-moderate: 0 8px 15px rgba(0, 0, 0, var(--opacity-light));   /* 새로 추가 */
-  --shadow-floating: 0 12px 20px rgba(0, 0, 0, 0.10);
   --shadow-accent-subtle: 0 2px 4px var(--color-accent-subtle);        /* 새로 추가 */
   --shadow-accent-medium: 0 3px 8px var(--color-accent-strong);        /* 새로 추가 */
 
@@ -510,6 +505,70 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
+}
+
+/* ----- 테마 시스템 (누락된 핵심 구현) ----- */
+/* AI ChatOps 기본 테마 */
+.theme-ai-chatops,
+.ai-chatops-chat {
+  --color-primary: var(--ai-chatops-primary);
+  --color-primary-dark: var(--ai-chatops-secondary);
+  --color-accent: var(--ai-chatops-accent);
+  --color-accent-secondary: var(--ai-chatops-neutral);
+  --color-header-bg: var(--ai-chatops-primary);
+  --color-header-accent: var(--ai-chatops-accent);
+  --color-surface-light: var(--ai-chatops-background);
+}
+
+/* Timeless 테마 */
+.theme-timeless {
+  --color-primary: var(--timeless-primary);
+  --color-primary-dark: var(--timeless-secondary);
+  --color-accent: var(--timeless-accent);
+  --color-accent-secondary: var(--timeless-neutral);
+  --color-header-bg: var(--timeless-primary);
+  --color-header-accent: var(--timeless-accent);
+  --color-surface-light: var(--timeless-background);
+  --color-text-primary: var(--timeless-secondary);
+  --color-border-accent: var(--timeless-accent);
+}
+
+/* Heritage 테마 */
+.theme-heritage {
+  --color-primary: var(--heritage-primary);
+  --color-primary-dark: var(--heritage-secondary);
+  --color-accent: var(--heritage-accent);
+  --color-accent-secondary: var(--heritage-neutral);
+  --color-header-bg: var(--heritage-primary);
+  --color-header-accent: var(--heritage-accent);
+  --color-surface-light: var(--heritage-background);
+  --color-text-primary: var(--heritage-secondary);
+  --color-border-accent: var(--heritage-accent);
+}
+
+/* Modern 테마 */
+.theme-modern {
+  --color-primary: var(--modern-primary);
+  --color-primary-dark: var(--modern-secondary);
+  --color-accent: var(--modern-accent);
+  --color-accent-secondary: var(--modern-neutral);
+  --color-header-bg: var(--modern-primary);
+  --color-header-accent: var(--modern-accent);
+  --color-surface-light: var(--modern-background);
+  --color-text-primary: var(--modern-secondary);
+  --color-border-accent: var(--modern-accent);
+}
+
+/* Hermes 테마 */
+.theme-hermes {
+  --color-primary: var(--hermes-primary);
+  --color-primary-dark: var(--hermes-secondary);
+  --color-accent: var(--hermes-accent);
+  --color-accent-secondary: var(--hermes-neutral);
+  --color-header-bg: var(--hermes-primary);
+  --color-header-accent: var(--hermes-accent);
+  --color-surface-light: var(--hermes-background);
+  --color-border-accent: var(--hermes-accent);
 }
 
 /* ----- 유틸리티 클래스 ----- */
