@@ -189,8 +189,8 @@
 </template>
 
 <script>
-import aiChatOpsService from '@/service/aiChatOpsService';
-import { getText, getTextArray } from './utils/i18n';
+import aiChatOpsService from '../services/aiChatOpsService.js';
+import { getText, getTextArray } from '../utils/i18n.js';
 import Elements from './Elements.vue';
 
 export default {
