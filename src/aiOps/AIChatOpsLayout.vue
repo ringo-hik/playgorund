@@ -1,7 +1,7 @@
 <template>
   <div class="ai-chatops-chat">
     <button
-      :class="['ai-chatops-chat-button', 'btn-system', 'btn-system--icon-only', { 'is-active': isOpen }]"
+      :class="['ai-chatops-chat-button', { 'is-active': isOpen }]"
       @click="toggleChat"
     >
       <Elements v-if="isLoading" component-type="spinner" size="md" />
@@ -91,7 +91,7 @@
                 v-for="category in categories"
                 :key="category.key"
                 @click="selectCategory(category.key)"
-                class="category-card btn-system btn-system--secondary btn-system--lg card-system card-system--interactive"
+                class="category-card card-system card-system--interactive"
                 :class="{ disabled: chatProcessingCount > 0 }"
               >
                 <div class="category-icon" :class="`category-icon--${category.key}`">
@@ -170,7 +170,7 @@
                 v-for="(persona, index) in filteredPersonas"
                 :key="persona.personaCode"
                 @click="selectPersona(persona)"
-                class="persona-card btn-system btn-system--secondary btn-system--lg card-system card-system--interactive"
+                class="persona-card card-system card-system--interactive"
                 :class="{ disabled: loadingPersonas }"
               >
                 <div class="persona-card-content">
@@ -1007,15 +1007,9 @@ export default {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  justify-content: flex-start;
-  text-align: left;
-  width: 100%;
-}
-
-/* btn-system 재정의 - 카테고리 카드 전용 */
-.category-card.btn-system--lg {
   min-height: 64px;
   padding: var(--space-md);
+  cursor: pointer;
 }
 
 .category-card.disabled {
@@ -1194,20 +1188,12 @@ export default {
 }
 
 .persona-card {
-  min-height: 80px;
-  max-height: 80px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  text-align: left;
-  width: 100%;
-}
-
-/* btn-system 재정의 - 페르소나 카드 전용 */
-.persona-card.btn-system--lg {
   min-height: 80px;
   max-height: 80px;
   padding: var(--space-md);
+  cursor: pointer;
 }
 
 .persona-card.disabled {
