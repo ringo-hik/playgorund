@@ -1,0 +1,417 @@
+/* ===========================================================================
+   마크다운 콘텐츠 스타일링 - 메인 CSS 변수 사용
+   주요 변경사항: --md-* 변수 제거, 메인 CSS 변수 직접 사용
+   =========================================================================== */
+
+.markdown-content {
+  font-family: var(--font-family) !important;
+  font-size: clamp(11px, 2.5vw, 13px) !important;
+  line-height: 1.5 !important;
+  color: var(--color-text-primary) !important;
+  background: transparent !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* ----- 헤딩 스타일 ----- */
+.markdown-content .markdown-heading {
+  color: var(--color-text-primary) !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+  margin: var(--space-lg) 0 var(--space-sm) 0 !important;
+  position: relative !important;
+}
+
+.markdown-content .markdown-h1 {
+  font-size: max(16px, var(--font-size-xl)) !important;
+  margin-top: 0 !important;
+  border-bottom: 2px solid var(--color-border-accent) !important;
+  padding-bottom: var(--space-xs) !important;
+}
+
+.markdown-content .markdown-h2 {
+  font-size: max(15px, var(--font-size-lg)) !important;
+  border-bottom: 1px solid var(--color-border-light) !important;
+  padding-bottom: 4px !important;
+  position: relative !important;
+}
+
+.markdown-content .markdown-h2::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  bottom: -1px !important;
+  width: 30px !important;
+  height: 2px !important;
+  background: var(--color-text-accent) !important;
+}
+
+.markdown-content .markdown-h3 {
+  font-size: max(14px, var(--font-size-base)) !important;
+  color: var(--color-text-accent) !important;
+}
+
+.markdown-content .markdown-h4 {
+  font-size: var(--font-size-base) !important;
+  color: var(--color-text-secondary) !important;
+}
+
+.markdown-content .markdown-h5,
+.markdown-content .markdown-h6 {
+  font-size: var(--font-size-base) !important;
+  color: var(--color-text-muted) !important;
+  font-weight: 500 !important;
+}
+
+/* ----- 텍스트 요소 ----- */
+.markdown-content .markdown-paragraph {
+  margin: var(--space-sm) 0 !important;
+  color: var(--color-text-secondary) !important;
+  line-height: 1.6 !important;
+}
+
+.markdown-content .markdown-strong {
+  font-weight: 600 !important;
+  color: var(--color-text-primary) !important;
+}
+
+.markdown-content .markdown-em {
+  font-style: italic !important;
+  color: var(--color-text-accent) !important;
+}
+
+.markdown-content .markdown-link {
+  color: var(--color-text-accent) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid transparent !important;
+  transition: all var(--motion-fast) !important;
+}
+
+.markdown-content .markdown-link:hover {
+  border-bottom-color: var(--color-text-accent) !important;
+  background: rgba(6, 182, 212, 0.05) !important;
+  padding: 1px 2px !important;
+  border-radius: 2px !important;
+}
+
+/* ----- 리스트 ----- */
+.markdown-content .markdown-list {
+  margin: var(--space-sm) 0 !important;
+  padding-left: var(--space-lg) !important;
+}
+
+.markdown-content .markdown-list-item {
+  margin: 4px 0 !important;
+  color: var(--color-text-secondary) !important;
+  position: relative !important;
+}
+
+.markdown-content .markdown-list-item::marker {
+  color: var(--color-text-accent) !important;
+}
+
+/* ----- 코드 ----- */
+.markdown-content .markdown-inline-code {
+  background: var(--color-surface-medium) !important;
+  color: var(--color-text-accent) !important;
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: 3px !important;
+  padding: 2px 4px !important;
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace !important;
+  font-size: clamp(10px, 2vw, 11px) !important;
+  font-weight: 500 !important;
+}
+
+.markdown-content .markdown-inline-code:hover {
+  background: rgba(6, 182, 212, 0.05) !important;
+  border-color: var(--color-text-accent) !important;
+  box-shadow: var(--shadow-minimal) !important;
+}
+
+.markdown-content .markdown-code-block {
+  margin: var(--space-md) 0 !important;
+  border: 1px solid var(--color-border-medium) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-minimal) !important;
+}
+
+.markdown-content .markdown-code-block .code-header {
+  background: var(--color-surface-light) !important;
+  color: var(--color-text-muted) !important;
+  padding: var(--space-xs) var(--space-sm) !important;
+  border-bottom: 1px solid var(--color-border-light) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+.markdown-content .markdown-code-block pre {
+  margin: 0 !important;
+  padding: var(--space-sm) !important;
+  overflow-x: auto !important;
+  background: #2D3748 !important;
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace !important;
+  font-size: clamp(10px, 2vw, 11px) !important;
+  line-height: 1.4 !important;
+  color: var(--color-surface-white) !important;
+}
+
+/* ----- 테이블 ----- */
+.markdown-content .markdown-table-container {
+  margin: var(--space-md) 0 !important;
+  overflow-x: auto !important;
+  border: 1px solid var(--color-border-light) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-soft) !important;
+  background: var(--color-surface-white) !important;
+}
+
+.markdown-content .markdown-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  font-size: var(--font-size-xs) !important;
+  background: transparent !important;
+}
+
+.markdown-content .markdown-table thead th {
+  background: linear-gradient(135deg, var(--color-surface-light) 0%, var(--color-surface-medium) 100%) !important;
+  color: var(--color-text-primary) !important;
+  padding: var(--space-xs) var(--space-sm) !important;
+  text-align: left !important;
+  font-weight: 600 !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+  border-bottom: 2px solid var(--color-border-accent) !important;
+  border-right: 1px solid var(--color-border-light) !important;
+  position: relative !important;
+}
+
+.markdown-content .markdown-table thead th:last-child {
+  border-right: none !important;
+}
+
+.markdown-content .markdown-table thead th::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: var(--color-text-accent) !important;
+  opacity: 0.3 !important;
+}
+
+.markdown-content .markdown-table tbody td {
+  padding: var(--space-xs) var(--space-sm) !important;
+  border-bottom: 1px solid var(--color-border-light) !important;
+  border-right: 1px solid var(--color-border-light) !important;
+  color: var(--color-text-secondary) !important;
+  font-size: var(--font-size-xs) !important;
+  line-height: 1.4 !important;
+}
+
+.markdown-content .markdown-table tbody td:last-child {
+  border-right: none !important;
+}
+
+.markdown-content .markdown-table tbody tr:last-child td {
+  border-bottom: none !important;
+}
+
+.markdown-content .markdown-table tbody tr:hover td {
+  background: rgba(6, 182, 212, 0.03) !important;
+  transition: background var(--motion-fast) !important;
+}
+
+.markdown-content .markdown-table tbody tr:nth-child(even) {
+  background: rgba(248, 250, 252, 0.5) !important;
+}
+
+/* ----- 알림 박스 ----- */
+.markdown-content .markdown-alert {
+  margin: var(--space-md) 0 !important;
+  padding: var(--space-sm) !important;
+  border: 1px solid !important;
+  border-radius: var(--radius-md) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: var(--space-sm) !important;
+  font-size: var(--font-size-xs) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.markdown-content .markdown-alert::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 3px !important;
+}
+
+.markdown-content .markdown-alert-icon {
+  font-size: 14px !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+
+.markdown-content .markdown-alert-info {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+  color: var(--color-text-primary) !important;
+}
+
+.markdown-content .markdown-alert-info::before {
+  background: var(--color-info) !important;
+}
+
+.markdown-content .markdown-alert-info .markdown-alert-icon {
+  color: var(--color-info) !important;
+}
+
+.markdown-content .markdown-alert-success {
+  background: #ECFDF5 !important;
+  border-color: #A7F3D0 !important;
+  color: var(--color-text-primary) !important;
+}
+
+.markdown-content .markdown-alert-success::before {
+  background: var(--color-success) !important;
+}
+
+.markdown-content .markdown-alert-success .markdown-alert-icon {
+  color: var(--color-success) !important;
+}
+
+.markdown-content .markdown-alert-warning {
+  background: #FFFBEB !important;
+  border-color: #FDE68A !important;
+  color: var(--color-text-primary) !important;
+}
+
+.markdown-content .markdown-alert-warning::before {
+  background: var(--color-warning) !important;
+}
+
+.markdown-content .markdown-alert-warning .markdown-alert-icon {
+  color: var(--color-warning) !important;
+}
+
+.markdown-content .markdown-alert-error {
+  background: #FEF2F2 !important;
+  border-color: #FECACA !important;
+  color: var(--color-text-primary) !important;
+}
+
+.markdown-content .markdown-alert-error::before {
+  background: var(--color-error) !important;
+}
+
+.markdown-content .markdown-alert-error .markdown-alert-icon {
+  color: var(--color-error) !important;
+}
+
+/* ----- 인용구 ----- */
+.markdown-content .markdown-blockquote {
+  margin: var(--space-md) 0 !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  background: var(--color-surface-light) !important;
+  border: 1px solid var(--color-border-light) !important;
+  /* border-left: 4px solid var(--color-text-accent) !important; */ /* 왼쪽 보더 제거 */
+  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
+  position: relative !important;
+}
+
+.markdown-content .markdown-blockquote::before {
+  content: '"' !important;
+  position: absolute !important;
+  top: var(--space-xs) !important;
+  left: var(--space-xs) !important;
+  font-size: 20px !important;
+  color: var(--color-text-accent) !important;
+  opacity: 0.3 !important;
+  font-weight: bold !important;
+}
+
+.markdown-content .markdown-blockquote p {
+  margin: 0 !important;
+  color: var(--color-text-secondary) !important;
+  font-style: italic !important;
+  padding-left: var(--space-sm) !important;
+}
+
+/* ----- 구분선 ----- */
+.markdown-content .markdown-hr {
+  border: none !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, transparent 0%, var(--color-border-medium) 50%, transparent 100%) !important;
+  margin: var(--space-lg) 0 !important;
+}
+
+/* ----- 스크롤바 스타일링 ----- */
+.markdown-content *::-webkit-scrollbar {
+  width: 4px !important;
+  height: 4px !important;
+}
+
+.markdown-content *::-webkit-scrollbar-track {
+  background: var(--color-surface-medium) !important;
+  border-radius: 2px !important;
+}
+
+.markdown-content *::-webkit-scrollbar-thumb {
+  background: var(--color-border-medium) !important;
+  border-radius: 2px !important;
+  transition: background var(--motion-fast) !important;
+}
+
+.markdown-content *::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-accent) !important;
+}
+
+/* ----- 반응형 조정 ----- */
+@media (max-width: 640px) {
+  .markdown-content .markdown-h1 {
+    font-size: 15px !important;
+  }
+  
+  .markdown-content .markdown-h2 {
+    font-size: 14px !important;
+  }
+  
+  .markdown-content .markdown-h3 {
+    font-size: 13px !important;
+  }
+  
+  .markdown-content .markdown-table thead th,
+  .markdown-content .markdown-table tbody td {
+    padding: 3px 5px !important;
+    font-size: 9px !important;
+  }
+  
+  .markdown-content .markdown-alert {
+    padding: var(--space-xs) !important;
+    gap: var(--space-xs) !important;
+  }
+  
+  .markdown-content .markdown-code-block pre {
+    padding: var(--space-xs) !important;
+    font-size: 8px !important;
+  }
+}
+
+/* ----- 간소화된 애니메이션 ----- */
+@media (prefers-reduced-motion: no-preference) {
+  .markdown-content .markdown-table tbody tr {
+    transition: background var(--motion-fast) !important;
+  }
+  
+  .markdown-content .markdown-link,
+  .markdown-content .markdown-inline-code {
+    transition: all var(--motion-fast) !important;
+  }
+}
