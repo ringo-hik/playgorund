@@ -419,16 +419,16 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  background: var(--color-surface-medium);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-border-light);
-  border-radius: 6px;
+  background: linear-gradient(135deg, var(--color-primary), rgba(37, 99, 235, 0.85));
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.2px;
   text-transform: uppercase;
-  box-shadow: none;
-  backdrop-filter: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
 }
 
 .user-emoji {
