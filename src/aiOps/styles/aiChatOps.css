@@ -125,7 +125,6 @@
 
   /* ----- 호환성을 위한 레거시 변수들 (단계적 제거 예정) ----- */
   /* 기존 코드와의 호환성 유지를 위해 임시로 유지 */
-  --color-primary: var(--color-primary);
   --primary-dark: var(--color-primary-dark);
   --accent-primary: var(--color-accent);
   --text-primary: var(--color-text-primary);
@@ -135,13 +134,72 @@
   --surface-light: var(--color-surface-light);
   --border-light: var(--color-border-light);
   --spacing-sm: var(--space-sm);
-  --space-md: var(--space-md);
   --spacing-lg: var(--space-lg);
   --spacing-xl: var(--space-xl);
-  --motion-fast: var(--motion-fast);
+  --motion-fast: var(--motion-duration-fast) var(--motion-ease-out);
   --shadow-sm: var(--shadow-minimal);
   --shadow-md: var(--shadow-soft);
   --shadow-lg: var(--shadow-gentle);
+
+  --opacity-subtle: 0.06;           /* 매우 은은한 투명도 */
+  --opacity-light: 0.08;            /* 가벼운 투명도 */
+  --opacity-medium: 0.12;           /* 중간 투명도 */
+  --opacity-accent: 0.15;           /* 강조 투명도 */
+  --opacity-strong: 0.2;            /* 강한 투명도 */
+
+  /* ----- 은은한 색상 조합 ----- */
+  --color-accent-subtle: rgba(6, 182, 212, var(--opacity-light));
+  --color-accent-medium: rgba(6, 182, 212, var(--opacity-medium));
+  --color-accent-strong: rgba(6, 182, 212, var(--opacity-accent));
+  --color-primary-subtle: rgba(37, 99, 235, var(--opacity-light));
+  --color-success-subtle: rgba(5, 150, 105, var(--opacity-accent));
+  --color-error-subtle: rgba(239, 68, 68, var(--opacity-subtle));
+
+  /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
+  --shadow-minimal: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));    /* 새로 추가 */
+  --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-gentle: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-moderate: 0 8px 15px rgba(0, 0, 0, var(--opacity-light));   /* 새로 추가 */
+  --shadow-floating: 0 12px 20px rgba(0, 0, 0, 0.10);
+  --shadow-accent-subtle: 0 2px 4px var(--color-accent-subtle);        /* 새로 추가 */
+  --shadow-accent-medium: 0 3px 8px var(--color-accent-strong);        /* 새로 추가 */
+
+  /* ----- 확장된 모션 시스템 (더 부드러운 애니메이션) ----- */
+  --motion-subtle: 0.2s cubic-bezier(0.4, 0, 0.2, 1);                 /* 새로 추가 */
+  --motion-gentle: 0.3s cubic-bezier(0.16, 1, 0.3, 1);                /* 새로 추가 */
+
+  /* ----- 변형 크기 (절제된 스케일링) ----- */
+  --transform-subtle: 1.02;         /* 매우 작은 확대 */
+  --transform-gentle: 1.05;         /* 부드러운 확대 */
+  --transform-lift: -1px;           /* 은은한 상승 */
+  --transform-lift-gentle: -2px;    /* 부드러운 상승 */
+
+  /* ----- Alert 시스템 색상 (기존 색상 유지하되 변수화) ----- */
+  --alert-info-bg: rgba(239, 246, 255, 0.8);
+  --alert-info-border: rgba(191, 219, 254, 0.8);
+  --alert-success-bg: rgba(236, 253, 245, 0.8);
+  --alert-success-border: rgba(167, 243, 208, 0.8);
+  --alert-warning-bg: rgba(255, 251, 235, 0.8);
+  --alert-warning-border: rgba(253, 230, 138, 0.8);
+  --alert-error-bg: rgba(254, 242, 242, 0.8);
+  --alert-error-border: rgba(254, 202, 202, 0.8);
+
+  /* ----- 개발자 도구 색상 ----- */
+  --dev-tooltip-bg: rgba(15, 23, 42, 0.95);
+  --dev-tooltip-border: var(--color-accent-medium);
+  --dev-text-muted: #94a3b8;
+  --dev-text-success: #4ade80;
+  --dev-text-active: #22c55e;
+
+  /* ----- 애니메이션 지속시간 (더 부드러운 타이밍) ----- */
+  --duration-loading: 1.6s;         /* 로딩 애니메이션 (기존 1.4s → 1.6s) */
+  --duration-pulse: 2.2s;           /* 펄스 애니메이션 (기존 2s → 2.2s) */
+  
+  /* ----- 블러 효과 ----- */
+  --blur-subtle: 4px;               /* 은은한 블러 */
+  --blur-medium: 8px;               /* 중간 블러 */
+  --blur-strong: 12px;              /* 강한 블러 */
 }
 
 /* ----- 테마 오버라이드 (기존 로직 유지하되 새 변수명 사용) ----- */
@@ -314,9 +372,12 @@ body {
 .message-bubble--ai {
   background: var(--color-surface-light);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border-light);
-  border-bottom-left-radius: var(--radius-sm);
-  box-shadow: var(--shadow-minimal);
+  border: none; /* 보더 제거 */
+  border-radius: var(--radius-md); /* 일반적인 모서리 */
+  box-shadow: none; /* 그림자 제거 */
+  max-width: calc(100% - var(--space-lg)); /* 최대 너비로 확장 */
+  margin-left: 0; /* 왼쪽 마진 제거 */
+  margin-right: var(--space-lg); /* 오른쪽 마진만 유지 */
 }
 
 /* ----- 유틸리티 클래스 ----- */
@@ -350,9 +411,316 @@ body {
 /* ----- 모션 감소 설정 지원 ----- */
 @media (prefers-reduced-motion: reduce) {
   * {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.05ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================================================
+   BUTTON SYSTEM - 통합 버튼 컴포넌트
+   =================================================================== */
+
+/* ----- 기본 버튼 스타일 ----- */
+.btn-system {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  font-family: var(--font-family);
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--motion-fast);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  position: relative;
+  outline: none;
+  background: transparent;
+}
+
+.btn-system:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.btn-system:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ----- 버튼 크기 변형 ----- */
+.btn-system--sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  min-height: 28px;
+}
+
+.btn-system--md {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-base);
+  min-height: 36px;
+}
+
+.btn-system--lg {
+  padding: var(--space-md) var(--space-lg);
+  font-size: var(--font-size-lg);
+  min-height: 44px;
+}
+
+/* ----- 아이콘 전용 버튼 ----- */
+.btn-system--icon-only {
+  padding: var(--space-xs);
+  aspect-ratio: 1;
+  gap: 0;
+}
+
+.btn-system--icon-only.btn-system--sm {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+}
+
+.btn-system--icon-only.btn-system--md {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
+
+.btn-system--icon-only.btn-system--lg {
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+/* ----- 블록 버튼 ----- */
+.btn-system--block {
+  width: 100%;
+}
+
+/* ----- 로딩 상태 ----- */
+.btn-system--loading {
+  pointer-events: none;
+}
+
+.btn-system--loading .ai-chatops-button__text {
+  opacity: 0.7;
+}
+
+/* ----- 버튼 색상 변형 ----- */
+
+/* Primary 버튼 */
+.btn-system--primary {
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  border-color: var(--color-primary);
+}
+
+.btn-system--primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-system--primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-minimal);
+}
+
+/* Secondary 버튼 */
+.btn-system--secondary {
+  background: var(--color-surface-medium);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+}
+
+.btn-system--secondary:hover:not(:disabled) {
+  background: var(--color-surface-light);
+  border-color: var(--color-border-accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Ghost 버튼 */
+.btn-system--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-color: var(--color-border-light);
+}
+
+.btn-system--ghost:hover:not(:disabled) {
+  background: var(--color-surface-light);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-medium);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-minimal);
+}
+
+/* Accent 버튼 */
+.btn-system--accent {
+  background: var(--color-accent);
+  color: var(--color-text-light);
+  border-color: var(--color-accent);
+}
+
+.btn-system--accent:hover:not(:disabled) {
+  background: #0891b2;
+  border-color: #0891b2;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent-medium);
+}
+
+/* Danger 버튼 */
+.btn-system--danger {
+  background: var(--color-error);
+  color: var(--color-text-light);
+  border-color: var(--color-error);
+}
+
+.btn-system--danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Success 버튼 */
+.btn-system--success {
+  background: var(--color-success);
+  color: var(--color-text-light);
+  border-color: var(--color-success);
+}
+
+.btn-system--success:hover:not(:disabled) {
+  background: #047857;
+  border-color: #047857;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ----- 버튼 내부 요소 스타일 ----- */
+.ai-chatops-button__icon {
+  flex-shrink: 0;
+  transition: transform var(--motion-fast);
+}
+
+.ai-chatops-button__text {
+  transition: opacity var(--motion-fast);
+}
+
+.ai-chatops-button__spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ----- 특수 버튼 스타일 ----- */
+
+/* 활성 상태 버튼 */
+.btn-system.action-btn--active {
+  background: var(--color-accent-medium) !important;
+  color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+}
+
+/* 연속 대화 버튼 */
+.continuous-chat-btn.action-btn--active {
+  background: var(--color-success-subtle) !important;
+  color: var(--color-success) !important;
+  border-color: var(--color-success) !important;
+}
+
+/* 클리어 버튼 */
+.clear-btn:hover:not(:disabled) {
+  background: var(--color-error) !important;
+  color: white !important;
+  border-color: var(--color-error) !important;
+}
+
+/* 홈 버튼 */
+.go-home-btn {
+  gap: var(--space-sm);
+}
+
+/* 피드백 버튼 */
+.feedback-btn {
+  gap: var(--space-sm);
+}
+
+/* 백 버튼 */
+.back-btn {
+  gap: var(--space-sm);
+}
+
+/* 빠른 질문 아이템 */
+.quick-item {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  justify-content: flex-start;
+  width: 100%;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.quick-item:hover:not(:disabled) {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* 전송 버튼 */
+.send-button {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.send-button:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.send-button.loading {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* 액션 버튼 */
+.action-btn {
+  background: transparent;
+  border-color: var(--color-border-light);
+}
+
+.action-btn:hover:not(:disabled) {
+  background: var(--color-surface-light);
+  border-color: var(--color-border-medium);
+}
+
+/* ----- 반응형 디자인 ----- */
+@media (max-width: 640px) {
+  .btn-system--sm {
+    min-height: 32px;
+    padding: var(--space-sm);
+  }
+  
+  .btn-system--md {
+    min-height: 40px;
+    padding: var(--space-sm) var(--space-lg);
+  }
+  
+  .btn-system--icon-only.btn-system--sm {
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
+  }
+  
+  .btn-system--icon-only.btn-system--md {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
   }
 }
 

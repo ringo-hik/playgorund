@@ -189,7 +189,7 @@
 </template>
 
 <script>
-import aiChatOpsService from '../services/aiChatOpsService.js';
+import aiChatOpsService from '@/services/aiChatOpsService.js';
 import { getText, getTextArray } from '../utils/i18n.js';
 import Elements from './Elements.vue';
 

@@ -1,11 +1,4 @@
 <template>
-<style scoped>
-.ai-chatops-chat {
-  background-color: var(--background);
-  color: var(--foreground);
-}
-</style>
-</insert_content>
   <div class="ai-chatops-chat">
     <button
       :class="['ai-chatops-chat-button', 'btn-system', 'btn-system--icon-only', { 'is-active': isOpen }]"
