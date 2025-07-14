@@ -1009,6 +1009,8 @@ export default {
   gap: var(--space-md);
   min-height: 64px;
   padding: var(--space-md);
+  border: 1px solid var(--color-border-light);
+  cursor: pointer;
 }
 
 .category-card.disabled {
@@ -1184,6 +1186,7 @@ export default {
   padding: var(--space-md);
   min-height: 80px;
   max-height: 80px;
+  cursor: pointer;
 }
 
 .persona-card.disabled {
