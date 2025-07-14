@@ -81,6 +81,14 @@
         </template>
         
         <template v-else>
+          <!-- User 메시지 브랜딩 -->
+          <div v-if="messageType === 'user'" class="user-message-brand">
+            <div class="user-badge">
+              <span class="user-emoji">👤</span>
+              <span>USER</span>
+            </div>
+          </div>
+          
           <!-- Bot 메시지 브랜딩 -->
           <div v-if="messageType === 'ai'" class="bot-message-brand">
             <div class="bot-badge">
@@ -347,7 +355,7 @@ export default {
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
-  border-left: 4px solid var(--color-primary);
+  /* border-left: 4px solid var(--color-primary); */ /* 왼쪽 보더 제거 */
   font-size: var(--font-size-base);
   line-height: 1.6;
   word-wrap: break-word;
@@ -382,10 +390,10 @@ export default {
 .message-bubble--error .message-bubble__content {
   background: var(--alert-error-bg) !important;
   color: var(--color-error) !important;
-  border-left-color: var(--color-error) !important;
+  /* border-left-color: var(--color-error) !important; */ /* 왼쪽 보더 제거 */
   padding: var(--space-md) var(--space-lg) !important;
   border-radius: var(--radius-lg) !important;
-  border-left: 4px solid var(--color-error) !important;
+  /* border-left: 4px solid var(--color-error) !important; */ /* 왼쪽 보더 제거 */
   box-shadow: var(--shadow-subtle) !important;
 }
 
@@ -396,6 +404,37 @@ export default {
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: -0.01em;
+}
+
+/* === USER MESSAGE BRANDING === */
+.user-message-brand {
+  position: relative;
+  margin-bottom: var(--space-sm);
+  z-index: 2;
+  text-align: left; /* 사용자 메시지를 왼쪽으로 정렬 */
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  background: var(--color-surface-medium);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.user-emoji {
+  font-size: 12px;
+  line-height: 1;
+  user-select: none;
 }
 
 /* === BOT MESSAGE BRANDING === */
