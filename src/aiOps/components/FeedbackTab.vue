@@ -112,8 +112,8 @@
 </template>
 
 <script>
-import { getText, getTextArray } from './utils/i18n';
-import Elements from './components/Elements.vue';
+import { getText, getTextArray } from '../utils/i18n';
+import Elements from './Elements.vue';
 
 export default {
   name: 'FeedbackTab',
