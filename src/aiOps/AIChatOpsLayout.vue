@@ -800,11 +800,46 @@ export default {
 </style>
 
 <style scoped>
+/* ----- 플로팅 챗봇 컨테이너 ----- */
+.ai-chatops-chat {
+  position: fixed;
+  bottom: var(--space-2xl);
+  right: var(--space-2xl);
+  z-index: 9999;
+  font-family: var(--font-family);
+}
+
 /* 🔧 FIX: GPU 가속 트랜지션으로 플리커링 방지 */
 .ai-chatops-chat-window {
+  position: absolute;
+  right: 0;
+  bottom: calc(var(--layout-float-size) + 16px);
+  width: var(--layout-chat-width);
+  height: var(--layout-chat-height);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--color-border-light);
+  border-radius: 15px;
+  box-shadow: var(--shadow-floating);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: all var(--motion-normal);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: transform, opacity;
+}
+
+.ai-chatops-chat-window.minimized {
+  height: var(--layout-header-height);
+}
+
+.ai-chatops-chat-window.maximized {
+  width: min(810px, 85vw);
+  height: min(750px, 90vh);
+  bottom: calc(var(--layout-float-size) + 24px);
+  right: 24px;
 }
 
 /* 기존 스타일 유지... */
@@ -1379,6 +1414,19 @@ export default {
   .category-content p,
   .persona-description {
     font-size: var(--font-size-xs);
+  }
+  
+  /* ----- 플로팅 챗봇 반응형 ----- */
+  .ai-chatops-chat {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .ai-chatops-chat-window {
+    width: calc(100vw - 32px);
+    height: calc(100vh - 100px);
+    max-width: none;
+    max-height: none;
   }
 }
 </style>
