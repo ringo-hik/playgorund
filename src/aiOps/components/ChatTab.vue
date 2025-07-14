@@ -1,12 +1,4 @@
-.enhanced-input::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .input-container.enhanced-input--scrolling::after {
-    content: "↕️ 스크롤";
-    font-size: 9px;
-    bottom: -20px;
-  }<template>
+<template>
   <div class="chat-tab">
     <div class="chat-area">
       <div class="chat-header">
