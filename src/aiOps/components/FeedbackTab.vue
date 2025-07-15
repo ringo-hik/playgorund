@@ -1,406 +1,662 @@
-<template>
-  <div class="feedback-tab">
-    <div v-if="resultMessage" class="result" :class="resultType">
-      <template v-if="resultType === 'success'">
-        <unicon name="check-circle" fill="var(--success-color)" :width="24" :height="24" />
-        <div class="result-content">
-          <h4>{{ getText('feedbackSuccess') }}</h4>
-          <p>{{ resultMessage }}</p>
-        </div>
-        <div class="result-actions">
-          <Elements
-            component-type="button"
-            @click="resetForm"
-            variant="primary"
-            icon="plus"
-          >
-            {{ getText('sendAnother') }}
-          </Elements>
-          <Elements
-            component-type="button"
-            @click="$emit('go-home')"
-            variant="accent"
-            icon="home"
-          >
-            {{ getText('goHome') }}
-          </Elements>
-        </div>
-      </template>
-      
-      <template v-if="resultType === 'error'">
-        <unicon name="exclamation-triangle" fill="var(--error-color)" :width="20" :height="20" />
-        <span>{{ resultMessage }}</span>
-      </template>
-    </div>
+import axios from 'axios';
 
-    <div v-if="!resultMessage || resultType === 'error'" class="feedback-form">
-      <div class="form-header">
-        <unicon name="heart" fill="var(--color-primary)" :width="32" :height="32" />
-        <h3>{{ getText('feedbackTitle') }}</h3>
-        <p>{{ getText('feedbackDescription') }}</p>
-      </div>
+const API_BASE_URL = '/api/v1/devportal/ai-chatops';
 
-      <div class="rating-section">
-        <label class="section-label">
-          <unicon name="star" fill="var(--color-primary)" :width="16" :height="16" />
-          {{ getText('ratingLabel') }}
-        </label>
-        
-        <Elements
-          component-type="rating"
-          v-model="selectedRating"
-          :disabled="isSubmitting"
-          :show-text="true"
-          :text-labels="ratingTexts"
-          size="md"
-          @change="clearResult"
-        />
-      </div>
+const aiChatOpsService = {
 
-      <div class="comment-section">
-        <label class="section-label" for="feedback-comment">
-          <unicon name="edit" fill="var(--color-primary)" :width="16" :height="16" />
-          {{ getText('feedbackComment') }}
-          <span class="required">*</span>
-        </label>
-        
-        <textarea 
-          id="feedback-comment"
-          v-model="comment" 
-          :placeholder="getText('commentPlaceholder')"
-          maxlength="1000"
-          @input="updateCharCount"
-          class="comment-textarea form-input form-textarea"
-          :disabled="isSubmitting"
-          required
-        />
-        
-        <div class="char-count">
-          {{ comment.length }} / 1000
-        </div>
-      </div>
+  async healthCheck() {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/health`, {
+        timeout: 10000
+      });
 
-      <div class="form-actions">
-        <Elements
-          component-type="button"
-          @click="submitFeedback" 
-          :disabled="!isFormValid" 
-          :loading="isSubmitting"
-          variant="primary"
-          icon="message"
-          size="lg"
-          block
-          class="submit-btn"
-        >
-          {{ getText('submitFeedback') }}
-        </Elements>
-        
-        <Elements
-          component-type="button"
-          @click="$emit('go-home')" 
-          variant="outline"
-          icon="home"
-          size="lg"
-          block
-          class="home-btn"
-        >
-          {{ getText('goHome') }}
-        </Elements>
-      </div>
-    </div>
-  </div>
-</template>
-
-<script>
-import { getText, getTextArray } from '../utils/i18n';
-import Elements from './Elements.vue';
-
-export default {
-  name: 'FeedbackTab',
-  components: {
-    Elements
-  },
-  
-  props: {
-    currentLanguage: {
-      type: String,
-      default: 'ko',
-      validator: value => ['ko', 'en'].includes(value)
-    }
-  },
-  
-  data() {
-    return {
-      selectedRating: 0,
-      comment: '',
-      isSubmitting: false,
-      resultMessage: '',
-      resultType: '',
-    };
-  },
-  
-  computed: {
-    ratingTexts() {
-      return getTextArray(this.currentLanguage, 'ratingTexts');
-    },
-    
-    isFormValid() {
-      return this.comment.trim().length > 0;
-    }
-  },
-  
-  methods: {
-    getText(key, params = {}) {
-      return getText(this.currentLanguage, key, params);
-    },
-    
-    updateCharCount() {
-      this.clearResult();
-    },
-    
-    clearResult() {
-      if (this.resultMessage && this.resultType === 'error') {
-        this.resultMessage = '';
-        this.resultType = '';
-      }
-    },
-    
-    submitFeedback() {
-      if (!this.isFormValid || this.isSubmitting) return;
-      
-      this.isSubmitting = true;
-      this.resultMessage = '';
-      this.resultType = '';
-      
-      const feedbackData = {
-        rating: this.selectedRating || null,
-        comment: this.comment.trim()
+      return {
+        success: true,
+        data: response.data,
+        message: response.data.message || 'Health check successful'
       };
-      
-      this.$emit('feedback-sent', feedbackData);
-    },
-    
-    showSuccess(message) {
-      this.isSubmitting = false;
-      this.resultMessage = message || this.getText('feedbackSuccess');
-      this.resultType = 'success';
-    },
-    
-    showError(message) {
-      this.isSubmitting = false;
-      this.resultMessage = message || 'An error occurred while sending feedback.';
-      this.resultType = 'error';
-    },
-    
-    resetForm() {
-      this.selectedRating = 0;
-      this.comment = '';
-      this.isSubmitting = false;
-      this.resultMessage = '';
-      this.resultType = '';
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
     }
+  },
+
+  async getPersonas() {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/personas`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'Personas loaded successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async getPersonaByCode(personaCode) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'Persona loaded successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async getSystemPrompt(personaCode) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'System prompt loaded successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async updateSystemPrompt(personaCode, systemPrompt) {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
+        systemPrompt: systemPrompt
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'System prompt updated successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async sendMessage(messageData) {
+    try {
+      const requestBody = {
+        personaCode: messageData.personaCode,
+        userQuery: messageData.userQuery,
+        sessionId: messageData.sessionId
+      };
+
+      if (messageData.queryHistory && messageData.queryHistory.length > 0) {
+        requestBody.queryHistory = messageData.queryHistory;
+      }
+
+      const response = await axios.post(`${API_BASE_URL}/message/async`, requestBody, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 60000
+      });
+
+      return {
+        success: true,
+        aiQuery: response.data.data || response.data,
+        sessionId: response.data.sessionId || messageData.sessionId,
+        message: response.data.message || 'Message sent successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async makeQuickQuestions(personaCode, sessionId) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/quick-questions`, {
+        personaCode: personaCode,
+        sessionId: sessionId
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      });
+
+      return {
+        success: true,
+        data: this.parseQuickQuestions(response.data.data || response.data),
+        message: response.data.message || 'Quick questions generated successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  parseQuickQuestions(rawData) {
+    if (!rawData) return [];
+    
+    try {
+      let cleanData = rawData;
+      
+      if (typeof rawData === 'string') {
+        cleanData = rawData.trim();
+        
+        const jsonMatch = cleanData.match(/\[.*\]/s);
+        if (jsonMatch) {
+          const questions = JSON.parse(jsonMatch[0]);
+          return Array.isArray(questions) ? questions : [];
+        }
+        
+        const lines = cleanData.split('\n')
+          .map(line => line.trim())
+          .filter(line => line && !line.match(/^[\[\]\r\n\s]*$/))
+          .map(line => line.replace(/^[0-9]+\.?\s*/, '').replace(/^["']|["']$/g, ''))
+          .filter(line => line.length > 0);
+        
+        return lines.slice(0, 5);
+      }
+      
+      return Array.isArray(rawData) ? rawData : [];
+    } catch (error) {
+      return [];
+    }
+  },
+
+  async getConversations(personaCode) {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/conversations/${personaCode}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'Conversations loaded successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async deleteConversations(personaCode) {
+    try {
+      const response = await axios.delete(`${API_BASE_URL}/conversations/${personaCode}`, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'Conversations deleted successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  async sendFeedback(feedbackData) {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/feedback`, {
+        rating: feedbackData.rating,
+        feedbackPersona: feedbackData.feedbackPersona,
+        comment: feedbackData.comment
+      }, {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 20000
+      });
+
+      return {
+        success: true,
+        data: response.data.data || response.data,
+        message: response.data.message || 'Feedback sent successfully'
+      };
+
+    } catch (error) {
+      return {
+        success: false,
+        errorMessage: this.getErrorMessage(error),
+        error: error
+      };
+    }
+  },
+
+  getPersonaIcon(personaCode, iconPath) {
+    if (iconPath && iconPath.trim()) {
+      return iconPath.trim();
+    }
+
+    const iconMap = {
+      'swdp_api': 'code',
+      'technical_expert': 'cpu',
+      'data_analyst': 'database',
+      'security_expert': 'shield',
+      'developer': 'terminal',
+      'architect': 'compass',
+      
+      'project': 'briefcase',
+      'project_manager': 'target',
+      'business_analyst': 'lightbulb',
+      'consultant': 'award',
+      'strategist': 'gem',
+      
+      'personal_assistant': 'user',
+      'user_support': 'users',
+      'customer_service': 'mail',
+      'operation_support': 'settings',
+      'voc': 'phone',
+      
+      'designer': 'palette',
+      'content_creator': 'edit',
+      'marketing': 'rocket',
+      'researcher': 'brain',
+      'teacher': 'book',
+      'musician': 'music',
+      'gamer': 'gamepad',
+      
+      'swdp_menu': 'grid',
+      'project_info': 'info',
+      'general_inquiry': 'message-circle',
+      'ai_assistant': 'robot',
+      'magic_helper': 'star',
+      'innovation': 'star'
+    };
+
+    if (!iconMap[personaCode]) {
+      return this.getRandomPersonaIcon(personaCode);
+    }
+
+    return iconMap[personaCode];
+  },
+
+  getRandomPersonaIcon(personaCode) {
+    const availableIcons = [
+      'star', 'heart', 'rocket', 'gem', 'lightbulb', 
+      'brain', 'compass', 'target', 'award', 'shield', 'book', 'palette',
+      'music', 'camera', 'briefcase', 'cpu', 'database', 'code', 'terminal'
+    ];
+    
+    const seed = this.hashCode(personaCode || 'default');
+    const index = Math.abs(seed) % availableIcons.length;
+    
+    return availableIcons[index];
+  },
+
+  hashCode(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash;
+  },
+
+  getQuickQuestions(personaCode, language) {
+    const questionMap = {
+      ko: {
+        'swdp_menu': [
+          '메뉴 구조를 알려주세요',
+          '주요 기능은 무엇인가요?'
+        ],
+        'project': [
+          '프로젝트 현황을 보여주세요',
+          '팀원 정보를 알려주세요'
+        ],
+        'voc': [
+          'VOC 현황을 확인해주세요',
+          '최근 이슈는 무엇인가요?'
+        ],
+        'project_info': [
+          '프로젝트 상세 정보',
+          '기술 스택 정보'
+        ],
+        'swdp_api': [
+          'API 문서를 보여주세요',
+          '인증 방법은?'
+        ],
+        'personal_assistant': [
+          '개인 업무 일정을 정리해주세요',
+          '오늘 할 일을 추천해주세요'
+        ],
+        'operation_support': [
+          '시스템 운영 현황을 확인해주세요',
+          '모니터링 대시보드를 보여주세요'
+        ],
+        'user_support': [
+          '사용자 문의 현황은?',
+          '자주 묻는 질문을 알려주세요'
+        ],
+        'data_analyst': [
+          '데이터 분석 결과를 요약해주세요',
+          '트렌드 분석을 해주세요'
+        ],
+        'technical_expert': [
+          '기술 문서를 찾아주세요',
+          '개발 가이드를 알려주세요'
+        ]
+      },
+      en: {
+        'swdp_menu': [
+          'Show me the menu structure',
+          'What are the main features?'
+        ],
+        'project': [
+          'Show project status',
+          'Tell me about team members'
+        ],
+        'voc': [
+          'Check VOC status',
+          'What are recent issues?'
+        ],
+        'project_info': [
+          'Project details',
+          'Tech stack information'
+        ],
+        'swdp_api': [
+          'Show API documentation',
+          'How to authenticate?'
+        ],
+        'personal_assistant': [
+          'Organize my personal schedule',
+          'Recommend today\'s tasks'
+        ],
+        'operation_support': [
+          'Check system operation status',
+          'Show monitoring dashboard'
+        ],
+        'user_support': [
+          'What\'s the user inquiry status?',
+          'Show me frequently asked questions'
+        ],
+        'data_analyst': [
+          'Summarize data analysis results',
+          'Perform trend analysis'
+        ],
+        'technical_expert': [
+          'Find technical documentation',
+          'Show development guide'
+        ]
+      }
+    };
+
+    return questionMap[language]?.[personaCode] || [];
+  },
+
+  convertConversationsToMessages(conversations) {
+    const messages = [];
+    
+    if (!Array.isArray(conversations)) {
+      return messages;
+    }
+
+    conversations.forEach((conv, index) => {
+      if (conv.userQuery) {
+        messages.push({
+          id: `user-${index}-${Date.now()}`,
+          type: 'user',
+          content: conv.userQuery,
+          timestamp: new Date(conv.createdDate).getTime(),
+          isLoading: false
+        });
+      }
+
+      if (conv.aiQuery || conv.aiResponse) {
+        messages.push({
+          id: `ai-${index}-${Date.now()}`,
+          type: 'ai',
+          content: conv.aiQuery || conv.aiResponse,
+          timestamp: new Date(conv.createdDate).getTime() + 1,
+          isLoading: false
+        });
+      }
+    });
+
+    return messages.sort((a, b) => a.timestamp - b.timestamp);
+  },
+
+  htmlToMarkdown(htmlContent) {
+    if (!htmlContent || typeof htmlContent !== 'string') {
+      return htmlContent;
+    }
+
+    let markdown = htmlContent;
+
+    markdown = markdown.replace(/<div class="markdown-table-container">(.*?)<\/div>/gs, (match, tableContent) => {
+      const tableMatch = tableContent.match(/<table[^>]*class="markdown-table"[^>]*>(.*?)<\/table>/s);
+      if (!tableMatch) return '';
+      
+      const table = tableMatch[1];
+      let result = '\n';
+      
+      const headerMatch = table.match(/<thead>(.*?)<\/thead>/s);
+      if (headerMatch) {
+        const headers = headerMatch[1].match(/<th[^>]*>(.*?)<\/th>/gs);
+        if (headers) {
+          const headerText = headers.map(h => this.stripHtml(h.replace(/<th[^>]*>|<\/th>/g, '')).trim()).join(' | ');
+          result += `| ${headerText} |\n`;
+          result += `| ${headers.map(() => '---').join(' | ')} |\n`;
+        }
+      }
+      
+      const bodyMatch = table.match(/<tbody>(.*?)<\/tbody>/s);
+      if (bodyMatch) {
+        const rows = bodyMatch[1].match(/<tr[^>]*>(.*?)<\/tr>/gs);
+        if (rows) {
+          rows.forEach(row => {
+            const cells = row.match(/<td[^>]*>(.*?)<\/td>/gs);
+            if (cells) {
+              const cellText = cells.map(c => this.stripHtml(c.replace(/<td[^>]*>|<\/td>/g, '')).trim()).join(' | ');
+              result += `| ${cellText} |\n`;
+            }
+          });
+        }
+      }
+      
+      return result + '\n';
+    });
+
+    markdown = markdown.replace(/<h([1-6])[^>]*class="markdown-heading[^"]*"[^>]*>(.*?)<\/h[1-6]>/gs, (match, level, content) => {
+      const text = this.stripHtml(content).trim();
+      return '\n' + '#'.repeat(parseInt(level)) + ' ' + text + '\n\n';
+    });
+
+    markdown = markdown.replace(/<p[^>]*class="markdown-paragraph"[^>]*>(.*?)<\/p>/gs, (match, content) => {
+      return this.stripHtml(content).trim() + '\n\n';
+    });
+
+    markdown = markdown.replace(/<strong[^>]*class="markdown-strong"[^>]*>(.*?)<\/strong>/gs, (match, content) => {
+      return '**' + this.stripHtml(content).trim() + '**';
+    });
+
+    markdown = markdown.replace(/<code[^>]*class="markdown-inline-code"[^>]*>(.*?)<\/code>/gs, (match, content) => {
+      return '`' + this.stripHtml(content).trim() + '`';
+    });
+
+    markdown = markdown.replace(/<div[^>]*class="markdown-code-block"[^>]*>(.*?)<\/div>/gs, (match, content) => {
+      const langMatch = content.match(/<div[^>]*class="language-label"[^>]*>(.*?)<\/div>/);
+      const codeMatch = content.match(/<pre><code>(.*?)<\/code><\/pre>/s);
+      
+      if (codeMatch) {
+        const language = langMatch ? this.stripHtml(langMatch[1]).trim() : '';
+        const code = this.stripHtml(codeMatch[1]);
+        return '\n```' + language + '\n' + code + '\n```\n\n';
+      }
+      return '';
+    });
+
+    markdown = markdown.replace(/<ul[^>]*class="markdown-list"[^>]*>(.*?)<\/ul>/gs, (match, content) => {
+      const items = content.match(/<li[^>]*class="markdown-list-item"[^>]*>(.*?)<\/li>/gs);
+      if (items) {
+        return '\n' + items.map(item => {
+          const text = this.stripHtml(item.replace(/<li[^>]*>|<\/li>/g, '')).trim();
+          return '- ' + text;
+        }).join('\n') + '\n\n';
+      }
+      return '';
+    });
+
+    markdown = markdown.replace(/<div[^>]*class="markdown-alert[^"]*"[^>]*>(.*?)<\/div>/gs, (match, content) => {
+      const text = this.stripHtml(content).replace(/^[^\w]*/, '').trim();
+      return '\n> ' + text + '\n\n';
+    });
+
+    markdown = this.stripHtml(markdown);
+
+    markdown = markdown.replace(/\n{3,}/g, '\n\n').trim();
+
+    return markdown;
+  },
+
+  htmlToPlainText(htmlContent) {
+    if (!htmlContent || typeof htmlContent !== 'string') {
+      return htmlContent;
+    }
+
+    let text = htmlContent;
+
+    text = text.replace(/<div class="markdown-table-container">(.*?)<\/div>/gs, (match, tableContent) => {
+      const tableMatch = tableContent.match(/<table[^>]*>(.*?)<\/table>/s);
+      if (!tableMatch) return '';
+      
+      const table = tableMatch[1];
+      let result = '\n';
+      
+      const headerMatch = table.match(/<thead>(.*?)<\/thead>/s);
+      if (headerMatch) {
+        const headers = headerMatch[1].match(/<th[^>]*>(.*?)<\/th>/gs);
+        if (headers) {
+          result += headers.map(h => this.stripHtml(h.replace(/<th[^>]*>|<\/th>/g, '')).trim()).join('\t') + '\n';
+        }
+      }
+      
+      const bodyMatch = table.match(/<tbody>(.*?)<\/tbody>/s);
+      if (bodyMatch) {
+        const rows = bodyMatch[1].match(/<tr[^>]*>(.*?)<\/tr>/gs);
+        if (rows) {
+          rows.forEach(row => {
+            const cells = row.match(/<td[^>]*>(.*?)<\/td>/gs);
+            if (cells) {
+              result += cells.map(c => this.stripHtml(c.replace(/<td[^>]*>|<\/td>/g, '')).trim()).join('\t') + '\n';
+            }
+          });
+        }
+      }
+      
+      return result;
+    });
+
+    text = text.replace(/<h[1-6][^>]*>(.*?)<\/h[1-6]>/gs, (match, content) => {
+      return '\n' + this.stripHtml(content).trim() + '\n';
+    });
+
+    text = text.replace(/<p[^>]*>(.*?)<\/p>/gs, (match, content) => {
+      return this.stripHtml(content).trim() + '\n';
+    });
+
+    text = text.replace(/<li[^>]*>(.*?)<\/li>/gs, (match, content) => {
+      return '• ' + this.stripHtml(content).trim() + '\n';
+    });
+
+    text = text.replace(/<pre><code>(.*?)<\/code><\/pre>/gs, (match, content) => {
+      return '\n' + this.stripHtml(content) + '\n';
+    });
+
+    text = this.stripHtml(text);
+
+    text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+    return text;
+  },
+
+  stripHtml(html) {
+    if (!html) return '';
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  },
+
+  getErrorMessage(error) {
+    if (error?.response?.status !== undefined) {
+      return error.response.status; 
+    }
+
+    if (error?.request) {
+      return error.code || 'REQUEST_ERROR';
+    }
+
+    return error?.message || 'UNKNOWN_ERROR';
   }
 };
-</script>
 
-<style scoped>
-.feedback-tab {
-  height: 100%;
-  background: var(--color-surface-light);
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-lg) var(--space-xl) var(--space-xl);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.form-header {
-  text-align: center;
-  margin-bottom: var(--space-lg);
-  flex-shrink: 0;
-}
-
-.form-header h3 {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0 0 6px 0;
-  letter-spacing: -0.01em;
-}
-
-.form-header p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-  margin: 0;
-}
-
-.feedback-form {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.rating-section {
-  flex-shrink: 0;
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-minimal);
-  transition: all var(--motion-normal);
-}
-
-.rating-section:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-soft);
-}
-
-.comment-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-minimal);
-  transition: all var(--motion-normal);
-  min-height: 0;
-}
-
-.comment-section:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-soft);
-}
-
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
-  cursor: pointer;
-}
-
-.required {
-  color: var(--color-error);
-  margin-left: 2px;
-}
-
-.comment-textarea {
-  flex: 1;
-  min-height: 120px;
-  background: var(--color-surface-light);
-  margin-bottom: 0;
-  resize: vertical;
-}
-
-.comment-textarea:focus {
-  background: var(--color-surface-white);
-}
-
-.char-count {
-  text-align: right;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-sm);
-  font-weight: 500;
-}
-
-.form-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
-
-.submit-btn,
-.home-btn {
-  height: 48px !important;
-  min-height: 48px !important;
-}
-
-.result {
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-lg);
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  box-shadow: var(--shadow-soft);
-  flex-shrink: 0;
-}
-
-.result.success {
-  border-color: var(--color-success);
-  background: var(--alert-success-bg);
-  flex-direction: column;
-  text-align: center;
-}
-
-.result.error {
-  border-color: var(--color-error);
-  background: var(--alert-error-bg);
-  color: var(--color-error);
-  flex-direction: row;
-  text-align: left;
-}
-
-.result-content h4 {
-  margin: 0 0 6px 0;
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.result-content p {
-  margin: 0;
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-.result-actions {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
-}
-
-@media (max-width: 640px) {
-  .feedback-tab {
-    padding: var(--space-md) var(--space-lg) var(--space-lg);
-  }
-  
-  .form-header {
-    margin-bottom: var(--space-lg);
-  }
-  
-  .rating-section,
-  .comment-section {
-    padding: var(--space-md);
-  }
-  
-  .submit-btn,
-  .home-btn {
-    height: 44px !important;
-    min-height: 44px !important;
-    font-size: var(--font-size-sm) !important;
-  }
-  
-  .result-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .result-actions .premium-button {
-    width: 100%;
-    justify-content: center;
-  }
-}
-</style>
+export default aiChatOpsService;

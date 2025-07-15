@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Premium Button System -->
     <component 
       v-if="componentType === 'button'"
       :is="'button'"
@@ -16,7 +15,7 @@
         class="ai-chatops-button__spinner"
       />
       
-      <unicon
+      <LucideIcon
         v-if="icon && !loading"
         :name="icon"
         fill="currentColor"
@@ -30,7 +29,6 @@
       </span>
     </component>
 
-    <!-- Premium Spinner System -->
     <div
       v-if="componentType === 'spinner'"
       :class="spinnerClasses"
@@ -39,7 +37,6 @@
       <span class="sr-only">{{ loadingText }}</span>
     </div>
 
-    <!-- Premium Rating System -->
     <div v-if="componentType === 'rating'" class="star-rating">
       <div class="star-rating__stars">
         <button
@@ -54,7 +51,7 @@
           :disabled="disabled"
           type="button"
         >
-          <unicon
+          <LucideIcon
             name="star"
             :fill="getStarFill(star)"
             :width="starIconSize"
@@ -68,9 +65,8 @@
       </div>
     </div>
 
-    <!-- Enhanced Message System -->
     <div v-if="componentType === 'message'" :class="['message', `message--${messageType}`]">
-      <div :class="messageClasses" @mouseenter="showActions = true" @mouseleave="showActions = false">
+      <div :class="messageClasses">
         <template v-if="loading">
           <div class="message-bubble__loading">
             <div class="loading-dots">
@@ -81,32 +77,35 @@
         </template>
         
         <template v-else>
-          <!-- User 메시지 브랜딩 -->
           <div v-if="messageType === 'user'" class="user-message-brand">
             <div class="user-badge">
-              <span class="user-emoji">👤</span>
+              <LucideIcon name="user" fill="currentColor" :width="14" :height="14" />
               <span>USER</span>
             </div>
-          </div>
-          
-          <!-- Bot 메시지 브랜딩 -->
-          <div v-if="messageType === 'ai'" class="bot-message-brand">
-            <div class="bot-badge">
-              <span class="bot-emoji">🤖</span>
-              <span>Bot</span>
+            <div v-if="timestamp" class="message-timestamp">
+              {{ formatTimestamp(timestamp) }}
             </div>
           </div>
           
-          <div class="message-bubble__content" v-html="content"></div>
+          <div v-if="messageType === 'ai'" class="bot-message-brand">
+            <div class="bot-badge">
+              <LucideIcon name="robot" fill="currentColor" :width="14" :height="14" />
+              <span>Bot</span>
+            </div>
+            <div v-if="timestamp" class="message-timestamp">
+              {{ formatTimestamp(timestamp) }}
+            </div>
+          </div>
           
-          <!-- Enhanced Actions -->
-          <div v-if="messageType === 'ai' && showActions && !isError" class="message-bubble__actions">
+          <div class="message-bubble__content" v-html="formattedContent"></div>
+          
+          <div v-if="messageType === 'ai' && !isError" class="message-bubble__actions">
             <button
               v-if="showCopy"
               :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': copyStatus === 'copied' }]"
               @click="handleCopy"
             >
-              <unicon :name="copyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon :name="copyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12" :height="12" />
             </button>
           </div>
         </template>
@@ -116,8 +115,13 @@
 </template>
 
 <script>
+import LucideIcon from './LucideIcon.vue';
+
 export default {
   name: 'Elements',
+  components: {
+    LucideIcon
+  },
   
   props: {
     componentType: {
@@ -136,25 +140,23 @@ export default {
     centered: { type: Boolean, default: false },
     loadingText: { type: String, default: '로딩 중입니다...' },
     
-    // Rating props
     value: { type: Number, default: 0 },
     maxRating: { type: Number, default: 5 },
     showText: { type: Boolean, default: false },
     textLabels: { type: Array, default: () => ['매우 나쁨', '나쁨', '보통', '좋음', '매우 좋음'] },
     
-    // Message props
     messageType: { type: String, default: 'user' },
-    content: { type: String, default: '' },
+    content: { type: [String, Number], default: '' },
     loadingMessage: { type: String, default: '응답을 생성하고 있습니다...' },
     isError: { type: Boolean, default: false },
     showCopy: { type: Boolean, default: true },
-    copyStatus: { type: String, default: null }
+    copyStatus: { type: String, default: null },
+    timestamp: { type: [Number, String, Date], default: null }
   },
   
   data() {
     return {
-      hoverRating: 0,
-      showActions: false
+      hoverRating: 0
     };
   },
   
@@ -202,6 +204,10 @@ export default {
     
     currentRating() {
       return this.hoverRating || this.value;
+    },
+    
+    formattedContent() {
+      return String(this.content || '');
     }
   },
   
@@ -243,13 +249,41 @@ export default {
     
     handleCopy() {
       this.$emit('copy');
+    },
+    
+    formatTimestamp(timestamp) {
+      if (!timestamp) return '';
+      
+      const date = new Date(timestamp);
+      const now = new Date();
+      const diff = now - date;
+      
+      if (diff < 60000) {
+        return '방금 전';
+      }
+      
+      if (diff < 3600000) {
+        const minutes = Math.floor(diff / 60000);
+        return `${minutes}분 전`;
+      }
+      
+      if (diff < 86400000) {
+        const hours = Math.floor(diff / 3600000);
+        return `${hours}시간 전`;
+      }
+      
+      return date.toLocaleDateString('ko-KR', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     }
   }
 };
 </script>
 
 <style scoped>
-/* === PREMIUM SPINNER SYSTEM === */
 .loading-spinner {
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-top-color: var(--color-primary);
@@ -273,7 +307,6 @@ export default {
   border-top-color: var(--color-accent);
 }
 
-/* === PREMIUM RATING SYSTEM === */
 .star-rating {
   display: flex;
   flex-direction: column;
@@ -325,7 +358,6 @@ export default {
   transition: all var(--motion-fast);
 }
 
-/* === ENHANCED MESSAGE SYSTEM - CLAUDE.AI STYLE === */
 .message {
   width: 100%;
   padding: var(--space-lg) var(--space-xl);
@@ -341,7 +373,6 @@ export default {
   transition: all var(--motion-fast);
 }
 
-/* === USER MESSAGE STYLING - CLAUDE.AI STYLE === */
 .message-bubble--user {
   width: 100%;
   background: transparent;
@@ -355,7 +386,6 @@ export default {
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
-  /* border-left: 4px solid var(--color-primary); */ /* 왼쪽 보더 제거 */
   font-size: var(--font-size-base);
   line-height: 1.6;
   word-wrap: break-word;
@@ -363,7 +393,6 @@ export default {
   margin-bottom: var(--space-md);
 }
 
-/* === BOT MESSAGE STYLING - CLAUDE.AI STYLE === */
 .message-bubble--ai {
   width: 100%;
   border-radius: 0;
@@ -390,10 +419,8 @@ export default {
 .message-bubble--error .message-bubble__content {
   background: var(--alert-error-bg) !important;
   color: var(--color-error) !important;
-  /* border-left-color: var(--color-error) !important; */ /* 왼쪽 보더 제거 */
   padding: var(--space-md) var(--space-lg) !important;
   border-radius: var(--radius-lg) !important;
-  /* border-left: 4px solid var(--color-error) !important; */ /* 왼쪽 보더 제거 */
   box-shadow: var(--shadow-subtle) !important;
 }
 
@@ -406,12 +433,15 @@ export default {
   letter-spacing: -0.01em;
 }
 
-/* === USER MESSAGE BRANDING === */
 .user-message-brand {
   position: relative;
   margin-bottom: var(--space-sm);
   z-index: 2;
-  text-align: left; /* 사용자 메시지를 왼쪽으로 정렬 */
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .user-badge {
@@ -431,17 +461,21 @@ export default {
   backdrop-filter: blur(4px);
 }
 
-.user-emoji {
-  font-size: 12px;
-  line-height: 1;
-  user-select: none;
+.user-badge .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
 }
 
-/* === BOT MESSAGE BRANDING === */
 .bot-message-brand {
   position: relative;
   margin-bottom: var(--space-sm);
   z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
 .bot-badge {
@@ -449,7 +483,7 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  background: linear-gradient(90deg, var(--color-accent), var(--color-primary-dark));
+  background: var(--color-primary);
   color: white;
   border-radius: 14px;
   font-size: 11px;
@@ -457,15 +491,34 @@ export default {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   box-shadow: var(--shadow-accent-subtle);
-  backdrop-filter: blur(var(--blur-subtle));
 }
 
-.bot-emoji {
-  font-size: 12px;
-  line-height: 1;
+.bot-badge .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
 }
 
-/* === LOADING ANIMATION === */
+.message-timestamp {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 2px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-light);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+  user-select: none;
+  opacity: 0.8;
+  transition: opacity var(--motion-fast);
+}
+
+.message-timestamp:hover {
+  opacity: 1;
+}
+
 .message-bubble__loading {
   display: flex;
   flex-direction: column;
@@ -502,27 +555,21 @@ export default {
   text-align: center;
 }
 
-/* === MESSAGE CONTENT === */
 .message-bubble__content {
   word-wrap: break-word;
   line-height: 1.6;
   color: var(--color-text-primary);
 }
 
-/* === ENHANCED ACTIONS - 좌하단 배치 === */
 .message-bubble__actions {
   position: absolute;
-  bottom: var(--space-sm);
-  left: 0;
+  bottom: -10px;
+  right: 0px;
   display: flex;
   gap: var(--space-sm);
-  opacity: 0;
+  opacity: 1;
   transition: opacity var(--motion-fast);
   z-index: 3;
-}
-
-.message-bubble:hover .message-bubble__actions {
-  opacity: 1;
 }
 
 .message-action {
@@ -531,7 +578,6 @@ export default {
   min-height: 32px !important;
   background: rgba(255, 255, 255, 0.95) !important;
   border: 1px solid var(--color-border-medium) !important;
-  backdrop-filter: blur(var(--blur-subtle)) !important;
   box-shadow: var(--shadow-moderate) !important;
   border-radius: var(--radius-md) !important;
 }
@@ -546,16 +592,13 @@ export default {
   background: var(--color-success) !important;
   border-color: var(--color-success) !important;
   color: white !important;
-  transform: scale(var(--transform-gentle)) !important;
 }
 
 .message-action--copied:hover {
   background: #047857 !important;
   border-color: #047857 !important;
-  transform: scale(var(--transform-gentle)) !important;
 }
 
-/* === ACCESSIBILITY === */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -568,7 +611,6 @@ export default {
   border: 0;
 }
 
-/* === KEYFRAME ANIMATIONS === */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -595,7 +637,6 @@ export default {
   }
 }
 
-/* === RESPONSIVE DESIGN === */
 @media (max-width: 640px) {
   .message {
     padding: var(--space-md) var(--space-lg);
@@ -612,9 +653,15 @@ export default {
     padding: var(--space-sm) 0 var(--space-md);
   }
   
-  .bot-badge {
+  .bot-badge,
+  .user-badge {
     font-size: 9px;
     padding: 2px 8px;
+  }
+  
+  .message-timestamp {
+    font-size: 9px;
+    padding: 1px 4px;
   }
   
   .loading-dots span {
@@ -635,7 +682,6 @@ export default {
   }
 }
 
-/* === THEME ADAPTATIONS === */
 .theme-timeless .bot-badge {
   background: linear-gradient(90deg, var(--timeless-accent), #991B1B);
 }

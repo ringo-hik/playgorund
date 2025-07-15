@@ -1,44 +1,59 @@
 /* ===========================================================================
-   AIChatOps - 통일된 CSS 변수 시스템 (미니멀리즘 적용)
+   AIChatOps - 통일된 CSS 변수 시스템 (미니멀리즘 적용) + 색상 강화
    =========================================================================== */
 
 :root {
-  /* ----- 브랜드 컬러 팔레트 (유지) --------------------------- */
+  /* ----- 브랜드 컬러 팔레트 (기존 유지) --------------------------- */
   --ai-chatops-primary: #2563EB;
   --ai-chatops-secondary: #1E40AF;
   --ai-chatops-accent: #06B6D4;
   --ai-chatops-neutral: #64748B;
   --ai-chatops-background: #F8FAFC;
+  
+  /* 🎨 새로운 AI ChatOps 보조 색상 */
+  --ai-chatops-highlight: #27aae7;     /* 스카이 블루 - 강조용 */
+  --ai-chatops-success: #10B981;       /* 에메랄드 그린 - 성공 상태 */
 
-  --hermes-primary: #FF7F00;
-  --hermes-secondary: #8B4513;
-  --hermes-accent: #FFD700;
-  --hermes-neutral: #F5DEB3;
-  --hermes-background: #FFF8F0;
+  /* Heritage 테마 색상 (클래식 - 빨간색 계열) */
+  --heritage-primary: #7C2D12;    /* 더 진한 갈색 */
+  --heritage-secondary: #991B1B;  /* 진한 빨간색 */
+  --heritage-accent: #DC2626;     /* 밝은 빨간색 */
+  --heritage-neutral: #78716C;    /* 갈색 회색 */
+  --heritage-background: #FEF7F0; /* 따뜻한 배경 */
+  --heritage-text: #451A03;       /* 진한 갈색 텍스트 */
+  --heritage-text-light: #FFFFFF;
+  --heritage-border: #F3E8FF;
+  
+  /* 🎨 새로운 Heritage 보조 색상 */
+  --heritage-highlight: #EF4444;   /* 선명한 빨간색 - 강조용 */
+  --heritage-warm: #F59E0B;        /* 따뜻한 황금색 - 보조 액센트 */
 
-  --timeless-primary: #FFFDD0;
-  --timeless-secondary: #000000;
-  --timeless-accent: #C31B26;
-  --timeless-neutral: #C0C0C0;
-  --timeless-background: #FEFEFE;
-
-  --heritage-primary: #B8A081;
-  --heritage-secondary: #1B2A47;
-  --heritage-accent: #A70100;
-  --heritage-neutral: #747674;
-  --heritage-background: #F5F3F0;
-
-  --modern-primary: #0F403F;
-  --modern-secondary: #A11826;
-  --modern-accent: #BD9302;
-  --modern-neutral: #2D2D2D;
-  --modern-background: #F7F8F7;
+  /* Hermes 테마 색상 (모던 - 녹색/금색 계열) */
+  --hermes-primary: #065F46;      /* 진한 녹색 */
+  --hermes-secondary: #047857;    /* 중간 녹색 */
+  --hermes-accent: #D97706;       /* 주황색 */
+  --hermes-neutral: #374151;      /* 회색 */
+  --hermes-background: #ECFDF5;   /* 연한 녹색 배경 */
+  --hermes-text: #064E3B;         /* 진한 녹색 텍스트 */
+  --hermes-text-light: #FFFFFF;
+  --hermes-border: #A7F3D0;
+  
+  /* 🎨 새로운 Hermes 보조 색상 */
+  --hermes-highlight: #059669;     /* 선명한 녹색 - 강조용 */
+  --hermes-sage: #6B7280;         /* 세이지 그레이 - 부드러운 액센트 */
 
   /* ----- 통일된 컬러 시스템 ---------------------------- */
   --color-primary: var(--ai-chatops-primary);
   --color-primary-dark: var(--ai-chatops-secondary);
   --color-accent: var(--ai-chatops-accent);
   --color-accent-secondary: var(--ai-chatops-neutral);
+  
+  /* 🎨 새로운 기능별 색상 변수 */
+  --color-highlight: var(--ai-chatops-highlight);
+  --color-interactive: var(--ai-chatops-success);
+  --color-send-button: #10B981;        /* 전송 버튼 전용 */
+  --color-continuous-active: #059669;  /* 연속 채팅 활성 상태 */
+  --color-quick-action: #0EA5E9;      /* 빠른 액션 버튼 */
 
   /* 텍스트 컬러 */
   --color-text-primary: #1F2937;
@@ -126,8 +141,23 @@
   --error-color: var(--color-error);
   --border-medium: var(--color-border-medium);
 
-  /* ----- 호환성을 위한 레거시 변수들 (단계적 제거 예정) ----- */
-  /* 기존 코드와의 호환성 유지를 위해 임시로 유지 */
+  /* ----- 개발자 도구 시스템 ----- */
+  --dev-header-bg: #1a202c;
+  --dev-tooltip-bg: #2d3748;
+  --dev-tooltip-border: #4a5568;
+  --dev-border: #4a5568;
+  --dev-text-muted: #a0aec0;
+  --dev-text-success: #68d391;
+  --dev-text-active: #4ade80;
+
+  /* ----- 애니메이션 시스템 ----- */
+  --duration-pulse: 2s;
+  --duration-loading: 1.5s;
+
+  /* ----- 블러 효과 ----- */
+  --blur-strong: 16px;
+
+  /* ----- 호환성을 위한 레거시 변수들 (v2.0에서 제거 예정) ----- */
   --primary-dark: var(--color-primary-dark);
   --accent-primary: var(--color-accent);
   --text-primary: var(--color-text-primary);
@@ -157,14 +187,24 @@
   --color-success-subtle: rgba(5, 150, 105, var(--opacity-accent));
   --color-error-subtle: rgba(239, 68, 68, var(--opacity-subtle));
 
+  /* 🎨 새로운 기능별 색상 조합 */
+  --color-send-subtle: rgba(16, 185, 129, var(--opacity-light));
+  --color-send-medium: rgba(16, 185, 129, var(--opacity-medium));
+  --color-continuous-subtle: rgba(5, 150, 105, var(--opacity-light));
+  --color-quick-subtle: rgba(14, 165, 233, var(--opacity-light));
+
   /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
-  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));    /* 새로 추가 */
-  --shadow-accent-subtle: 0 2px 4px var(--color-accent-subtle);        /* 새로 추가 */
-  --shadow-accent-medium: 0 3px 8px var(--color-accent-strong);        /* 새로 추가 */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));
+  --shadow-accent-subtle: 0 2px 4px var(--color-accent-subtle);
+  --shadow-accent-medium: 0 3px 8px var(--color-accent-strong);
+  
+  /* 🎨 새로운 그림자 효과 */
+  --shadow-send: 0 2px 6px var(--color-send-subtle);
+  --shadow-continuous: 0 2px 6px var(--color-continuous-subtle);
 
   /* ----- 확장된 모션 시스템 (더 부드러운 애니메이션) ----- */
-  --motion-subtle: 0.2s cubic-bezier(0.4, 0, 0.2, 1);                 /* 새로 추가 */
-  --motion-gentle: 0.3s cubic-bezier(0.16, 1, 0.3, 1);                /* 새로 추가 */
+  --motion-subtle: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-gentle: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ----- 변형 크기 (절제된 스케일링) ----- */
   --transform-subtle: 1.02;         /* 매우 작은 확대 */
@@ -179,35 +219,123 @@
   --alert-success-border: rgba(167, 243, 208, 0.8);
   --alert-warning-bg: rgba(255, 251, 235, 0.8);
   --alert-warning-border: rgba(253, 230, 138, 0.8);
-  --alert-error-bg: rgba(254, 242, 242, 0.8);
-  --alert-error-border: rgba(252, 165, 165, 0.8);
+  --alert-error-bg: rgba(254, 242, 242, 0.9);
+  --alert-error-border: rgba(239, 68, 68, 0.3);
+  --alert-error-text: #991b1b;
 }
 
-/* ----- 카드 시스템 (통일성을 위한 추가) ----- */
-.card-system {
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-minimal);
-  transition: all var(--motion-fast);
+/* ----- 테마별 CSS 변수 오버라이드 ----- */
+.theme-heritage {
+  --color-primary: var(--heritage-primary);
+  --color-primary-dark: var(--heritage-secondary);
+  --color-accent: var(--heritage-accent);
+  --color-accent-secondary: var(--heritage-neutral);
+  --color-text-primary: var(--heritage-text);
+  --color-text-light: var(--heritage-text-light);
+  --color-surface-light: var(--heritage-background);
+  --color-surface-white: var(--heritage-background);
+  --color-border-light: var(--heritage-border);
+  --color-header-bg: var(--heritage-primary);
+  --color-header-accent: var(--heritage-accent);
+  
+  /* 🎨 Heritage 테마 기능별 색상 */
+  --color-highlight: var(--heritage-highlight);
+  --color-interactive: var(--heritage-warm);
+  --color-send-button: var(--heritage-highlight);
+  --color-continuous-active: var(--heritage-warm);
+  --color-quick-action: var(--heritage-accent);
+  
+  --color-accent-subtle: rgba(220, 38, 38, var(--opacity-light));
+  --color-accent-medium: rgba(220, 38, 38, var(--opacity-medium));
+  --color-accent-strong: rgba(220, 38, 38, var(--opacity-accent));
+  --color-primary-subtle: rgba(124, 45, 18, var(--opacity-light));
+  --markdown-code-bg: rgba(220, 38, 38, 0.08);
+  --markdown-code-border: rgba(220, 38, 38, 0.2);
+  --markdown-quote-border: var(--heritage-accent);
 }
 
-.card-system--interactive {
-  cursor: pointer;
+.theme-hermes {
+  --color-primary: var(--hermes-primary);
+  --color-primary-dark: var(--hermes-secondary);
+  --color-accent: var(--hermes-accent);
+  --color-accent-secondary: var(--hermes-neutral);
+  --color-text-primary: var(--hermes-text);
+  --color-text-light: var(--hermes-text-light);
+  --color-surface-light: var(--hermes-background);
+  --color-surface-white: var(--hermes-background);
+  --color-border-light: var(--hermes-border);
+  --color-header-bg: var(--hermes-primary);
+  --color-header-accent: var(--hermes-accent);
+  
+  /* 🎨 Hermes 테마 기능별 색상 */
+  --color-highlight: var(--hermes-highlight);
+  --color-interactive: var(--hermes-sage);
+  --color-send-button: var(--hermes-highlight);
+  --color-continuous-active: var(--hermes-accent);
+  --color-quick-action: var(--hermes-secondary);
+  
+  --color-accent-subtle: rgba(217, 119, 6, var(--opacity-light));
+  --color-accent-medium: rgba(217, 119, 6, var(--opacity-medium));
+  --color-accent-strong: rgba(217, 119, 6, var(--opacity-accent));
+  --color-primary-subtle: rgba(6, 95, 70, var(--opacity-light));
+  --markdown-code-bg: rgba(217, 119, 6, 0.08);
+  --markdown-code-border: rgba(217, 119, 6, 0.2);
+  --markdown-quote-border: var(--hermes-accent);
 }
 
-.card-system--interactive:hover {
-  box-shadow: var(--shadow-soft);
-  transform: translateY(var(--transform-lift));
-  border-color: var(--color-border-medium);
+/* ----- 🎨 향상된 버튼 색상 시스템 ----- */
+
+/* 전송 버튼 전용 스타일 */
+.btn-system--send {
+  background: var(--color-send-button) !important;
+  border-color: var(--color-send-button) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: var(--shadow-send);
 }
 
-.card-system--interactive:active {
-  transform: translateY(0);
-  box-shadow: var(--shadow-minimal);
+.btn-system--send:hover:not(:disabled) {
+  background: #047857 !important;
+  border-color: #047857 !important;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* ----- 버튼 시스템 ----- */
+.btn-system--send:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+  box-shadow: var(--shadow-send);
+}
+
+/* 연속 채팅 활성 상태 */
+.btn-system--continuous-active {
+  background: var(--color-continuous-active) !important;
+  border-color: var(--color-continuous-active) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: var(--shadow-continuous);
+}
+
+.btn-system--continuous-active:hover:not(:disabled) {
+  background: #047857 !important;
+  border-color: #047857 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* 빠른 액션 버튼 */
+.btn-system--quick-action {
+  background: var(--color-quick-action) !important;
+  border-color: var(--color-quick-action) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: 0 2px 6px var(--color-quick-subtle);
+}
+
+.btn-system--quick-action:hover:not(:disabled) {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
+
+/* 🎨 기존 버튼 시스템 유지하면서 색상 강화 */
 .btn-system {
   display: inline-flex;
   align-items: center;
@@ -231,8 +359,9 @@
 }
 
 .btn-system:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: 1px solid var(--color-primary) !important;
+  outline-offset: 1px !important;
+  box-shadow: 0 0 0 1px var(--color-surface-white), 0 0 0 2px var(--color-primary) !important;
 }
 
 .btn-system:disabled {
@@ -299,7 +428,7 @@
   opacity: 0.7;
 }
 
-/* ----- 버튼 색상 변형 ----- */
+/* ----- 버튼 색상 변형 (기존 유지하되 강화) ----- */
 
 /* Primary 버튼 */
 .btn-system--primary {
@@ -433,7 +562,9 @@
   box-shadow: var(--shadow-minimal);
 }
 
-/* 액션 버튼 (경량화된 기본 버튼) */
+/* 나머지 기존 CSS 코드는 그대로 유지... */
+
+/* ----- 액션 버튼 (경량화된 기본 버튼) ----- */
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -487,6 +618,45 @@ html {
   scrollbar-color: var(--color-border-medium) var(--color-surface-light);
 }
 
+/* ----- WCAG 2.1 AA 접근성 개선 ----- */
+*:focus {
+  outline: 1px solid var(--color-primary) !important;
+  outline-offset: 1px !important;
+}
+
+/* 색상에 의존하지 않는 정보 전달 */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* 애니메이션 제거 옵션 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .btn-system {
+    border-width: 2px !important;
+  }
+  
+  .markdown-content .markdown-link {
+    border-bottom-width: 2px !important;
+  }
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -507,8 +677,7 @@ html {
   background: var(--color-primary);
 }
 
-/* ----- 테마 시스템 (누락된 핵심 구현) ----- */
-/* AI ChatOps 기본 테마 */
+/* ----- 테마 시스템 (기존 유지) ----- */
 .theme-ai-chatops,
 .ai-chatops-chat {
   --color-primary: var(--ai-chatops-primary);
@@ -518,57 +687,6 @@ html {
   --color-header-bg: var(--ai-chatops-primary);
   --color-header-accent: var(--ai-chatops-accent);
   --color-surface-light: var(--ai-chatops-background);
-}
-
-/* Timeless 테마 */
-.theme-timeless {
-  --color-primary: var(--timeless-primary);
-  --color-primary-dark: var(--timeless-secondary);
-  --color-accent: var(--timeless-accent);
-  --color-accent-secondary: var(--timeless-neutral);
-  --color-header-bg: var(--timeless-primary);
-  --color-header-accent: var(--timeless-accent);
-  --color-surface-light: var(--timeless-background);
-  --color-text-primary: var(--timeless-secondary);
-  --color-border-accent: var(--timeless-accent);
-}
-
-/* Heritage 테마 */
-.theme-heritage {
-  --color-primary: var(--heritage-primary);
-  --color-primary-dark: var(--heritage-secondary);
-  --color-accent: var(--heritage-accent);
-  --color-accent-secondary: var(--heritage-neutral);
-  --color-header-bg: var(--heritage-primary);
-  --color-header-accent: var(--heritage-accent);
-  --color-surface-light: var(--heritage-background);
-  --color-text-primary: var(--heritage-secondary);
-  --color-border-accent: var(--heritage-accent);
-}
-
-/* Modern 테마 */
-.theme-modern {
-  --color-primary: var(--modern-primary);
-  --color-primary-dark: var(--modern-secondary);
-  --color-accent: var(--modern-accent);
-  --color-accent-secondary: var(--modern-neutral);
-  --color-header-bg: var(--modern-primary);
-  --color-header-accent: var(--modern-accent);
-  --color-surface-light: var(--modern-background);
-  --color-text-primary: var(--modern-secondary);
-  --color-border-accent: var(--modern-accent);
-}
-
-/* Hermes 테마 */
-.theme-hermes {
-  --color-primary: var(--hermes-primary);
-  --color-primary-dark: var(--hermes-secondary);
-  --color-accent: var(--hermes-accent);
-  --color-accent-secondary: var(--hermes-neutral);
-  --color-header-bg: var(--hermes-primary);
-  --color-header-accent: var(--hermes-accent);
-  --color-surface-light: var(--hermes-background);
-  --color-border-accent: var(--hermes-accent);
 }
 
 /* ----- 유틸리티 클래스 ----- */

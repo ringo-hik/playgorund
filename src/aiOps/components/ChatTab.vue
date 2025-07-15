@@ -1,130 +1,75 @@
 <template>
   <div class="chat-tab">
-    <div class="chat-area">
-      <div class="chat-header">
-        <div class="persona-info">
-          <div 
-            class="badge"
-            @mouseenter="showDevInfo = true"
-            @mouseleave="showDevInfo = false"
-          >
-            <unicon 
-              :name="getPersonaIconName(selectedPersona)" 
-              fill="white" 
-              :width="14" 
-              :height="14"
-            />
-            {{ selectedPersona ? selectedPersona.title : getText('selectPersona') }}
-            
-            <div v-if="showDevInfo && isDevelopment" class="dev-info-tooltip">
-              <div class="dev-info-header">
-                <unicon name="code-branch" fill="#4ade80" :width="12" :height="12" />
-                <span>Developer Info</span>
-              </div>
-              <div class="dev-info-content">
-                <div class="dev-info-item">
-                  <span class="dev-label">Memory:</span>
-                  <span class="dev-value">{{ memoryUsage.used }}MB</span>
-                </div>
-                <div class="dev-info-item">
-                  <span class="dev-label">Messages:</span>
-                  <span class="dev-value">{{ messages.length }}/{{ maxSessionMessages }}</span>
-                </div>
-                <div class="dev-info-item">
-                  <span class="dev-label">Status:</span>
-                  <span class="dev-value dev-value--active">Active</span>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- 🏠 홈 화면 또는 채팅 화면 조건부 표시 -->
+    <div v-if="!selectedPersona" class="no-persona-selected">
+      <div class="persona-selection-guide">
+        <div class="guide-icon">
+          <!-- 🎯 홈으로 돌아가라는 의미의 아이콘으로 변경 -->
+          <LucideIcon name="home-heart" fill="none" stroke="currentColor" :width="24" :height="24" />
         </div>
-        <div class="controls">
-          <button
-            @click="clearAllMessages" 
-            :disabled="isProcessing || !selectedPersona" 
-            class="btn-system btn-system--danger btn-system--sm btn-system--icon-only clear-btn"
-            title="전체 삭제"
-          >
-            <unicon name="trash" fill="currentColor" :width="12" :height="12" />
-          </button>
-          <button
-            @click="resetPersona" 
-            :disabled="isProcessing" 
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="페르소나 변경"
-          >
-            <unicon name="redo" fill="currentColor" :width="12" :height="12" />
-          </button>
-          <button
-            @click="$emit('go-home')" 
-            :disabled="isProcessing" 
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="홈으로 가기"
-          >
-            <unicon name="home" fill="currentColor" :width="12" :height="12" />
-          </button>
-        </div>
+        <h3 class="guide-title">{{ getText('noPersonaSelected') }}</h3>
+        <p class="guide-description">{{ getText('noPersonaDesc') }}</p>
       </div>
+    </div>
 
-      <div class="messages-container">
-        <div class="messages" :class="messagesClasses" ref="messagesContainer" @scroll="handleScroll">
-          <div v-if="!selectedPersona" class="no-persona">
-            <unicon name="grid" fill="var(--color-primary)" :width="48" :height="48" />
-            <h4>{{ getText('noPersonaSelected') }}</h4>
-            <p>{{ getText('noPersonaDesc') }}</p>
-            <button
-              @click="$emit('go-home')"
-              class="btn-system btn-system--primary btn-system--md go-home-btn"
-            >
-              <unicon name="home" fill="currentColor" :width="16" :height="16" />
-              {{ getText('goHome') }}
-            </button>
-          </div>
-          
-          <div v-else-if="selectedPersona && messages.length === 0 && !isProcessing && !loadingHistory" class="welcome">
-            <unicon name="star" fill="var(--color-primary)" :width="36" :height="36" />
-            <h4>
-              {{ getText('welcomeChat', { persona: selectedPersona.title }) }}
-            </h4>
-            <p class="welcome-desc">{{ getPersonaDescription(selectedPersona) }}</p>
-            <div class="welcome-tip">
-              <unicon name="info-circle" fill="var(--accent-primary)" :width="14" :height="14" />
-              <span>{{ getText('welcomeTip') }}</span>
+    <!-- 🤖 채팅 화면 -->
+    <div v-else class="chat-interface">
+      <!-- 📝 메시지 목록 영역 -->
+      <div ref="messagesContainer" class="messages-container" :class="messagesClasses">
+        <!-- 히스토리 로딩 상태 -->
+        <div v-if="loadingHistory" class="loading-history">
+          <Elements component-type="spinner" size="sm" color="accent" />
+          <span class="loading-text">{{ getText('loadingHistory') }}</span>
+        </div>
+
+        <!-- 환영 메시지 -->
+        <div v-else-if="messages.length === 0" class="welcome-section">
+          <div class="welcome-content">
+            <div class="welcome-header">
+              <div class="persona-avatar">
+                <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="currentColor" :width="24" :height="24" />
+              </div>
+              <h2 class="welcome-title">
+                {{ getText('welcomeChat').replace('{persona}', getPersonaDisplayName(selectedPersona)) }}
+              </h2>
             </div>
+            <p class="welcome-description">{{ getText('welcomeTip') }}</p>
           </div>
+        </div>
 
-          <!-- 🔧 FIX: 로딩 히스토리도 v-show 사용 -->
-          <div v-show="loadingHistory" class="loading-history">
-            <Elements component-type="spinner" size="md" />
-            <span>{{ getText('loadingHistory') }}</span>
-          </div>
-
+        <!-- 📬 메시지 목록 -->
+        <div class="messages-list">
           <Elements
-            v-for="(message, index) in messages" 
+            v-for="message in messages"
             :key="message.id"
             component-type="message"
-            :message-type="message.type"
-            :content="message.content"
-            :loading="message.isLoading"
-            :loading-message="currentLoadingMessage"
-            :is-error="message.isError"
-            :copy-status="message.copyStatus"
-            @copy="copyMessage(message)"
+            :message="message"
+            :current-language="currentLanguage"
+            @copy-message="handleCopyMessage"
+            @regenerate-message="handleRegenerateMessage"
+            @feedback-message="handleFeedbackMessage"
           />
         </div>
       </div>
 
-      <div v-if="selectedPersona" class="input-area">
-        <!-- 🔧 FIX: 빠른 질문도 v-show 사용 -->
-        <div v-show="showQuickQuestions && quickQuestions.length > 0" class="quick-dropdown card-system">
-          <div class="quick-questions">
+      <!-- 📝 입력 영역 -->
+      <div class="input-area">
+        <!-- 🎯 빠른 질문 버튼들 (통일된 네이밍) -->
+        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-section">
+          <div class="quick-questions-header">
+            <span class="quick-questions-title">{{ getText('quickQuestions') || '빠른 질문' }}</span>
+            <button @click="showQuickQuestions = false" class="btn-system btn-system--ghost btn-system--sm">
+              <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
+            </button>
+          </div>
+          <div class="quick-questions-list">
             <button
-              v-for="q in quickQuestions" 
-              :key="q" 
-              @click="sendQuickQuestion(q)" 
-              class="btn-system btn-system--ghost btn-system--sm quick-item"
+              v-for="question in quickQuestions" 
+              :key="question" 
+              @click="sendQuickQuestion(question)" 
+              class="btn-system btn-system--ghost btn-system--sm quick-question-item"
             >
-              {{ q }}
+              {{ question }}
             </button>
           </div>
         </div>
@@ -135,8 +80,7 @@
               v-model="currentMessage" 
               ref="messageInput" 
               :placeholder="getText('inputPlaceholder')"
-              @keydown.enter.exact.prevent="sendMessage"
-              @keydown.enter.shift.exact="handleShiftEnter"
+              @keydown="handleKeyDown"
               @input="handleInput"
               @focus="handleFocus"
               :disabled="isProcessing" 
@@ -145,41 +89,87 @@
             
             <div class="input-bottom-row">
               <div class="left-actions">
+                <!-- 🎯 개선된 빠른 질문 생성 버튼 (통일된 네이밍) -->
                 <button
                   @click="generateQuickQuestions" 
-                  :disabled="isProcessing"
-                  class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-                  title="질문 생성하기"
+                  :disabled="isProcessing || isQuickQuestionsLoading"
+                  :class="[
+                    'btn-system', 
+                    'btn-system--quick-action', 
+                    'btn-system--sm', 
+                    'quick-questions-generate-btn', 
+                    { 
+                      'btn-system--icon-only': !isExpanded, 
+                      'loading': isQuickQuestionsLoading 
+                    }
+                  ]"
+                  :title="getText('generateQuestions') || '질문 생성하기'"
                 >
-                  <unicon name="lightbulb-alt" fill="currentColor" :width="12" :height="12" />
+                  <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
+                  <LucideIcon v-else name="sparkles" fill="currentColor" :width="12" :height="12" />
+                  <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('generateQuestions') || '질문 생성하기' }}</span>
                 </button>
-                <button
-                  @click="toggleQuickQuestions" 
-                  :disabled="isProcessing"
-                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'btn-system--accent': showQuickQuestions }]"
-                  title="빠른 질문"
-                >
-                  <unicon name="bolt" fill="currentColor" :width="12" :height="12" />
-                </button>
+                
+                <!-- 🎯 개선된 연속 채팅 버튼 -->
                 <button
                   @click="toggleContinuousChat" 
                   :disabled="isProcessing"
-                  :class="['btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', 'continuous-chat-btn', { 'btn-system--success': continuousChatEnabled }]"
-                  title="연속 대화"
+                  :class="[
+                    'btn-system', 
+                    continuousChatEnabled ? 'btn-system--continuous-active' : 'btn-system--ghost',
+                    'btn-system--sm', 
+                    'continuous-chat-enhanced-btn', 
+                    { 
+                      'btn-system--icon-only': !isExpanded
+                    }
+                  ]"
+                  :title="getText('continuousChat') || '연속 대화'"
                 >
-                  <unicon name="exchange-alt" fill="currentColor" :width="12" :height="12" />
+                  <LucideIcon name="layers" fill="currentColor" :width="12" :height="12" />
+                  <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('continuousChat') || '연속 대화' }}</span>
                 </button>
               </div>
               
+              <!-- 🎯 개선된 전송 버튼 -->
               <button
                 @click="sendMessage" 
                 :disabled="!canSendMessage" 
-                :class="['btn-system', 'btn-system--primary', 'btn-system--sm', 'btn-system--icon-only', 'send-button', { 'loading': isProcessing }]"
+                :class="[
+                  'btn-system', 
+                  'btn-system--send', 
+                  'btn-system--sm', 
+                  'btn-system--icon-only', 
+                  'send-button-enhanced', 
+                  { 'loading': isProcessing }
+                ]"
                 title="메시지 전송"
               >
                 <Elements v-if="isProcessing" component-type="spinner" size="sm" color="accent" />
-                <unicon v-else name="message" fill="currentColor" :width="14" :height="14" />
+                <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14" />
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🔧 개발자 정보 (개발 모드에서만) -->
+        <div v-if="isDevelopment && showDevInfo" class="dev-info-tooltip">
+          <div class="dev-info-header">🔧 Dev Info</div>
+          <div class="dev-info-content">
+            <div class="dev-info-item">
+              <span class="dev-label">Messages:</span>
+              <span class="dev-value">{{ messages.length }}/{{ maxSessionMessages }}</span>
+            </div>
+            <div class="dev-info-item">
+              <span class="dev-label">Memory:</span>
+              <span class="dev-value">{{ memoryUsage.used }}MB/{{ memoryUsage.total }}MB</span>
+            </div>
+            <div class="dev-info-item">
+              <span class="dev-label">Pending:</span>
+              <span class="dev-value" :class="{ 'dev-value--active': pendingMessages.length > 0 }">{{ pendingMessages.length }}</span>
+            </div>
+            <div class="dev-info-item">
+              <span class="dev-label">Rendering:</span>
+              <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes' : 'No' }}</span>
             </div>
           </div>
         </div>
@@ -189,13 +179,15 @@
 </template>
 
 <script>
-import aiChatOpsService from '@/service/aiChatOpsService.js';
-import { getText, getTextArray } from '../utils/i18n.js';
+import LucideIcon from './LucideIcon.vue';
 import Elements from './Elements.vue';
+import { getText, getTextArray } from '@/utils/i18n.js'; // 🔧 수정: 경로 통일
+import aiChatOpsService from '@/service/aiChatOpsService.js'; // 🔧 수정: 경로 통일
 
 export default {
   name: 'ChatTab',
   components: {
+    LucideIcon,
     Elements
   },
   
@@ -230,8 +222,12 @@ export default {
       currentLoadingMessage: '',
       loadingInterval: null,
       loadingMessageId: null,
+      // 🔧 수정: 네이밍 통일 (quickQuery → quickQuestions)
       showQuickQuestions: false,
+      quickQuestions: [],
       continuousChatEnabled: false,
+      // 🔧 수정: 네이밍 통일 (isQuickQueryLoading → isQuickQuestionsLoading)
+      isQuickQuestionsLoading: false,
       isInitialLoad: false,
       maxSessionMessages: 30,
       memoryUsage: { used: 0, total: 0 },
@@ -239,16 +235,16 @@ export default {
       isDevelopment: process.env.NODE_ENV === 'development',
       showDevInfo: false,
       
-      // 🔧 FIX: 배치 처리를 위한 상태 추가
+      // 🔧 배치 처리를 위한 상태
       pendingMessages: [],
       renderingScheduled: false,
       batchUpdateTimeout: null,
       
       // 🔧 Enhanced Input Manager
       enhancedInputManager: {
-        minHeight: 21,
-        maxHeight: 400,           // 200px → 400px 확장
-        scrollThreshold: 300,     // 300px에서 스크롤 시작
+        minHeight: 38,
+        maxHeight: 400,
+        scrollThreshold: 300,
         currentState: {
           isExpanded: false,
           hasScrolled: false,
@@ -263,11 +259,7 @@ export default {
       return this.currentMessage.trim().length > 0 && !this.isProcessing && this.selectedPersona;
     },
     
-    quickQuestions() {
-      if (!this.selectedPersona) return [];
-      return aiChatOpsService.getQuickQuestions(this.selectedPersona.personaCode, this.currentLanguage);
-    },
-    
+    // 🎯 연속 대화를 위한 최근 대화 관리
     recentConversations() {
       if (!this.continuousChatEnabled) return [];
       
@@ -288,16 +280,48 @@ export default {
         'smooth-scroll': !this.loadingHistory && !this.isInitialLoad && !this.renderingScheduled,
         'initial-loading': this.loadingHistory
       };
+    },
+    
+    // 반응형 UI: 채팅창 확대 상태 판단
+    isExpanded() {
+      if (!this.windowSize) return false;
+      return this.windowSize.width > 600 || this.windowSize.height > 800;
+    }
+  },
+  
+  watch: {
+    currentLanguage() {
+      this.$nextTick(() => {
+        this.trackInputChanges();
+      });
+    },
+    
+    isProcessing(newVal) {
+      if (!newVal) {
+        this.stopLoadingMessages();
+      }
+      if (newVal) {
+        // 🔧 수정: 네이밍 통일
+        this.showQuickQuestions = false;
+      }
+    },
+    
+    selectedPersona: {
+      handler(newPersona) {
+        if (newPersona) {
+          this.loadPersonaHistory();
+        }
+      },
+      immediate: true
     }
   },
   
   methods: {
-    getText(key, params = {}) {
-      return getText(this.currentLanguage, key, params);
-    },
+    getText,
     
+    // 🎯 페르소나 관련 유틸리티
     getPersonaIconName(persona) {
-      if (!persona) return 'comment';
+      if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
     },
     
@@ -309,6 +333,11 @@ export default {
       return persona.description || this.getText('defaultPersonaDesc');
     },
 
+    getPersonaDisplayName(persona) {
+      if (!persona) return '';
+      return persona.title || persona.personaName || persona.personaCode || '';
+    },
+
     generateUniqueId() {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
         return crypto.randomUUID();
@@ -316,9 +345,486 @@ export default {
       return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
     },
 
-    // 🔧 FIX: 메시지 추가 배치 처리 시스템
+    getSessionId() {
+      return 'session-' + Date.now();
+    },
+
+    // 🎯 페르소나 히스토리 로드
+    async loadPersonaHistory() {
+      if (!this.selectedPersona?.personaCode) return;
+      
+      this.loadingHistory = true;
+      this.isInitialLoad = true;
+      
+      try {
+        const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
+        
+        if (response.success && response.data && Array.isArray(response.data)) {
+          this.messages = [];
+          this.pendingMessages = [];
+          
+          // 🔧 수정: API 응답 정규화
+          const normalizedConversations = response.data.map(conv => ({
+            ...conv,
+            userQuery: conv.userQuery,
+            conversationId: conv.conversationId || conv.id || Date.now()
+          }));
+          
+          const historyMessages = aiChatOpsService.convertConversationsToMessages(normalizedConversations);
+          
+          if (historyMessages.length > 0) {
+            this.messages = historyMessages;
+            this.$nextTick(() => {
+              this.setInitialScrollPosition();
+            });
+          }
+        }
+      } catch (error) {
+        console.error('페르소나 히스토리 로드 실패:', error);
+      } finally {
+        this.loadingHistory = false;
+        this.isInitialLoad = false;
+      }
+    },
+
+    // 🎯 메모리 모니터링 시스템
+    measureMemoryUsage() {
+      if (performance.memory) {
+        const memory = performance.memory;
+        this.memoryUsage = {
+          used: Math.round(memory.usedJSHeapSize / 1024 / 1024),
+          total: Math.round(memory.totalJSHeapSize / 1024 / 1024)
+        };
+      }
+    },
+
+    startMemoryMonitoring() {
+      if (this.isDevelopment && performance.memory) {
+        this.memoryMonitorInterval = setInterval(() => {
+          this.measureMemoryUsage();
+        }, 30000);
+        this.measureMemoryUsage();
+      }
+    },
+
+    stopMemoryMonitoring() {
+      if (this.memoryMonitorInterval) {
+        clearInterval(this.memoryMonitorInterval);
+        this.memoryMonitorInterval = null;
+      }
+    },
+
+    // 🎯 향상된 텍스트에어리어 관리
+    adjustTextareaHeight() {
+      const textarea = this.$refs.messageInput;
+      if (!textarea) return;
+
+      const manager = this.enhancedInputManager;
+      
+      textarea.style.height = 'auto';
+      const newHeight = Math.min(Math.max(textarea.scrollHeight, manager.minHeight), manager.maxHeight);
+      textarea.style.height = newHeight + 'px';
+      
+      const lineCount = Math.ceil(newHeight / 24);
+      manager.currentState.lineCount = lineCount;
+      manager.currentState.isExpanded = newHeight > manager.minHeight + 20;
+      manager.currentState.hasScrolled = textarea.scrollHeight > manager.maxHeight;
+      
+      this.updateInputContainerClasses();
+    },
+
+    updateInputContainerClasses() {
+      const container = this.$refs.messageInput?.closest('.input-container');
+      if (!container) return;
+      
+      const manager = this.enhancedInputManager;
+      
+      if (manager.currentState.isExpanded) {
+        container.classList.add('enhanced-input--expanded');
+      } else {
+        container.classList.remove('enhanced-input--expanded');
+      }
+      
+      if (manager.currentState.hasScrolled) {
+        container.classList.add('enhanced-input--scrolling');
+      } else {
+        container.classList.remove('enhanced-input--scrolling');
+      }
+    },
+
+    applyInputVisualFeedback() {
+      const container = this.$refs.messageInput?.closest('.input-container');
+      if (container) {
+        container.classList.add('enhanced-input--focused');
+        setTimeout(() => {
+          container.classList.remove('enhanced-input--focused');
+        }, 150);
+      }
+    },
+
+    // 🎯 키보드 이벤트 처리
+    handleKeyDown(event) {
+      if (event.key === 'Enter') {
+        if (event.shiftKey) {
+          return;
+        } else {
+          event.preventDefault();
+          if (this.canSendMessage) {
+            this.sendMessage();
+          }
+          return;
+        }
+      }
+      
+      if (event.ctrlKey && event.key === 'Enter') {
+        event.preventDefault();
+        if (this.canSendMessage) {
+          this.sendMessage();
+        }
+        return;
+      }
+      
+      if (event.ctrlKey && event.key === 'a') {
+        return;
+      }
+    },
+
+    handleInput() {
+      this.trackInputChanges();
+    },
+
+    handleFocus() {
+      this.applyInputVisualFeedback();
+    },
+
+    trackInputChanges() {
+      this.adjustTextareaHeight();
+    },
+
+    // 🔧 수정: 함수명 통일
+    toggleQuickQuestions() {
+      this.showQuickQuestions = !this.showQuickQuestions;
+    },
+    
+    toggleContinuousChat() {
+      this.continuousChatEnabled = !this.continuousChatEnabled;
+    },
+
+    // 🎯 메시지 전송 (핵심 로직)
+    async sendMessage() {
+      if (!this.canSendMessage || !this.selectedPersona) return;
+      
+      const messageContent = this.currentMessage.trim();
+      const plainTextContent = aiChatOpsService.htmlToPlainText(messageContent);
+      
+      const userMessage = {
+        id: `user-${this.generateUniqueId()}`,
+        type: 'user',
+        content: messageContent,
+        timestamp: new Date(),
+        isLoading: false
+      };
+      
+      this.addMessageWithLimit(userMessage);
+      this.currentMessage = '';
+      
+      this.$nextTick(() => {
+        const textarea = this.$refs.messageInput;
+        if (textarea) {
+          textarea.style.height = this.enhancedInputManager.minHeight + 'px';
+          textarea.classList.remove('enhanced-input--scrolling');
+          this.enhancedInputManager.currentState.hasScrolled = false;
+          this.applyInputVisualFeedback();
+        }
+      });
+      
+      this.startLoadingMessages();
+      
+      let queryHistory = null;
+      
+      if (this.continuousChatEnabled && this.recentConversations.length > 0) {
+        queryHistory = this.recentConversations.map(conv => ({
+          question: conv.question,
+          answer: conv.answer
+        }));
+      }
+      
+      try {
+        const messageData = {
+          personaCode: this.selectedPersona.personaCode,
+          userQuery: plainTextContent, // 🔧 수정: 표준화된 필드명
+          sessionId: this.getSessionId(),
+          currentLanguage: this.currentLanguage
+        };
+        
+        if (queryHistory) {
+          messageData.queryHistory = queryHistory;
+        }
+        
+        const response = await aiChatOpsService.sendMessage(messageData);
+        this.addAiResponse(response);
+        
+      } catch (error) {
+        console.error('메시지 전송 오류:', error);
+        this.addAiResponse({
+          success: false,
+          message: '메시지 전송 중 오류가 발생했습니다.'
+        });
+      }
+    },
+
+    // 🔧 수정: 함수명 통일 (sendQuickQuery → sendQuickQuestion)
+    sendQuickQuestion(question) {
+      this.currentMessage = question;
+      this.showQuickQuestions = false;
+      this.quickQuestions = [];
+      
+      this.$nextTick(() => {
+        const textarea = this.$refs.messageInput;
+        if (textarea) {
+          textarea.focus();
+          this.trackInputChanges();
+        }
+      });
+    },
+
+    // 🎯 AI 응답 추가
+    addAiResponse(response) {
+      if (this.loadingMessageId) {
+        const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
+        if (loadingIndex !== -1) {
+          this.messages.splice(loadingIndex, 1);
+        }
+        this.loadingMessageId = null;
+      }
+      
+      this.stopLoadingMessages();
+      
+      let responseMessage;
+      
+      if (response.success) {
+        // 🔧 수정: API 응답 처리 표준화
+        const aiResponseContent = response.data?.aiResponse || response.aiResponse || response.message || '응답을 받았습니다.';
+        
+        responseMessage = {
+          id: `ai-${this.generateUniqueId()}`,
+          type: 'ai',
+          content: aiResponseContent,
+          timestamp: new Date(),
+          isLoading: false,
+          conversationId: response.data?.conversationId || response.conversationId || response.id || Date.now()
+        };
+      } else {
+        responseMessage = {
+          id: `error-${this.generateUniqueId()}`,
+          type: 'ai',
+          content: response.message || response.errorMessage || this.getText('aiError'),
+          timestamp: new Date(),
+          isError: true,
+          isLoading: false
+        };
+      }
+      
+      this.addMessageWithLimit(responseMessage);
+    },
+
+    // 🔧 수정: 함수명 통일 (makeQuickQuestion → generateQuickQuestions)
+    async generateQuickQuestions() {
+      if (this.isQuickQuestionsLoading || this.isProcessing) return;
+      
+      this.isQuickQuestionsLoading = true;
+      
+      try {
+        const loadingMessage = {
+          id: 'quick-questions-loading-' + Date.now(),
+          type: 'ai',
+          content: this.getLoadingMessage(),
+          timestamp: new Date(),
+          isLoading: true
+        };
+        
+        this.addMessageWithLimit(loadingMessage);
+        
+        const questionPrompt = this.generateQuestionPrompt();
+        const plainTextPrompt = aiChatOpsService.htmlToPlainText(questionPrompt);
+        
+        const questionData = {
+          personaCode: this.selectedPersona.personaCode,
+          conversationContext: plainTextPrompt,
+          currentLanguage: this.currentLanguage
+        };
+        
+        // 🔧 수정: 서비스 함수명 통일 (makeQuickQuestion → makeQuickQuestions)
+        const response = await aiChatOpsService.makeQuickQuestions(questionData);
+        
+        const loadingIndex = this.messages.findIndex(msg => msg.id === loadingMessage.id);
+        if (loadingIndex !== -1) {
+          this.messages.splice(loadingIndex, 1);
+        }
+        
+        if (response.success) {
+          // 🔧 수정: API 응답 처리 표준화
+          const quickQuestionsData = response.data?.questions || response.questions || response.data || response.aiResponse;
+          this.displayQuickQuestionsResponse(quickQuestionsData);
+        } else {
+          throw new Error(response.message || response.errorMessage);
+        }
+        
+      } catch (error) {
+        console.error('빠른 질문 생성 오류:', error);
+        
+        const errorMessage = {
+          id: 'error-' + Date.now(),
+          type: 'ai',
+          content: '빠른 질문 생성 중 오류가 발생했습니다. 다시 시도해 주세요.',
+          timestamp: new Date(),
+          isError: true
+        };
+        
+        this.addMessageWithLimit(errorMessage);
+      } finally {
+        this.isQuickQuestionsLoading = false;
+      }
+    },
+
+    // 🔧 수정: 함수명 통일 (generateQueryPrompt → generateQuestionPrompt)
+    generateQuestionPrompt() {
+      const persona = this.selectedPersona;
+      const category = this.selectedCategory;
+      
+      return `현재 대화 상황에 맞는 유용하고 실용적인 빠른 질문 3-5개를 생성해주세요. 
+
+컨텍스트:
+- 페르소나: ${persona?.personaName || '일반'}
+- 카테고리: ${category || '일반 문의'}
+- 언어: ${this.currentLanguage === 'ko' ? '한국어' : 'English'}
+
+요구사항:
+1. 질문은 간결하고 명확해야 함
+2. 사용자가 즉시 클릭할 수 있는 형태로 제시
+3. 현재 대화 맥락에 연관성 있는 내용
+4. 다양한 주제와 난이도로 구성
+
+반드시 다음 형식으로 답변해주세요:
+["질문1", "질문2", "질문3", ...] 형태의 JSON 배열`;
+    },
+
+    getLoadingMessage() {
+      const messages = getTextArray(this.currentLanguage, 'loadingMessages');
+      if (messages && messages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
+      }
+      
+      return this.currentLanguage === 'ko' ? 
+        '응답을 생성하고 있습니다...' : 
+        'Generating response...';
+    },
+
+    // 🔧 수정: 함수명 통일 (displayQuickQueryResponse → displayQuickQuestionsResponse)
+    displayQuickQuestionsResponse(responseData) {
+      try {
+        let questionsList = [];
+        
+        if (typeof responseData === 'string') {
+          const jsonMatch = responseData.match(/\[.*\]/);
+          if (jsonMatch) {
+            questionsList = JSON.parse(jsonMatch[0]);
+          } else {
+            questionsList = responseData.split('\n')
+              .filter(q => q.trim())
+              .map(q => q.replace(/^[-*•]\s*/, '').trim())
+              .slice(0, 5);
+          }
+        } else if (Array.isArray(responseData)) {
+          questionsList = responseData.slice(0, 5);
+        } else if (responseData && typeof responseData === 'object') {
+          questionsList = responseData.questions || responseData.queries || responseData.data || [];
+          if (typeof questionsList === 'string') {
+            questionsList = [questionsList];
+          }
+        }
+        
+        questionsList = questionsList.filter(q => q && q.trim()).slice(0, 5);
+        
+        if (questionsList.length > 0) {
+          this.quickQuestions = questionsList;
+          this.showQuickQuestions = true;
+          
+          const successMessage = {
+            id: 'quick-questions-success-' + Date.now(),
+            type: 'ai',
+            content: `현재 대화에 맞는 빠른 질문 ${questionsList.length}개를 준비했습니다. 아래에서 선택해주세요!`,
+            timestamp: new Date(),
+            isQuickQuestions: true
+          };
+          
+          this.addMessageWithLimit(successMessage);
+        } else {
+          throw new Error('빠른 질문 목록이 비어있습니다.');
+        }
+        
+      } catch (error) {
+        console.error('빠른 질문 답변 처리 오류:', error);
+        
+        this.quickQuestions = this.getDefaultQuickQuestions();
+        this.showQuickQuestions = true;
+        
+        const fallbackMessage = {
+          id: 'quick-questions-fallback-' + Date.now(),
+          type: 'ai',
+          content: '빠른 질문 생성에 실패했지만, 기본 질문들을 준비했습니다. 아래에서 선택해주세요!',
+          timestamp: new Date(),
+          isQuickQuestions: true
+        };
+        
+        this.addMessageWithLimit(fallbackMessage);
+      }
+    },
+
+    // 🔧 수정: 함수명 통일 (getDefaultQuickQuery → getDefaultQuickQuestions)
+    getDefaultQuickQuestions() {
+      return [
+        '안녕하세요! 어떻게 도와드릴까요?',
+        '오늘 주요 업무는 무엇인가요?',
+        '업무 효율성을 높이는 방법은?',
+        '현재 진행 중인 프로젝트는?',
+        '추천하고 싶은 도구나 방법이 있나요?'
+      ];
+    },
+
+    // 🎯 로딩 메시지 관리
+    startLoadingMessages() {
+      if (this.loadingMessageId) return;
+      
+      const loadingMessage = {
+        id: `loading-${this.generateUniqueId()}`,
+        type: 'ai',
+        content: this.getLoadingMessage(),
+        timestamp: new Date(),
+        isLoading: true
+      };
+      
+      this.addMessageWithLimit(loadingMessage);
+      this.loadingMessageId = loadingMessage.id;
+      
+      this.loadingInterval = setInterval(() => {
+        const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
+        if (loadingIndex !== -1) {
+          this.messages[loadingIndex].content = this.getLoadingMessage();
+        }
+      }, 3000);
+    },
+
+    stopLoadingMessages() {
+      if (this.loadingInterval) {
+        clearInterval(this.loadingInterval);
+        this.loadingInterval = null;
+      }
+    },
+
+    // 🔧 메시지 추가 배치 처리 시스템
     addMessageWithLimit(newMessage) {
-      // 즉시 DOM 조작 대신 배치로 처리
       this.pendingMessages.push(newMessage);
       this.scheduleBatchUpdate();
     },
@@ -328,7 +834,6 @@ export default {
       
       this.renderingScheduled = true;
       
-      // 마이크로태스크 큐에 등록하여 다른 동기 작업들과 함께 처리
       this.$nextTick(() => {
         this.processBatchMessages();
         this.renderingScheduled = false;
@@ -338,25 +843,22 @@ export default {
     processBatchMessages() {
       if (this.pendingMessages.length === 0) return;
 
-      // 모든 대기 중인 메시지를 한 번에 추가
       this.messages.push(...this.pendingMessages);
       
-      // 메시지 수 제한 처리
       if (this.messages.length > this.maxSessionMessages) {
         const excessCount = this.messages.length - this.maxSessionMessages;
         const removeCount = Math.ceil(excessCount / 2) * 2;
         this.messages.splice(0, removeCount);
       }
       
-      // 배치 정리
       this.pendingMessages = [];
       
-      // 스크롤은 DOM 업데이트 후 처리
       this.$nextTick(() => {
         this.scrollToBottomSmooth();
       });
     },
 
+    // 🎯 스크롤 관리 시스템
     scrollToBottomInstantly() {
       this.$nextTick(() => {
         const container = this.$refs.messagesContainer;
@@ -370,7 +872,6 @@ export default {
     },
 
     scrollToBottomSmooth() {
-      // 렌더링 중이면 스크롤 지연
       if (this.renderingScheduled) {
         this.$nextTick(() => {
           this.scrollToBottomSmooth();
@@ -403,460 +904,62 @@ export default {
       });
     },
 
-    measureMemoryUsage() {
-      if (performance.memory) {
-        const memory = performance.memory;
-        this.memoryUsage = {
-          used: Math.round(memory.usedJSHeapSize / 1024 / 1024),
-          total: Math.round(memory.totalJSHeapSize / 1024 / 1024)
-        };
+    // 🎯 메시지 액션 핸들러들
+    async handleCopyMessage(message) {
+      try {
+        const textToCopy = aiChatOpsService.htmlToPlainText(message.content);
+        await navigator.clipboard.writeText(textToCopy);
+        console.log('메시지가 클립보드에 복사되었습니다.');
+      } catch (error) {
+        console.error('클립보드 복사 실패:', error);
       }
     },
 
-    startMemoryMonitoring() {
-      if (this.isDevelopment && performance.memory) {
-        this.memoryMonitorInterval = setInterval(() => {
-          this.measureMemoryUsage();
-        }, 30000);
-        this.measureMemoryUsage();
+    handleRegenerateMessage(message) {
+      if (message.type === 'ai' && this.messages.length >= 2) {
+        for (let i = this.messages.length - 1; i >= 0; i--) {
+          if (this.messages[i].type === 'user') {
+            this.currentMessage = this.messages[i].content;
+            this.sendMessage();
+            break;
+          }
+        }
       }
     },
 
-    stopMemoryMonitoring() {
-      if (this.memoryMonitorInterval) {
-        clearInterval(this.memoryMonitorInterval);
-        this.memoryMonitorInterval = null;
-      }
-    },
-    
-    toggleQuickQuestions() {
-      this.showQuickQuestions = !this.showQuickQuestions;
-    },
-    
-    toggleContinuousChat() {
-      this.continuousChatEnabled = !this.continuousChatEnabled;
-    },
-    
-    generateQuickQuestions() {
-      this.currentMessage = '[Make Quick Questions]';
-      this.showQuickQuestions = false;
-      this.sendMessage();
-    },
-    
-    handleShiftEnter(event) {
-      this.$nextTick(() => {
-        this.adjustTextareaHeight();
+    handleFeedbackMessage(message) {
+      this.$emit('show-feedback', {
+        messageId: message.id,
+        content: message.content
       });
     },
-    
-    handleInput(event) {
-      // 강화된 입력 처리
-      this.trackInputChanges();
-    },
-    
-    handleFocus(event) {
-      const textarea = this.$refs.messageInput;
-      if (textarea && !this.currentMessage.trim()) {
-        textarea.style.height = '21px';
-      }
-    },
-    
-    loadPersonaHistory() {
-      if (!this.selectedPersona) return;
-      
-      this.loadingHistory = true;
-      this.isInitialLoad = true;
-      
-      this.setInitialScrollPosition();
-      
-      setTimeout(() => {
-        aiChatOpsService.getConversations(this.selectedPersona.personaCode)
-          .then(response => {
-            if (response.success && response.data) {
-              // 🔧 FIX: 히스토리 로딩 시에도 배치 처리 적용
-              const convertedMessages = aiChatOpsService.convertConversationsToMessages(response.data);
-              this.messages = convertedMessages;
-            }
-          })
-          .catch(error => {
-            console.log('Error loading history:', error);
-          })
-          .finally(() => {
-            this.loadingHistory = false;
-            
-            if (this.isInitialLoad) {
-              this.scrollToBottomInstantly();
-              setTimeout(() => {
-                this.isInitialLoad = false;
-              }, 200);
-            }
-            
-            this.$nextTick(() => {
-              this.$refs.messageInput?.focus();
-              const textarea = this.$refs.messageInput;
-              if (textarea) {
-                textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
-                this.applyInputVisualFeedback();
-              }
-            });
-          });
-      }, 100);
-    },
-    
-    resetPersona() {
-      this.$emit('go-persona-list');
-    },
-    
-    clearAllMessages() {
-      if (!this.selectedPersona) return;
-      
-      aiChatOpsService.deleteConversations(this.selectedPersona.personaCode)
-        .then(response => {
-          if (response.success) {
-            // 🔧 FIX: 상태 일괄 정리
-            Object.assign(this, {
-              messages: [],
-              currentMessage: '',
-              showQuickQuestions: false,
-              continuousChatEnabled: false,
-              pendingMessages: [],
-              renderingScheduled: false
-            });
-            
-            this.stopLoadingMessages();
-            this.$nextTick(() => {
-              const textarea = this.$refs.messageInput;
-              if (textarea) {
-                textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
-                this.applyInputVisualFeedback();
-              }
-            });
-          }
-        })
-        .catch(error => {
-          console.log('Error clearing messages:', error);
-        });
-    },
-    
+
+    // 🎯 초기 상태로 리셋
     resetToInitialState() {
-      // 🔧 FIX: 상태 일괄 초기화
+      this.stopLoadingMessages();
+      this.stopMemoryMonitoring();
+      
       Object.assign(this, {
-        messages: [],
         currentMessage: '',
+        messages: [],
+        loadingHistory: false,
+        currentLoadingMessage: '',
+        loadingMessageId: null,
+        // 🔧 수정: 네이밍 통일
         showQuickQuestions: false,
+        quickQuestions: [],
         continuousChatEnabled: false,
+        isQuickQuestionsLoading: false,
+        isInitialLoad: false,
         pendingMessages: [],
         renderingScheduled: false
       });
       
-      this.stopLoadingMessages();
-      this.stopMemoryMonitoring();
-      
-      if (this.batchUpdateTimeout) {
-        clearTimeout(this.batchUpdateTimeout);
-        this.batchUpdateTimeout = null;
-      }
-      
-      this.$nextTick(() => {
-        const textarea = this.$refs.messageInput;
-        if (textarea) {
-          textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
-          textarea.style.overflowY = 'hidden';
-          this.enhancedInputManager.currentState.isExpanded = false;
-          this.enhancedInputManager.currentState.hasScrolled = false;
-          this.applyInputVisualFeedback();
-          textarea.blur();
-        }
-      });
-    },
-    
-    // 🔧 FIX: 메시지 전송 최적화
-    sendMessage() {
-      if (!this.canSendMessage) return;
-      
-      const messageContent = this.currentMessage.trim();
-      const timestamp = Date.now();
-      
-      // 🔧 FIX: 메시지 객체들을 미리 생성
-      const userMessage = {
-        id: `user-${this.generateUniqueId()}`,
-        type: 'user', 
-        content: messageContent,
-        timestamp,
-        isLoading: false
+      this.enhancedInputManager.currentState = {
+        isExpanded: false,
+        hasScrolled: false,
+        lineCount: 1
       };
-      
-      this.loadingMessageId = `ai-${this.generateUniqueId()}`;
-      const loadingMessage = {
-        id: this.loadingMessageId,
-        type: 'ai',
-        content: '',
-        timestamp: timestamp + 1,
-        isLoading: true
-      };
-      
-      // 🔧 FIX: UI 상태 업데이트를 배치로 처리
-      Object.assign(this, {
-        currentMessage: '',
-        showQuickQuestions: false
-      });
-      
-      // 🔧 FIX: 메시지들을 배치로 추가
-      this.pendingMessages.push(userMessage, loadingMessage);
-      this.scheduleBatchUpdate();
-      
-      // 텍스트에어리어 높이 조정
-      this.$nextTick(() => {
-        const textarea = this.$refs.messageInput;
-        if (textarea) {
-          textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
-          textarea.style.overflowY = 'hidden';
-          this.enhancedInputManager.currentState.isExpanded = false;
-          this.enhancedInputManager.currentState.hasScrolled = false;
-          this.applyInputVisualFeedback();
-        }
-      });
-      
-      this.startLoadingMessages();
-      
-      let finalUserQuestion = messageContent;
-      
-      if (this.continuousChatEnabled && this.recentConversations.length > 0) {
-        const contextHistory = this.recentConversations.map(conv => 
-          `Q: ${conv.question}\nA: ${conv.answer}`
-        ).join('\n\n');
-        
-        finalUserQuestion = `[이전 대화 내역]\n${contextHistory}\n\n[현재 질문]\n${messageContent}`;
-      }
-      
-      this.$emit('message-sent', {
-        personaCode: this.selectedPersona.personaCode,
-        userQuestion: finalUserQuestion
-      });
-    },
-    
-    sendQuickQuestion(question) {
-      this.currentMessage = question;
-      this.showQuickQuestions = false;
-      this.$nextTick(() => {
-        this.trackInputChanges();
-      });
-      this.sendMessage();
-    },
-    
-    addAiResponse(response) {
-      // 🔧 FIX: 로딩 메시지 제거도 배치 처리
-      if (this.loadingMessageId) {
-        const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
-        if (loadingIndex !== -1) {
-          this.messages.splice(loadingIndex, 1);
-        }
-        this.loadingMessageId = null;
-      }
-      
-      this.stopLoadingMessages();
-      
-      let responseMessage;
-      
-      if (response.success) {
-        responseMessage = {
-          id: `ai-${this.generateUniqueId()}`,
-          type: 'ai',
-          content: response.aiResponse || response.message || '응답을 받았습니다.',
-          timestamp: Date.now(),
-          isLoading: false,
-          conversationId: response.conversationId,
-          copyStatus: null
-        };
-      } else {
-        responseMessage = {
-          id: `error-${this.generateUniqueId()}`,
-          type: 'ai',
-          content: response.message || this.getText('aiError'),
-          timestamp: Date.now(),
-          isLoading: false,
-          isError: true,
-          copyStatus: null
-        };
-      }
-      
-      // 🔧 FIX: 응답 메시지도 배치 처리
-      this.addMessageWithLimit(responseMessage);
-    },
-    
-    startLoadingMessages() {
-      const messages = getTextArray(this.currentLanguage, 'loadingMessages');
-      let index = 0;
-      
-      this.currentLoadingMessage = messages[index];
-      
-      this.loadingInterval = setInterval(() => {
-        index = (index + 1) % messages.length;
-        this.currentLoadingMessage = messages[index];
-      }, 2000);
-    },
-    
-    stopLoadingMessages() {
-      if (this.loadingInterval) {
-        clearInterval(this.loadingInterval);
-        this.loadingInterval = null;
-      }
-      this.currentLoadingMessage = '';
-    },
-    
-    copyMessage(message) {
-      if (!message || !message.content) return;
-
-      let textToCopy = '';
-      if (message.content.includes('markdown-table')) {
-        textToCopy = aiChatOpsService.htmlToMarkdown(message.content);
-      } else {
-        textToCopy = aiChatOpsService.htmlToPlainText(message.content);
-      }
-      
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(textToCopy)
-          .then(() => {
-            this.showCopySuccess(message);
-          })
-          .catch(err => {
-            this.fallbackCopyTextToClipboard(textToCopy, message);
-          });
-      } else {
-        this.fallbackCopyTextToClipboard(textToCopy, message);
-      }
-    },
-    
-    fallbackCopyTextToClipboard(text, message) {
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      textArea.style.top = "0";
-      textArea.style.left = "0";
-      textArea.style.position = "fixed";
-      
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      try {
-        const successful = document.execCommand('copy');
-        if (successful) {
-          this.showCopySuccess(message);
-        }
-      } catch (err) {
-        console.log('Fallback copy failed:', err);
-      }
-      
-      document.body.removeChild(textArea);
-    },
-    
-    showCopySuccess(message) {
-      this.$set(message, 'copyStatus', 'copied');
-      
-      setTimeout(() => {
-        this.$set(message, 'copyStatus', null);
-      }, 3000);
-    },
-    
-    // 🔧 Enhanced: 강화된 텍스트에어리어 높이 조절
-    adjustTextareaHeight() {
-      const textarea = this.$refs.messageInput;
-      if (!textarea) return;
-      
-      const manager = this.enhancedInputManager;
-      
-      if (!textarea.value.trim()) {
-        // 빈 내용일 때 최소 높이로 설정
-        textarea.style.height = `${manager.minHeight}px`;
-        textarea.style.overflowY = 'hidden';
-        manager.currentState.isExpanded = false;
-        manager.currentState.hasScrolled = false;
-        manager.currentState.lineCount = 1;
-        return;
-      }
-      
-      // 높이 자동 계산
-      textarea.style.height = 'auto';
-      const scrollHeight = textarea.scrollHeight;
-      const lineCount = (textarea.value.match(/\n/g) || []).length + 1;
-      
-      // 상태 업데이트
-      manager.currentState.lineCount = lineCount;
-      manager.currentState.isExpanded = lineCount > 1;
-      
-      if (scrollHeight <= manager.scrollThreshold) {
-        // 스크롤 임계점 이하: 높이 자동 조절
-        const newHeight = Math.max(manager.minHeight, Math.min(scrollHeight, manager.maxHeight));
-        textarea.style.height = `${newHeight}px`;
-        textarea.style.overflowY = 'hidden';
-        manager.currentState.hasScrolled = false;
-      } else {
-        // 스크롤 임계점 초과: 고정 높이 + 스크롤
-        textarea.style.height = `${manager.scrollThreshold}px`;
-        textarea.style.overflowY = 'auto';
-        manager.currentState.hasScrolled = true;
-        
-        // 자동으로 맨 아래로 스크롤
-        this.$nextTick(() => {
-          textarea.scrollTop = textarea.scrollHeight;
-        });
-      }
-      
-      // 시각적 피드백 적용
-      this.applyInputVisualFeedback();
-    },
-    
-    // 🔧 NEW: 입력창 시각적 피드백
-    applyInputVisualFeedback() {
-      const textarea = this.$refs.messageInput;
-      const container = textarea?.closest('.input-container');
-      if (!textarea || !container) return;
-      
-      const manager = this.enhancedInputManager;
-      
-      // 확장 상태 클래스 적용
-      if (manager.currentState.isExpanded) {
-        container.classList.add('enhanced-input--expanded');
-      } else {
-        container.classList.remove('enhanced-input--expanded');
-      }
-      
-      // 스크롤 상태 클래스 적용
-      if (manager.currentState.hasScrolled) {
-        container.classList.add('enhanced-input--scrolling');
-      } else {
-        container.classList.remove('enhanced-input--scrolling');
-      }
-    },
-    
-    // 🔧 Enhanced: 입력 상태 추적
-    trackInputChanges() {
-      this.adjustTextareaHeight();
-      
-      // 키보드 단축키 처리
-      const textarea = this.$refs.messageInput;
-      if (textarea) {
-        textarea.addEventListener('keydown', this.handleKeyboardShortcuts);
-      }
-    },
-    
-    // 🔧 NEW: 키보드 단축키 지원
-    handleKeyboardShortcuts(event) {
-      // Ctrl + A: 전체 선택 (기본 동작 유지)
-      if (event.ctrlKey && event.key === 'a') {
-        // 기본 동작 허용
-        return;
-      }
-      
-      // Ctrl + Enter: 강제 전송  
-      if (event.ctrlKey && event.key === 'Enter') {
-        event.preventDefault();
-        this.sendMessage();
-      }
-    },
-    
-    handleScroll() {
-      
     }
   },
   
@@ -870,19 +973,25 @@ export default {
     });
     
     this.startMemoryMonitoring();
+    
+    if (this.isDevelopment) {
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key === 'd') {
+          this.showDevInfo = !this.showDevInfo;
+        }
+      });
+    }
   },
   
   beforeDestroy() {
     this.stopLoadingMessages();
     this.stopMemoryMonitoring();
     
-    // 🔧 FIX: 배치 처리 관련 정리
     if (this.batchUpdateTimeout) {
       clearTimeout(this.batchUpdateTimeout);
       this.batchUpdateTimeout = null;
     }
     
-    // 상태 일괄 정리
     Object.assign(this, {
       messages: [],
       currentMessage: '',
@@ -892,396 +1001,199 @@ export default {
       loadingInterval: null,
       memoryMonitorInterval: null
     });
-  },
-  
-  watch: {
-    currentLanguage() {
-      this.$nextTick(() => {
-        this.trackInputChanges();
-      });
-    },
-    
-    isProcessing(newVal) {
-      if (!newVal) {
-        this.stopLoadingMessages();
-      }
-      if (newVal) {
-        this.showQuickQuestions = false;
-      }
-    },
-    
-    selectedPersona: {
-      handler(newPersona) {
-        if (newPersona) {
-          this.loadPersonaHistory();
-        }
-      },
-      immediate: true
-    }
   }
 };
 </script>
 
 <style scoped>
-/* 🔧 FIX: GPU 가속 및 플리커링 방지 스타일 추가 */
+/* 🎯 기본 레이아웃 (기존 스타일 유지, 클래스명만 수정) */
 .chat-tab {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background: var(--color-surface-light);
   position: relative;
-  overflow: hidden;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 
-.chat-area {
+.no-persona-selected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--space-xl);
+}
+
+.persona-selection-guide {
+  text-align: center;
+  max-width: 320px;
+}
+
+.guide-icon {
+  margin-bottom: var(--space-lg);
+  color: var(--color-text-muted);
+}
+
+.guide-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.guide-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.chat-interface {
   display: flex;
   flex-direction: column;
   height: 100%;
-  position: relative;
-  overflow: hidden;
-}
-
-.messages {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: var(--color-surface-light);
-  scroll-behavior: smooth;
-  padding: 0;
-  position: relative;
-  z-index: 1;
-  min-height: 0;
-  
-  /* 🔧 FIX: 부드러운 스크롤을 위한 GPU 가속 */
-  transform: translateZ(0);
-  will-change: scroll-position;
-}
-
-.messages.smooth-scroll {
-  scroll-behavior: smooth;
-}
-
-.messages.initial-loading {
-  overflow: hidden;
-}
-
-.messages.initial-loading::-webkit-scrollbar {
-  display: none;
-}
-
-/* 🔧 FIX: 렌더링 최적화를 위한 레이어 분리 */
-.input-area {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.quick-dropdown {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-/* 기존 스타일들 유지... */
-.chat-header {
-  padding: var(--space-md) var(--space-xl);
-  background: var(--color-surface-white);
-  border-bottom: 1px solid var(--color-border-light);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  flex-shrink: 0;
-  z-index: 5;
-}
-
-.chat-header::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: var(--space-xl);
-  right: var(--space-xl);
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--color-accent) 50%, transparent 100%);
-  opacity: 0.4;
-}
-
-.persona-info {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex: 1;
-  position: relative;
-}
-
-.badge {
-  background: var(--color-primary);
-  color: white;
-  padding: 6px var(--space-md);
-  border-radius: 20px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  box-shadow: var(--shadow-soft);
-  transition: all var(--motion-normal);
-  border: 1px solid var(--color-accent);
-  line-height: 1;
-  position: relative;
-  cursor: pointer;
-}
-
-.badge:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-gentle);
-  border-radius: 24px;
-}
-
-.dev-info-tooltip {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 12px;
-  background: var(--dev-tooltip-bg);
-  color: white;
-  padding: 0;
-  border-radius: var(--radius-lg);
-  font-size: var(--font-size-xs);
-  white-space: nowrap;
-  z-index: 1000;
-  box-shadow: var(--shadow-floating);
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  min-width: 160px;
-  backdrop-filter: blur(var(--blur-strong));
-  border: 1px solid var(--dev-tooltip-border);
-  overflow: hidden;
-}
-
-.dev-info-tooltip::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 16px;
-  width: 12px;
-  height: 12px;
-  background: var(--dev-tooltip-bg);
-  border: 1px solid var(--dev-tooltip-border);
-  border-bottom: none;
-  border-right: none;
-  transform: rotate(45deg);
-}
-
-.dev-info-header {
-  background: var(--dev-header-bg);
-  padding: var(--space-sm) var(--space-md);
-  border-bottom: 1px solid var(--dev-border);
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-weight: 600;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.dev-info-content {
-  padding: var(--space-sm) var(--space-md);
-}
-
-.dev-info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: 4px;
-}
-
-.dev-info-item:last-child {
-  margin-bottom: 0;
-}
-
-.dev-label {
-  color: var(--dev-text-muted);
-  font-size: 10px;
-}
-
-.dev-value {
-  color: var(--dev-text-success);
-  font-weight: 600;
-  font-size: 10px;
-}
-
-.dev-value--active {
-  color: var(--dev-text-active);
-  position: relative;
-}
-
-.dev-value--active::before {
-  content: '';
-  position: absolute;
-  left: -8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 4px;
-  background: var(--dev-text-active);
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 4px var(--dev-text-active);
-  animation: pulse-dot var(--duration-pulse) infinite;
-}
-
-.controls {
-  display: flex;
-  gap: 6px;
-}
-
-.clear-btn {
-  background: var(--color-error) !important;
-  border-color: var(--color-error) !important;
-  color: white !important;
-}
-
-.clear-btn:hover:not(:disabled) {
-  background: #B91C1C !important;
-  border-color: #B91C1C !important;
 }
 
 .messages-container {
   flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
+  overflow-y: auto;
+  padding: var(--space-lg) var(--space-xl) var(--space-md);
+  scroll-behavior: smooth;
+}
+
+.messages-container.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+.messages-container.initial-loading {
+  scroll-behavior: auto;
 }
 
 .loading-history {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: var(--space-md);
   padding: var(--space-xl);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
 }
 
-.welcome {
-  text-align: center;
-  padding: 48px var(--space-xl);
-}
-
-.welcome h4 {
-  font-size: var(--font-size-lg);
-  font-weight: 500;
-  color: var(--color-text-primary);
-  margin: var(--space-lg) 0 var(--space-sm) 0;
-  line-height: 1.5;
-}
-
-.welcome-desc {
+.loading-text {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  margin: 0 0 var(--space-md) 0;
-  line-height: 1.4;
+  font-weight: 500;
 }
 
-.welcome-tip {
+.welcome-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  margin-top: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--color-accent-subtle);
-  border: 1px solid var(--color-accent-medium);
-  border-radius: 20px;
-  display: inline-flex;
+  min-height: 200px;
+  margin-bottom: var(--space-xl);
 }
 
-.no-persona {
+.welcome-content {
   text-align: center;
-  padding: 48px var(--space-xl);
-  flex: 1;
+  max-width: 400px;
+}
+
+.welcome-header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.persona-avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--color-primary);
+  color: var(--color-text-light);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
   justify-content: center;
+  box-shadow: var(--shadow-soft);
 }
 
-.no-persona h4 {
-  font-size: var(--font-size-lg);
-  font-weight: 500;
+.welcome-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin: var(--space-lg) 0 var(--space-sm) 0;
-  line-height: 1.5;
+  margin: 0;
 }
 
-.no-persona p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-xl) 0;
-  line-height: 1.4;
+.welcome-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin: 0;
 }
 
-.go-home-btn {
-  padding: var(--space-md) var(--space-xl) !important;
-}
-
+/* 🔧 수정: 클래스명 통일 (quick-query → quick-questions) */
 .input-area {
-  padding: var(--space-md) var(--space-lg) var(--space-md);
   background: var(--color-surface-white);
   border-top: 1px solid var(--color-border-light);
-  flex-shrink: 0;
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
+  padding: var(--space-md) var(--space-xl) var(--space-lg);
+  z-index: 5;
 }
 
-.quick-dropdown {
-  position: absolute;
-  bottom: 100%;
-  left: var(--space-lg);
-  right: var(--space-lg);
-  margin-bottom: var(--space-sm);
+.quick-questions-section {
+  margin-bottom: var(--space-md);
   background: var(--color-surface-white);
-  z-index: 10;
-  max-height: 200px;
-  overflow-y: auto;
-  padding: var(--space-sm);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
 }
 
-.quick-questions {
+.quick-questions-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
 }
 
-.quick-item {
-  width: 100% !important;
-  text-align: left !important;
-  padding: var(--space-sm) var(--space-md) !important;
-  justify-content: flex-start !important;
-  line-height: 1.4;
-  font-size: var(--font-size-sm) !important;
+.quick-questions-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
 }
 
-.quick-item:hover {
-  background: var(--color-surface-light) !important;
+.quick-questions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.quick-question-item {
+  flex: 0 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  transition: transform var(--motion-fast), background-color var(--motion-fast);
+}
+
+.quick-question-item:hover {
   transform: translateX(2px);
+  background-color: var(--color-accent-subtle);
 }
 
+/* 🎯 나머지 스타일들은 기존과 동일하게 유지 */
 .input-container {
-  transition: all var(--motion-normal);
   padding: var(--space-sm);
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-medium);
-  border-radius: var(--radius-md);
+  transition: all var(--motion-fast);
+  position: relative;
 }
 
-.input-container:focus-within {
+.input-container.enhanced-input--focused {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px var(--color-accent-subtle);
+  transform: translateY(-1px);
+}
+
+.input-container.enhanced-input--expanded {
+  border-color: var(--color-accent-secondary);
 }
 
 .input-box {
@@ -1290,68 +1202,10 @@ export default {
   gap: var(--space-sm);
 }
 
-/* === ENHANCED INPUT SYSTEM === */
-.enhanced-input {
-  resize: none;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  transition: all var(--motion-normal);
-  
-  /* 사용자 정의 스크롤바 */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-accent) var(--color-surface-light);
-}
-
-.enhanced-input::-webkit-scrollbar {
-  width: 8px;
-}
-
-.enhanced-input::-webkit-scrollbar-track {
-  background: var(--color-surface-light);
-  border-radius: 4px;
-}
-
-.enhanced-input::-webkit-scrollbar-thumb {
-  background: var(--color-accent);
-  border-radius: 4px;
-  opacity: 0.6;
-  transition: opacity var(--motion-fast);
-}
-
-.enhanced-input::-webkit-scrollbar-thumb:hover {
-  opacity: 1;
-}
-
-/* 확장 상태 표시 */
-.input-container.enhanced-input--expanded {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px var(--color-accent-subtle);
-  background: var(--color-surface-white);
-}
-
-/* 스크롤 활성 상태 */
-.input-container.enhanced-input--scrolling {
-  position: relative;
-}
-
-.input-container.enhanced-input--scrolling::after {
-  content: "↕️ 스크롤하여 전체 내용 확인";
-  position: absolute;
-  bottom: -22px;
-  right: 0;
-  font-size: 10px;
-  color: var(--color-text-muted);
-  background: var(--color-surface-white);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border-light);
-  z-index: 5;
-}
-
 .message-textarea {
   width: 100%;
-  height: 21px;
-  min-height: 21px;
+  height: 38px;
+  min-height: 38px;
   max-height: 400px;
   border: none;
   background: var(--color-surface-white);
@@ -1365,6 +1219,7 @@ export default {
   margin: 0;
   transition: none;
   overflow: hidden;
+  overflow-y: auto;
   word-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -1392,47 +1247,187 @@ export default {
   gap: 6px;
 }
 
-/* btn-system 재정의 - 채팅 액션 버튼 전용 */
-.chat-input-controls .btn-system--sm.btn-system--icon-only {
-  width: 28px !important;
-  height: 28px !important;
-  min-height: 28px !important;
+/* 🔧 수정: 클래스명 통일 */
+.quick-questions-generate-btn {
+  position: relative;
+  transition: all 0.3s ease-out;
+  border-radius: var(--radius-lg);
 }
 
-.continuous-chat-btn.btn-system--success {
-  background: var(--color-success-subtle) !important;
-  border-color: var(--color-success) !important;
+.quick-questions-generate-btn:not(.btn-system--icon-only) {
+  padding: var(--space-sm) var(--space-lg);
+  min-width: 120px;
+}
+
+.quick-questions-generate-btn .btn-text-enhanced {
+  margin-left: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.quick-questions-generate-btn:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+}
+
+.continuous-chat-enhanced-btn {
+  position: relative;
+  transition: all 0.3s ease-out;
+  border-radius: var(--radius-lg);
+}
+
+.continuous-chat-enhanced-btn:not(.btn-system--icon-only) {
+  padding: var(--space-sm) var(--space-lg);
+  min-width: 100px;
+}
+
+.continuous-chat-enhanced-btn .btn-text-enhanced {
+  margin-left: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.continuous-chat-enhanced-btn:hover {
+  transform: translateY(-1px);
+}
+
+.send-button-enhanced {
+  position: relative;
+}
+
+.send-button-enhanced.loading {
+  animation: pulse-send-enhanced 1.8s ease-in-out infinite;
+}
+
+.loading-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border-light);
+  border-top: 2px solid var(--color-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse-send-enhanced {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+/* 🎯 개발자 정보 및 기타 스타일들은 기존과 동일 */
+.dev-info-tooltip {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  background: var(--color-text-primary);
+  color: var(--color-text-light);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: 1000;
+  margin-bottom: var(--space-sm);
+  border: 1px solid var(--color-border-medium);
+  box-shadow: var(--shadow-moderate);
+  font-family: 'Monaco', 'Menlo', 'SF Mono', 'Consolas', 'Courier New', monospace;
+  backdrop-filter: blur(var(--blur-strong));
+  -webkit-backdrop-filter: blur(var(--blur-strong));
+}
+
+.dev-info-header {
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: var(--space-xs);
+}
+
+.dev-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dev-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dev-label {
+  opacity: 0.8;
+}
+
+.dev-value {
+  font-weight: 600;
+  color: var(--color-accent-secondary);
+}
+
+.dev-value--active {
   color: var(--color-success) !important;
+  position: relative;
 }
 
-/* btn-system 재정의 - 전송 버튼 전용 */
-.send-button.btn-system--sm.btn-system--icon-only {
-  width: 32px !important;
-  height: 32px !important;
-  min-height: 32px !important;
-}
-
-.send-button.loading {
-  animation: pulse-send 1.8s ease-in-out infinite;
+.dev-value--active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: var(--color-success);
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
 }
 
 @keyframes pulse-dot {
   0%, 100% {
-    opacity: 1;
+    opacity: 0.7;
     transform: translateY(-50%) scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: translateY(-50%) scale(var(--transform-subtle));
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+    box-shadow: 0 0 8px var(--color-success);
   }
 }
 
-@keyframes pulse-send {
-  0%, 100% {
-    box-shadow: 0 0 0 0 var(--color-primary-subtle);
+.input-container.enhanced-input--scrolling::after {
+  content: "↕️ 스크롤하여 전체 내용 확인";
+  position: absolute;
+  bottom: -22px;
+  right: 0;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  background: var(--color-surface-white);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-light);
+  z-index: 5;
+}
+
+/* 🎯 반응형 디자인 */
+@media (max-width: 768px) {
+  .quick-questions-generate-btn:not(.btn-system--icon-only),
+  .continuous-chat-enhanced-btn:not(.btn-system--icon-only) {
+    min-width: auto;
+    padding: var(--space-sm);
   }
-  50% {
-    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0);
+  
+  .btn-text-enhanced {
+    display: none;
   }
 }
 
@@ -1458,18 +1453,6 @@ export default {
     gap: 4px;
   }
   
-  .chat-input-controls .btn-system--sm.btn-system--icon-only {
-    width: 24px !important;
-    height: 24px !important;
-    min-height: 24px !important;
-  }
-  
-  .send-button.btn-system--sm.btn-system--icon-only {
-    width: 28px !important;
-    height: 28px !important;
-    min-height: 28px !important;
-  }
-
   .dev-info-tooltip {
     font-size: 10px;
     min-width: 140px;

@@ -4,8 +4,26 @@
       :class="['ai-chatops-chat-button', { 'is-active': isOpen }]"
       @click="toggleChat"
     >
+      <!-- 🆕 수정: 아이콘 렌더링 안정성 개선 (v-else 제거, 명확한 조건부 렌더링) -->
       <Elements v-if="isLoading" component-type="spinner" size="md" />
-      <unicon v-else :name="isOpen ? 'times' : 'comment'" fill="currentColor" :width="28" :height="28" />
+      <!-- 🆕 수정: 각 아이콘을 개별적으로 렌더링하여 토글 시 안정성 확보 -->
+      <LucideIcon 
+        v-if="!isLoading && isOpen" 
+        name="x" 
+        fill="currentColor" 
+        :width="28" 
+        :height="28" 
+        key="close-icon"
+      />
+      <!-- 🎯 개선: 더 친근한 채팅 아이콘으로 변경 -->
+      <LucideIcon 
+        v-if="!isLoading && !isOpen" 
+        name="message-square-heart" 
+        fill="currentColor" 
+        :width="28" 
+        :height="28" 
+        key="chat-icon"
+      />
     </button>
 
     <!-- 🔧 FIX: v-if → v-show 최적화 적용 -->
@@ -18,7 +36,8 @@
       <div class="chat-header">
         <div class="bot-info">
           <div class="avatar">
-            <unicon name="comment" fill="white" :width="26" :height="26" />
+            <!-- 🎯 개선: 더 현대적인 로봇 아이콘으로 변경 -->
+            <LucideIcon name="robot" fill="white" :width="26" :height="26" />
           </div>
           <div class="details">
             <span class="name">{{ getText('aiChatOpsTitle') }}</span>
@@ -30,23 +49,26 @@
         </div>
         
         <div class="actions">
+          <!-- 🎯 개선: 더 매력적인 이스터에그 아이콘 -->
           <div class="easter-egg-trigger btn-system btn-system--icon-only btn-system--sm" @click="openRandomEasterEgg">
-            <span class="easter-dot"></span>
+            <LucideIcon name="sparkles" fill="currentColor" :width="12" :height="12" />
           </div>
           
+          <!-- 🎯 개선: 테마 선택기에 색상 적용 -->
           <button 
-            class="theme-selector btn-system btn-system--ghost btn-system--sm" 
+            class="theme-selector btn-system btn-system--ghost btn-system--sm btn-system--quick-action" 
             @click="cycleTheme" 
             :title="getCurrentThemeName()"
           >
             <span class="theme-indicator">{{ getThemeDisplayName() }}</span>
           </button>
           
+          <!-- 🎯 개선: 언어 버튼에 색상 적용 -->
           <button
-            class="language-btn btn-system btn-system--ghost btn-system--sm"
+            class="language-btn btn-system btn-system--ghost btn-system--sm btn-system--continuous-active"
             @click="toggleLanguage"
           >
-            <span>{{ currentLanguage === 'ko' ? 'EN' : 'KR' }}</span>
+            <span>{{ currentLanguage === 'kr' ? 'KR' : 'EN' }}</span>
           </button>
           
           <div class="window-controls">
@@ -54,19 +76,19 @@
               class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
               @click="minimizeWindow"
             >
-              <unicon name="minus" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon name="minus" fill="currentColor" :width="12" :height="12" />
             </button>
             <button
               class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
               @click="toggleMaximizeWindow"
             >
-              <unicon :name="windowState === 'maximized' ? 'compress-arrows-alt' : 'expand-arrows-alt'" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon :name="windowState === 'maximized' ? 'minimize-2' : 'maximize-2'" fill="currentColor" :width="12" :height="12" />
             </button>
             <button
               class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
               @click="closeChat"
             >
-              <unicon name="times" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
             </button>
           </div>
         </div>
@@ -77,7 +99,8 @@
         <div v-show="currentView === 'categorySelect'" class="category-select">
           <div class="welcome-section">
             <div class="welcome-icon">
-              <unicon name="heart" fill="var(--color-primary)" :width="28" :height="28" />
+              <!-- 🎯 개선: 더 따뜻한 환영 아이콘 -->
+              <LucideIcon name="heart" fill="var(--color-primary)" :width="28" :height="28" />
             </div>
             <div class="welcome-content">
               <h3>{{ getText('welcomeTitle') }}</h3>
@@ -95,25 +118,27 @@
                 :class="{ disabled: chatProcessingCount > 0 }"
               >
                 <div class="category-icon" :class="`category-icon--${category.key}`">
-                  <unicon :name="category.icon" fill="white" :width="20" :height="20" />
+                  <LucideIcon :name="category.icon" fill="white" :width="20" :height="20" />
                 </div>
                 <div class="category-content">
                   <h4>{{ getText(category.titleKey) }}</h4>
                   <p>{{ getText(category.descKey) }}</p>
                 </div>
                 <div class="category-arrow">
-                  <unicon name="angle-right" fill="currentColor" :width="14" :height="14" />
+                  <!-- 🎯 개선: 더 직관적인 화살표 아이콘 -->
+                  <LucideIcon name="arrow-up-right" fill="currentColor" :width="14" :height="14" />
                 </div>
               </div>
             </div>
             
             <div class="feedback-section">
+              <!-- 🎯 개선: 피드백 버튼에 색상 적용 -->
               <button
                 @click="goToFeedback"
                 :disabled="chatProcessingCount > 0"
                 class="feedback-btn btn-system btn-system--accent btn-system--md"
               >
-                <unicon name="heart" fill="currentColor" :width="16" :height="16" />
+                <LucideIcon name="heart" fill="currentColor" :width="16" :height="16" />
                 {{ getText('sendFeedback') }}
               </button>
             </div>
@@ -123,17 +148,18 @@
         <!-- 🔧 FIX: v-if → v-show 최적화 적용 -->
         <div v-show="currentView === 'personaList'" class="persona-list-tab">
           <div class="persona-header">
+            <!-- 🎯 개선: 뒤로가기 버튼에 색상 적용 -->
             <button
               @click="goToCategorySelect"
               class="back-btn btn-system btn-system--ghost btn-system--sm"
             >
-              <unicon name="arrow-left" fill="currentColor" :width="14" :height="14" />
+              <LucideIcon name="arrow-left" fill="currentColor" :width="14" :height="14" />
               {{ getText('back') }}
             </button>
             
             <div class="header-content">
               <div class="category-badge">
-                <unicon 
+                <LucideIcon 
                   :name="getCategoryIcon(selectedCategory)" 
                   fill="white" 
                   :width="16" 
@@ -153,14 +179,16 @@
             </div>
 
             <div v-show="!loadingPersonas && filteredPersonas.length === 0" class="no-personas">
-              <unicon name="info-circle" fill="var(--text-muted)" :width="40" :height="40" />
+              <LucideIcon name="info" fill="var(--text-muted)" :width="40" :height="40" />
               <h4>{{ getText('noPersonas') }}</h4>
               <p>{{ getText('noPersonasDesc') }}</p>
+              <!-- 🎯 개선: 홈 버튼에 색상 적용 -->
               <button
                 @click="goToCategorySelect"
                 class="btn-system btn-system--primary btn-system--md"
               >
-                <unicon name="home" fill="currentColor" :width="16" :height="16" />
+                <!-- 🎯 개선: 더 친근한 홈 아이콘 -->
+                <LucideIcon name="home-heart" fill="currentColor" :width="16" :height="16" />
                 {{ getText('goHome') }}
               </button>
             </div>
@@ -178,7 +206,7 @@
                     class="persona-icon" 
                     :style="{ backgroundColor: getPersonaColor(index, getPersonaDescription(persona)) }"
                   >
-                    <unicon :name="getPersonaIconName(persona)" fill="white" :width="20" :height="20" />
+                    <LucideIcon :name="getPersonaIconName(persona)" fill="white" :width="20" :height="20" />
                   </div>
                   
                   <div class="persona-info">
@@ -187,7 +215,8 @@
                   </div>
                   
                   <div class="persona-arrow">
-                    <unicon name="angle-right" fill="currentColor" :width="14" :height="14" />
+                    <!-- 🎯 개선: 더 직관적인 화살표 아이콘 -->
+                    <LucideIcon name="arrow-up-right" fill="currentColor" :width="14" :height="14" />
                   </div>
                 </div>
               </div>
@@ -223,18 +252,21 @@
 </template>
 
 <script>
+// 🔧 수정: 경로 변경 ('./service/aiChatOpsService' -> '@/service/aiChatOpsService')
 import aiChatOpsService from '@/service/aiChatOpsService';
-import { getText } from './utils/i18n';
+import { getText } from '@/utils/i18n'; // 🔧 수정: 경로 통일
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
 import Elements from './components/Elements.vue';
+import LucideIcon from './components/LucideIcon.vue';
 
 export default {
   name: 'AIChatOpsLayout',
   components: { 
     ChatTab, 
     FeedbackTab, 
-    Elements
+    Elements,
+    LucideIcon
   },
   
   data() {
@@ -263,11 +295,9 @@ export default {
       healthCheckInterval: null,
       cacheCleanupInterval: null,
       availableThemes: [
-        { key: 'theme-default', name: 'Default', displayName: 'D' },
-        { key: 'theme-timeless', name: 'Timeless', displayName: 'T' },
-        { key: 'theme-heritage', name: 'Heritage', displayName: 'H' },
-        { key: 'theme-modern', name: 'Modern', displayName: 'M' },
-        { key: 'theme-hermes', name: 'Hermes', displayName: 'E' }
+        { key: 'theme-ai-chatops', name: 'AI-ChatOps', displayName: 'AI' },
+        { key: 'theme-heritage', name: 'Heritage', displayName: 'HT' },
+        { key: 'theme-hermes', name: 'Hermes', displayName: 'HM' }
       ],
       personaColors: [
         '#8B7FD6', '#7FB069', '#D4A574', '#9B8AA0', '#6B9BD2',
@@ -277,6 +307,7 @@ export default {
         '#C2A2D6', '#7ACFD6', '#D4A285', '#98B6E8', '#B8D4B8',
         '#F0C570', '#D0A8E8', '#85D4D4', '#E8C085', '#A8C0F0'
       ],
+      // 🎯 개선: 카테고리 아이콘 업데이트
       categories: [
         {
           key: 'personal',
@@ -286,13 +317,13 @@ export default {
         },
         {
           key: 'general',
-          icon: 'users-alt',
+          icon: 'users',
           titleKey: 'generalCategory',
           descKey: 'generalCategoryDesc'
         },
         {
           key: 'operation',
-          icon: 'cog',
+          icon: 'settings',
           titleKey: 'operationCategory',
           descKey: 'operationCategoryDesc'
         }
@@ -324,17 +355,17 @@ export default {
     
     getInitialLanguage() {
       try {
-        return localStorage.getItem('ai-chatops-chat-lang') || 'ko';
+        return localStorage.getItem('ai-chatops-chat-lang') || 'kr';
       } catch (error) {
-        return 'ko';
+        return 'kr';
       }
     },
     
     getInitialTheme() {
       try {
-        return localStorage.getItem('ai-chatops-chat-theme') || 'theme-default';
+        return localStorage.getItem('ai-chatops-chat-theme') || 'theme-ai-chatops';
       } catch (error) {
-        return 'theme-default';
+        return 'theme-ai-chatops';
       }
     },
     
@@ -349,8 +380,11 @@ export default {
     },
     
     applyTheme(themeKey) {
+      console.log('🎨 테마 적용 시작:', themeKey);
       const body = document.body;
       const chatWindow = this.$refs.chatWindow;
+      
+      console.log('📦 chatWindow 참조:', chatWindow ? '존재' : '없음');
       
       this.availableThemes.forEach(theme => {
         body.classList.remove(theme.key);
@@ -362,7 +396,11 @@ export default {
       body.classList.add(themeKey);
       if (chatWindow) {
         chatWindow.classList.add(themeKey);
+        console.log('✅ 테마 클래스 추가됨:', themeKey);
+        console.log('📋 현재 chatWindow 클래스:', chatWindow.className);
       }
+      
+      console.log('🔄 body 클래스 목록:', body.className);
     },
     
     getCurrentThemeName() {
@@ -385,8 +423,8 @@ export default {
     
     getCategoryIcon(category) {
       const iconMap = {
-        'operation': 'cog',
-        'general': 'users-alt',
+        'operation': 'settings',
+        'general': 'users',
         'personal': 'user'
       };
       return iconMap[category] || 'grid';
@@ -403,7 +441,7 @@ export default {
     },
     
     getPersonaIconName(persona) {
-      if (!persona) return 'comment';
+      if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
     },
     
@@ -541,7 +579,7 @@ export default {
     },
     
     toggleLanguage() {
-      this.currentLanguage = this.currentLanguage === 'ko' ? 'en' : 'ko';
+      this.currentLanguage = this.currentLanguage === 'kr' ? 'en' : 'kr';
       try {
         localStorage.setItem('ai-chatops-chat-lang', this.currentLanguage);
       } catch (error) {
@@ -634,6 +672,7 @@ export default {
         });
     },
     
+    // 🔧 수정: 네이밍 통일 (userQuery → userQuery) - 이미 올바름
     handleMessageSent(data) {
       const requestId = `${data.personaCode}-${Date.now()}-${Math.random()}`;
       this.pendingRequests.set(requestId, {
@@ -647,7 +686,8 @@ export default {
         data.sessionId = this.personaSessionMap[data.personaCode];
       }
       
-      aiChatOpsService.sendMessage(data, true)
+      // 🔧 수정: 항상 비동기 처리 (useAsync 파라미터 제거)
+      aiChatOpsService.sendMessage(data)
         .then(response => {
           if (response.success) {
             this.handleSuccessResponse(data, response);
@@ -676,6 +716,7 @@ export default {
       }
       
       if (this.$refs.chatTab) {
+        // 🔧 수정: addAiResponse 메서드명 그대로 유지 (Layout에서는 addAiQuery가 아님)
         this.$refs.chatTab.addAiResponse(response);
       }
       this.isConnected = true;
@@ -683,6 +724,7 @@ export default {
     
     handleErrorResponse(errorMessage) {
       if (this.$refs.chatTab) {
+        // 🔧 수정: addAiResponse 메서드명 그대로 유지
         this.$refs.chatTab.addAiResponse({ 
           success: false,
           message: errorMessage
@@ -895,7 +937,7 @@ export default {
 
 .details .name {
   font-size: var(--font-size-base);
-  font-weight: 600;
+  font-weight: 500;
   color: var(--color-header-text) !important;
   margin-bottom: 2px;
   letter-spacing: -0.01em;
@@ -907,7 +949,7 @@ export default {
   gap: 6px;
   font-size: var(--font-size-sm);
   color: var(--color-header-text-secondary) !important;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .status-dot {
@@ -942,17 +984,10 @@ export default {
 .easter-egg-trigger:hover {
   background: rgba(255, 255, 255, 0.2) !important;
   border-color: var(--color-header-accent) !important;
+  transform: scale(1.1);
 }
 
-.easter-dot {
-  width: 6px;
-  height: 6px;
-  background: #8B5CF6;
-  border-radius: var(--radius-full);
-  box-shadow: 0 0 4px rgba(139, 92, 246, 0.6);
-  animation: sparkle 2s infinite;
-}
-
+/* 🎯 개선: 테마 선택기와 언어 버튼에 색상 적용 */
 .theme-selector {
   color: var(--color-header-text) !important;
   background: rgba(255, 255, 255, 0.1) !important;
@@ -962,6 +997,7 @@ export default {
 .theme-selector:hover {
   background: rgba(255, 255, 255, 0.2) !important;
   border-color: var(--color-header-accent) !important;
+  transform: scale(1.05);
 }
 
 .language-btn,
@@ -975,6 +1011,7 @@ export default {
 .window-control-btn:hover {
   background: rgba(255, 255, 255, 0.2) !important;
   border-color: var(--color-header-accent) !important;
+  transform: scale(1.05);
 }
 
 .window-controls {
@@ -1118,7 +1155,7 @@ export default {
 
 .category-card:hover:not(.disabled) .category-arrow {
   color: var(--color-primary);
-  transform: translateX(2px);
+  transform: translateX(2px) translateY(-2px);
 }
 
 .category-card:hover:not(.disabled) .category-icon {
@@ -1308,13 +1345,14 @@ export default {
 
 .persona-card:hover:not(.disabled) .persona-arrow {
   color: var(--color-primary);
-  transform: translateX(2px);
+  transform: translateX(2px) translateY(-2px);
 }
 
 .persona-card:hover:not(.disabled) .persona-icon {
   transform: scale(1.05);
 }
 
+/* 🆕 수정: 플로팅 챗봇 버튼 - 아이콘 렌더링 안정화 */
 .ai-chatops-chat-button {
   width: var(--layout-float-size);
   height: var(--layout-float-size);
@@ -1330,22 +1368,35 @@ export default {
   position: relative;
   overflow: hidden;
   color: var(--color-surface-white);
+  
+  /* 🆕 수정: 아이콘 렌더링 안정화를 위한 추가 속성 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
-.ai-chatops-chat-button .unicon {
+.ai-chatops-chat-button .lucide-icon {
   color: var(--color-surface-white) !important;
   fill: var(--color-surface-white) !important;
+  /* 🆕 수정: 아이콘 안정성을 위한 추가 속성 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .ai-chatops-chat-button.is-active {
-  transform: scale(0.95);
+  transform: scale(0.95) translateZ(0);
   background: linear-gradient(135deg, var(--color-accent) 0%, #0891b2 100%);
   box-shadow: var(--shadow-soft);
 }
 
-.ai-chatops-chat-button.is-active .unicon {
+.ai-chatops-chat-button.is-active .lucide-icon {
   color: var(--color-surface-white) !important;
   fill: var(--color-surface-white) !important;
+}
+
+.ai-chatops-chat-button:hover {
+  transform: scale(1.05) translateZ(0);
+  box-shadow: var(--shadow-floating), 0 0 20px rgba(37, 99, 235, 0.3);
 }
 
 @keyframes sparkle {
