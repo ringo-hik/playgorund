@@ -690,10 +690,6 @@ export default {
   background: linear-gradient(90deg, var(--heritage-accent), #7F1D1D);
 }
 
-.theme-modern .bot-badge {
-  background: linear-gradient(90deg, var(--modern-accent), #A16207);
-}
-
 .theme-hermes .bot-badge {
   background: linear-gradient(90deg, var(--hermes-accent), #D97706);
 }

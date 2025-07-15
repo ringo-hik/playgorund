@@ -224,11 +224,9 @@ export default {
       currentLoadingMessage: '',
       loadingInterval: null,
       loadingMessageId: null,
-      // 🔧 수정: 네이밍 통일 (quickQuery → quickQuestions)
       showQuickQuestions: false,
       quickQuestions: [],
       continuousChatEnabled: true,
-      // 🔧 수정: 네이밍 통일 (isQuickQueryLoading → isQuickQuestionsLoading)
       isQuickQuestionsLoading: false,
       isInitialLoad: false,
       maxSessionMessages: 30,
@@ -576,7 +574,6 @@ export default {
       }
     },
 
-    // 🔧 수정: 함수명 통일 (sendQuickQuery → sendQuickQuestion)
     sendQuickQuestion(question) {
       this.currentMessage = question;
       this.showQuickQuestions = false;
@@ -707,8 +704,7 @@ export default {
         'Generating response...';
     },
 
-    // 🔧 수정: 함수명 통일 (displayQuickQueryResponse → displayQuickQuestionsResponse)
-    displayQuickQuestionsResponse(responseData) {
+      displayQuickQuestionsResponse(responseData) {
       try {
         let questionsList = [];
         
@@ -768,7 +764,6 @@ export default {
       }
     },
 
-    // 🔧 수정: 함수명 통일 (getDefaultQuickQuery → getDefaultQuickQuestions)
     getDefaultQuickQuestions() {
       return [
         '안녕하세요! 어떻게 도와드릴까요?',
