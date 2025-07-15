@@ -110,23 +110,25 @@
                   <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('generateQuestions') || '질문 생성하기' }}</span>
                 </button>
                 
-                <!-- 🎯 개선된 연속 채팅 버튼 -->
+                <!-- 🎯 연속/단일 토글 버튼 -->
                 <button
-                  @click="toggleContinuousChat" 
+                  @click="toggleContinuousChat"
                   :disabled="isProcessing"
                   :class="[
-                    'btn-system', 
+                    'btn-system',
                     continuousChatEnabled ? 'btn-system--continuous-active' : 'btn-system--ghost',
-                    'btn-system--sm', 
-                    'continuous-chat-enhanced-btn', 
-                    { 
+                    'btn-system--sm',
+                    'continuous-chat-enhanced-btn',
+                    {
                       'btn-system--icon-only': !isExpanded
                     }
                   ]"
-                  :title="getText('continuousChat') || '연속 대화'"
+                  :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'"
                 >
-                  <LucideIcon name="layers" fill="currentColor" :width="12" :height="12" />
-                  <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('continuousChat') || '연속 대화' }}</span>
+                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" fill="currentColor" :width="12" :height="12" />
+                  <span v-if="isExpanded" class="btn-text-enhanced">
+                    {{ continuousChatEnabled ? '단일 대화' : '연속 대화' }}
+                  </span>
                 </button>
               </div>
               
@@ -181,8 +183,8 @@
 <script>
 import LucideIcon from './LucideIcon.vue';
 import Elements from './Elements.vue';
-import { getText, getTextArray } from '@/utils/i18n.js'; // 🔧 수정: 경로 통일
-import aiChatOpsService from '@/service/aiChatOpsService.js'; // 🔧 수정: 경로 통일
+import { getText, getTextArray } from '../utils/i18n.js';
+import aiChatOpsService from '@/service/aiChatOpsService.js';
 
 export default {
   name: 'ChatTab',
@@ -225,7 +227,7 @@ export default {
       // 🔧 수정: 네이밍 통일 (quickQuery → quickQuestions)
       showQuickQuestions: false,
       quickQuestions: [],
-      continuousChatEnabled: false,
+      continuousChatEnabled: true,
       // 🔧 수정: 네이밍 통일 (isQuickQueryLoading → isQuickQuestionsLoading)
       isQuickQuestionsLoading: false,
       isInitialLoad: false,
@@ -447,7 +449,8 @@ export default {
       
       if (manager.currentState.hasScrolled) {
         container.classList.add('enhanced-input--scrolling');
-      } else {
+      }
+      else {
         container.classList.remove('enhanced-input--scrolling');
       }
     },
@@ -628,7 +631,6 @@ export default {
       this.addMessageWithLimit(responseMessage);
     },
 
-    // 🔧 수정: 함수명 통일 (makeQuickQuestion → generateQuickQuestions)
     async generateQuickQuestions() {
       if (this.isQuickQuestionsLoading || this.isProcessing) return;
       
@@ -654,8 +656,7 @@ export default {
           currentLanguage: this.currentLanguage
         };
         
-        // 🔧 수정: 서비스 함수명 통일 (makeQuickQuestion → makeQuickQuestions)
-        const response = await aiChatOpsService.makeQuickQuestions(questionData);
+        const response = await aiChatOpsService.generateQuickQuestions(questionData);
         
         const loadingIndex = this.messages.findIndex(msg => msg.id === loadingMessage.id);
         if (loadingIndex !== -1) {
@@ -687,26 +688,11 @@ export default {
       }
     },
 
-    // 🔧 수정: 함수명 통일 (generateQueryPrompt → generateQuestionPrompt)
     generateQuestionPrompt() {
       const persona = this.selectedPersona;
       const category = this.selectedCategory;
       
-      return `현재 대화 상황에 맞는 유용하고 실용적인 빠른 질문 3-5개를 생성해주세요. 
-
-컨텍스트:
-- 페르소나: ${persona?.personaName || '일반'}
-- 카테고리: ${category || '일반 문의'}
-- 언어: ${this.currentLanguage === 'ko' ? '한국어' : 'English'}
-
-요구사항:
-1. 질문은 간결하고 명확해야 함
-2. 사용자가 즉시 클릭할 수 있는 형태로 제시
-3. 현재 대화 맥락에 연관성 있는 내용
-4. 다양한 주제와 난이도로 구성
-
-반드시 다음 형식으로 답변해주세요:
-["질문1", "질문2", "질문3", ...] 형태의 JSON 배열`;
+      return `현재 대화 상황에 맞는 유용하고 실용적인 빠른 질문 3-5개를 생성해주세요. \n\n컨텍스트:\n- 페르소나: ${persona?.personaName || '일반'}\n- 카테고리: ${category || '일반 문의'}\n- 언어: ${this.currentLanguage === 'ko' ? '한국어' : 'English'}\n\n요구사항:\n1. 질문은 간결하고 명확해야 함\n2. 사용자가 즉시 클릭할 수 있는 형태로 제시\n3. 현재 대화 맥락에 연관성 있는 내용\n4. 다양한 주제와 난이도로 구성\n\n반드시 다음 형식으로 답변해주세요:\n["질문1", "질문2", "질문3", ...] 형태의 JSON 배열`;
     },
 
     getLoadingMessage() {
@@ -727,13 +713,13 @@ export default {
         let questionsList = [];
         
         if (typeof responseData === 'string') {
-          const jsonMatch = responseData.match(/\[.*\]/);
+          const jsonMatch = responseData.match(/\\[.*\\]/);
           if (jsonMatch) {
             questionsList = JSON.parse(jsonMatch[0]);
           } else {
             questionsList = responseData.split('\n')
               .filter(q => q.trim())
-              .map(q => q.replace(/^[-*•]\s*/, '').trim())
+              .map(q => q.replace(/^[-\*•]\\s*/, '').trim())
               .slice(0, 5);
           }
         } else if (Array.isArray(responseData)) {
@@ -948,7 +934,7 @@ export default {
         // 🔧 수정: 네이밍 통일
         showQuickQuestions: false,
         quickQuestions: [],
-        continuousChatEnabled: false,
+        continuousChatEnabled: true,
         isQuickQuestionsLoading: false,
         isInitialLoad: false,
         pendingMessages: [],

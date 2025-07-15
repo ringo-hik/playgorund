@@ -254,7 +254,7 @@
 <script>
 // 🔧 수정: 경로 변경 ('./service/aiChatOpsService' -> '@/service/aiChatOpsService')
 import aiChatOpsService from '@/service/aiChatOpsService';
-import { getText } from '@/utils/i18n'; // 🔧 수정: 경로 통일
+import { getText } from './utils/i18n'; // 🔧 수정: 경로 통일
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
 import Elements from './components/Elements.vue';

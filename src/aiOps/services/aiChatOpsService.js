@@ -162,7 +162,6 @@ const aiChatOpsService = {
     }
   },
 
-  // 🔧 수정: 함수명 통일 (makeQuickQuestions → generateQuickQuestions)
   async generateQuickQuestions(questionData) {
     try {
       const response = await axios.post(`${API_BASE_URL}/quick-questions`, {
