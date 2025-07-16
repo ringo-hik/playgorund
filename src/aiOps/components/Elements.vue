@@ -420,7 +420,7 @@ export default {
   background: var(--color-surface-medium);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   line-height: 1.6;
   word-wrap: break-word;
@@ -456,7 +456,7 @@ export default {
   background: var(--alert-error-bg) !important;
   color: var(--color-error) !important;
   padding: var(--space-md) var(--space-lg) !important;
-  border-radius: var(--radius-lg) !important;
+  border-radius: var(--radius-md) !important;
   box-shadow: var(--shadow-subtle) !important;
 }
 
@@ -464,7 +464,7 @@ export default {
   background: rgba(0, 0, 0, 0.02);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: -0.01em;
@@ -488,7 +488,7 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  background: linear-gradient(135deg, var(--color-primary), rgba(37, 99, 235, 0.85));
+  background: linear-gradient(135deg, var(--color-accent));
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -521,15 +521,17 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
-  background: var(--color-primary);
+  padding: 2px 8px;
+  background: var(--color-accent);
   color: white;
-  border-radius: 14px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
   text-transform: uppercase;
-  box-shadow: var(--shadow-accent-subtle);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
 }
 
 .bot-badge .icon {
@@ -728,22 +730,5 @@ export default {
     height: 32px !important;
     min-height: 32px !important;
   }
-}
-
-/* ----- 테마별 봇 뱃지 색상 ----- */
-.theme-timeless .bot-badge {
-  background: linear-gradient(90deg, var(--timeless-accent), #991B1B);
-}
-
-.theme-heritage .bot-badge {
-  background: linear-gradient(90deg, var(--heritage-accent), #7F1D1D);
-}
-
-.theme-modern .bot-badge {
-  background: linear-gradient(90deg, var(--modern-accent), #A16207);
-}
-
-.theme-hermes .bot-badge {
-  background: linear-gradient(90deg, var(--hermes-accent), #D97706);
 }
 </style>

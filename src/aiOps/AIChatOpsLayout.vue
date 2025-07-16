@@ -1106,7 +1106,7 @@ export default {
   cursor: pointer;
   transition: all var(--motion-fast);
   background: rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -1156,7 +1156,7 @@ export default {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 60%);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
 }
 
 .category-content {
@@ -1304,7 +1304,7 @@ export default {
   cursor: pointer;
   transition: all var(--motion-fast);
   background: rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);

@@ -51,7 +51,8 @@
                 <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="currentColor" :width="24" :height="24" />
               </div>
               <h2 class="welcome-title">
-                {{ (getText('welcomeChat') || '').replace('{persona}', selectedPersona ? getPersonaDisplayName(selectedPersona) : '') }}
+                {{ (getText('welcomeChat') || '').replace('{persona}', selectedPersona ?
+                  getPersonaDisplayName(selectedPersona) : '') }}
               </h2>
             </div>
             <p class="welcome-description">{{ getText('welcomeTip') || '' }}</p>
@@ -1068,7 +1069,7 @@ export default {
   flex-direction: column;
   height: 100%;
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-surface-white);
 }
@@ -1166,7 +1167,7 @@ export default {
   right: var(--space-xl);
   background: var(--color-surface-white);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-moderate);
   z-index: 10;
   transform: translateY(-100%);

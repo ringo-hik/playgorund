@@ -15,14 +15,14 @@
   --ai-chatops-success: #10B981;       /* 에메랄드 그린 - 성공 상태 */
 
   /* Heritage 테마 색상 (클래식 - 빨간색 계열) */
-  --heritage-primary: #7C2D12;    /* 더 진한 갈색 */
-  --heritage-secondary: #991B1B;  /* 진한 빨간색 */
-  --heritage-accent: #DC2626;     /* 밝은 빨간색 */
-  --heritage-neutral: #78716C;    /* 갈색 회색 */
-  --heritage-background: #FEFCFB; /* 따뜻한 배경 */
-  --heritage-text: #451A03;       /* 진한 갈색 텍스트 */
+  --heritage-primary: #7C2D12;
+  --heritage-secondary: #991B1B;
+  --heritage-accent: #c22222;
+  --heritage-neutral: #78716C;
+  --heritage-background: #FEFCFB;
+  --heritage-text: #270f02;
   --heritage-text-light: #FFFFFF;
-  --heritage-border: #E7E5E4;     /* 뉴트럴 보더 */
+  --heritage-border: #E7E5E4;
   
   /* 🎨 새로운 Heritage 보조 색상 */
   --heritage-highlight: #EF4444;   /* 선명한 빨간색 - 강조용 */
@@ -41,20 +41,18 @@
   --heritage-gray-900: #1C1917;
 
   /* Hermes 테마 색상 (에르메스 시그니처 오렌지) */
-  --hermes-primary: #FF7F00;      /* 에르메스 시그니처 오렌지 */
-  --hermes-secondary: #E65100;    /* 어두운 오렌지 */
-  --hermes-accent: #8D6E63;       /* 에르메스 브라운 레더 */
-  --hermes-neutral: #5D4037;      /* 진한 브라운 */
-  --hermes-background: #FEFEFE;   /* 깔끔한 화이트 */
-  --hermes-text: #2E2E2E;         /* 텍스트 (대비 5:1) */
+  --hermes-primary: #F37021; 
+  --hermes-secondary: #3995d8; 
+  --hermes-accent: #071a76; 
+  --hermes-neutral: #786868; 
+  --hermes-background: #d2dce5; 
+  --hermes-text: #2E2E2E; 
   --hermes-text-light: #FFFFFF;
-  --hermes-border: #D7CCC8;       /* 부드러운 베이지 */
+  --hermes-border: #D7CCC8;
   
-  /* 🎨 새로운 Hermes 보조 색상 */
-  --hermes-highlight: #F57C00;     /* 강조용 오렌지 */
-  --hermes-sage: #A1887F;         /* 에르메스 베이지 */
+  --hermes-highlight: #3995d8;
+  --hermes-sage: #A1887F;
   
-  /* 🎨 Hermes 뉴트럴 색상 팔레트 */
   --hermes-gray-50: #FAFAFA;
   --hermes-gray-100: #F5F5F5;
   --hermes-gray-200: #EEEEEE;
@@ -66,20 +64,17 @@
   --hermes-gray-800: #424242;
   --hermes-gray-900: #212121;
 
-  /* ----- 통일된 컬러 시스템 ---------------------------- */
   --color-primary: var(--ai-chatops-primary);
   --color-primary-dark: var(--ai-chatops-secondary);
   --color-accent: var(--ai-chatops-accent);
   --color-accent-secondary: var(--ai-chatops-neutral);
   
-  /* 🎨 새로운 기능별 색상 변수 */
   --color-highlight: var(--ai-chatops-highlight);
   --color-interactive: var(--ai-chatops-success);
-  --color-send-button: #10B981;        /* 전송 버튼 전용 */
-  --color-continuous-active: #059669;  /* 연속 채팅 활성 상태 */
-  --color-quick-action: #0EA5E9;      /* 빠른 액션 버튼 */
+  --color-send-button: #10B981;
+  --color-continuous-active: #059669;
+  --color-quick-action: #0EA5E9;
 
-  /* 텍스트 컬러 */
   --color-text-primary: #1F2937;
   --color-text-secondary: #4B5563;
   --color-text-muted: #6B7280;
