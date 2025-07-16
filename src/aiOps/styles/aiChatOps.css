@@ -17,7 +17,7 @@
   --heritage-secondary: #991B1B;
   --heritage-accent: #c22222;
   --heritage-neutral: #78716C;
-  --heritage-background: #eee6e3;
+  --heritage-background: #f5eeeb;
   --heritage-text: #270f02;
   --heritage-text-light: #FFFFFF;
   --heritage-border: #E7E5E4;
@@ -41,7 +41,7 @@
   --nyf-secondary: #3995d8; 
   --nyf-accent: #071a76; 
   --nyf-neutral: #786868; 
-  --nyf-background: #e5e9ee; 
+  --nyf-background: #edf0f3; 
   --nyf-text: #2E2E2E; 
   --nyf-text-light: #FFFFFF;
   --nyf-border: #D7CCC8;
@@ -65,7 +65,7 @@
   --retro-secondary: #fb2e01;
   --retro-accent: #6fcb9f;
   --retro-neutral: #78716C;
-  --retro-background: #ebebe3;
+  --retro-background: #f3f3e9;
   --retro-text: #270f02;
   --retro-text-light: #FFFFFF;
   --retro-border: #ffe28a;
@@ -233,6 +233,14 @@
   --color-send-medium: rgba(16, 185, 129, var(--opacity-medium));
   --color-continuous-subtle: rgba(5, 150, 105, var(--opacity-light));
   --color-quick-subtle: rgba(14, 165, 233, var(--opacity-light));
+
+  /* ----- 채팅 버블 색상 ----- */
+  --color-chat-bubble-bot: rgba(0, 0, 0, 0.01); /* 4% darker than background */
+  --color-chat-bubble-user: rgba(0, 0, 0, 0.02); /* 8% darker than background */
+
+  /* ----- 카드 시스템 색상 ----- */
+  --color-card-bg: rgba(0, 0, 0, 0.06); /* 6% darker than background */
+  --shadow-card-enhanced: 0 3px 9px rgba(0, 0, 0, 0.08); /* 10% more shadow */
 
   /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
   --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));
@@ -943,4 +951,52 @@ html {
 .card-system--interactive:hover {
   border-color: var(--color-border-accent);
   box-shadow: var(--shadow-soft);
+}
+
+/* ----- 아이콘 시스템 통일 ----- */
+.lucide-icon,
+.lucide-icon svg,
+[class*="lucide-"] {
+  font-family: var(--font-family) !important;
+  display: inline-flex !important;
+  vertical-align: middle !important;
+  overflow: visible !important;
+  shape-rendering: geometricPrecision !important;
+  text-rendering: optimizeLegibility !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  will-change: transform !important;
+}
+
+/* 아이콘 폴백 방지 및 정규화 */
+svg {
+  font-family: inherit !important;
+  -webkit-font-feature-settings: normal !important;
+  font-feature-settings: normal !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+  stroke: currentColor !important;
+}
+
+/* 테마 변경 시 아이콘 안정성 확보 */
+.lucide-icon svg path,
+.lucide-icon svg polyline,
+.lucide-icon svg polygon,
+.lucide-icon svg line,
+.lucide-icon svg circle,
+.lucide-icon svg rect {
+  stroke-width: inherit !important;
+  fill: inherit !important;
+  stroke: inherit !important;
+}
+
+/* 별점 시스템 특별 처리 */
+.star-rating__star svg {
+  stroke: #F59E0B !important;
+  fill: none !important;
+}
+
+.star-rating__star--active svg {
+  fill: #F59E0B !important;
+  stroke: #F59E0B !important;
 }

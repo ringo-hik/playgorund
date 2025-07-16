@@ -14,9 +14,33 @@
       <!-- 채팅 헤더 추가 -->
       <div class="chat-header">
         <div class="persona-info">
-          <div class="persona-badge">
+          <div class="persona-badge" @mouseenter="showDevInfo = true" @mouseleave="showDevInfo = false">
             <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="white" :width="16" :height="16" />
             <span>{{ getPersonaDisplayName(selectedPersona) }}</span>
+          </div>
+          
+          <div v-if="showDevInfo" class="dev-info-tooltip-avatar" @mouseenter="showDevInfo = true" @mouseleave="showDevInfo = false">
+            <div class="dev-info-header">🔧 Dev Info</div>
+            <div class="dev-info-content">
+              <div class="dev-info-item">
+                <span class="dev-label">Messages:</span>
+                <span class="dev-value">{{ messages.length }}/{{ maxSessionMessages }}</span>
+              </div>
+              <div class="dev-info-item">
+                <span class="dev-label">Memory:</span>
+                <span class="dev-value">{{ memoryUsage.used }}MB/{{ memoryUsage.total }}MB</span>
+              </div>
+              <div class="dev-info-item">
+                <span class="dev-label">Pending:</span>
+                <span class="dev-value" :class="{ 'dev-value--active': pendingMessages.length > 0 }">{{
+                  pendingMessages.length }}</span>
+              </div>
+              <div class="dev-info-item">
+                <span class="dev-label">Rendering:</span>
+                <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes'
+                  : 'No' }}</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -118,29 +142,6 @@
           </div>
         </div>
 
-        <div v-if="isDevelopment && showDevInfo" class="dev-info-tooltip">
-          <div class="dev-info-header">🔧 Dev Info</div>
-          <div class="dev-info-content">
-            <div class="dev-info-item">
-              <span class="dev-label">Messages:</span>
-              <span class="dev-value">{{ messages.length }}/{{ maxSessionMessages }}</span>
-            </div>
-            <div class="dev-info-item">
-              <span class="dev-label">Memory:</span>
-              <span class="dev-value">{{ memoryUsage.used }}MB/{{ memoryUsage.total }}MB</span>
-            </div>
-            <div class="dev-info-item">
-              <span class="dev-label">Pending:</span>
-              <span class="dev-value" :class="{ 'dev-value--active': pendingMessages.length > 0 }">{{
-                pendingMessages.length }}</span>
-            </div>
-            <div class="dev-info-item">
-              <span class="dev-label">Rendering:</span>
-              <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes'
-                : 'No' }}</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -187,8 +188,6 @@ export default {
       currentMessage: '',
       messages: [],
       loadingHistory: false,
-      currentLoadingMessage: '',
-      loadingInterval: null,
       loadingMessageId: null,
       showQuickQuestions: false,
       quickQuestions: [],
@@ -198,7 +197,7 @@ export default {
       maxSessionMessages: 30,
       memoryUsage: { used: 0, total: 0 },
       memoryMonitorInterval: null,
-      isDevelopment: process.env.NODE_ENV === 'development',
+      isDevelopment: true, // 디버깅 모드 기본 활성화
       showDevInfo: false,
       debugMode: true, // 강제 디버깅 모드
       renderingStates: [],
@@ -363,13 +362,19 @@ export default {
             });
           } else {
             console.log('💭 [ChatTab] No history messages to display');
+            // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
+            this.checkManualPersonaAutoQuery();
           }
         } else {
           console.warn('🚫 [ChatTab] Invalid history response:', response);
+          // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
+          this.checkManualPersonaAutoQuery();
         }
       } catch (error) {
         console.error('❌ [ChatTab] 페르소나 히스토리 로드 실패:', error);
         this.addErrorMessage('히스토리를 불러오는 중 오류가 발생했습니다.');
+        // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
+        this.checkManualPersonaAutoQuery();
       } finally {
         this.loadingHistory = false;
         this.isInitialLoad = false;
@@ -387,7 +392,7 @@ export default {
     },
 
     startMemoryMonitoring() {
-      if (this.isDevelopment && performance.memory) {
+      if (performance.memory) {
         this.memoryMonitorInterval = setInterval(() => {
           this.measureMemoryUsage();
         }, 30000);
@@ -784,27 +789,18 @@ export default {
       const loadingMessage = {
         id: `loading-${this.generateUniqueId()}`,
         type: 'ai',
-        content: this.getLoadingMessage(),
+        content: '', // Elements.vue에서 자동으로 생성
         timestamp: new Date(),
         isLoading: true
       };
 
       this.addMessageWithLimit(loadingMessage);
       this.loadingMessageId = loadingMessage.id;
-
-      this.loadingInterval = setInterval(() => {
-        const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
-        if (loadingIndex !== -1) {
-          this.messages[loadingIndex].content = this.getLoadingMessage();
-        }
-      }, 1500);
     },
 
     stopLoadingMessages() {
-      if (this.loadingInterval) {
-        clearInterval(this.loadingInterval);
-        this.loadingInterval = null;
-      }
+      // Elements.vue에서 자동으로 애니메이션이 중지됨
+      this.loadingMessageId = null;
     },
 
     addMessageWithLimit(newMessage) {
@@ -957,7 +953,6 @@ export default {
         currentMessage: '',
         messages: [],
         loadingHistory: false,
-        currentLoadingMessage: '',
         loadingMessageId: null,
         showQuickQuestions: false,
         quickQuestions: [],
@@ -973,6 +968,17 @@ export default {
         hasScrolled: false,
         lineCount: 1
       };
+    },
+
+    // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
+    checkManualPersonaAutoQuery() {
+      if (this.selectedPersona?.personaCode === 'chatbot_manual' && this.messages.length === 0) {
+        console.log('📚 [ChatTab] Auto-executing manual query for chatbot_manual persona');
+        this.$nextTick(() => {
+          this.currentMessage = '전체 메뉴얼';
+          this.sendMessage();
+        });
+      }
     }
   },
 
@@ -986,14 +992,6 @@ export default {
     });
 
     this.startMemoryMonitoring();
-
-    if (this.isDevelopment) {
-      document.addEventListener('keydown', (e) => {
-        if (e.altKey && e.key === 'd') {
-          this.showDevInfo = !this.showDevInfo;
-        }
-      });
-    }
 
     // 외부 클릭 이벤트 리스너 추가
     document.addEventListener('click', this.handleClickOutside);
@@ -1017,7 +1015,6 @@ export default {
       pendingMessages: [],
       renderingScheduled: false,
       loadingMessageId: null,
-      loadingInterval: null,
       memoryMonitorInterval: null
     });
   }
@@ -1353,6 +1350,27 @@ export default {
   font-family: 'Monaco', 'Menlo', 'SF Mono', 'Consolas', 'Courier New', monospace;
   backdrop-filter: blur(var(--blur-strong));
   -webkit-backdrop-filter: blur(var(--blur-strong));
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.dev-info-tooltip-avatar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--color-text-primary);
+  color: var(--color-text-light);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  z-index: 1000;
+  margin-top: var(--space-sm);
+  border: 1px solid var(--color-border-medium);
+  box-shadow: var(--shadow-moderate);
+  font-family: 'Monaco', 'Menlo', 'SF Mono', 'Consolas', 'Courier New', monospace;
+  backdrop-filter: blur(var(--blur-strong));
+  -webkit-backdrop-filter: blur(var(--blur-strong));
+  animation: fadeInDown 0.2s ease-out;
 }
 
 .dev-info-header {
@@ -1484,6 +1502,18 @@ export default {
   }
 }
 
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 채팅 헤더 스타일 */
 .chat-header {
   display: flex;
@@ -1499,6 +1529,7 @@ export default {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  position: relative;
 }
 
 .persona-badge {
@@ -1511,6 +1542,15 @@ export default {
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 500;
+  cursor: pointer;
+  transition: all var(--motion-fast);
+  position: relative;
+}
+
+.persona-badge:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
 }
 
 .header-actions {

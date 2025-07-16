@@ -81,7 +81,8 @@ export default {
         .replace(/width="[^"]*"/g, `width="${this.size}"`)
         .replace(/height="[^"]*"/g, `height="${this.size}"`)
         .replace(/stroke="[^"]*"/g, `stroke="${this.fill}"`)
-        .replace(/fill="currentColor"/g, `fill="${this.fill}"`);
+        .replace(/fill="currentColor"/g, `fill="${this.fill}"`)
+        .replace(/stroke-width="[^"]*"/g, 'stroke-width="2"'); // 일관된 stroke-width 설정
     },
     
     getHardcodedIcon(iconName) {
@@ -207,19 +208,30 @@ export default {
 
 <style scoped>
 .lucide-icon {
-  line-height: 1;
-  vertical-align: middle;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: transform;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  will-change: transform !important;
+  font-family: var(--font-family) !important;
+  overflow: hidden !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .lucide-icon svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  shape-rendering: geometricPrecision;
-  text-rendering: optimizeLegibility;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  shape-rendering: geometricPrecision !important;
+  text-rendering: optimizeLegibility !important;
+  font-family: inherit !important;
+  overflow: visible !important;
+  vertical-align: middle !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+  stroke: currentColor !important;
 }
 
 .lucide-icon {

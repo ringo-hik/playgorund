@@ -32,7 +32,7 @@
     <!-- 메시지 컴포넌트 -->
     <div v-if="componentType === 'message'" :class="['message', `message--${messageType}`]">
       <div :class="messageClasses">
-        <template v-if="loading">
+        <template v-if="isCurrentlyLoading">
           <div class="message-bubble__loading">
             <div class="loading-text">{{ dynamicLoadingMessage }}</div>
           </div>
@@ -61,7 +61,7 @@
 
           <div class="message-bubble__content" v-html="formattedContent"></div>
 
-          <div v-if="effectiveMessageType === 'ai' && !isError" class="message-bubble__actions">
+          <div v-if="effectiveMessageType === 'ai' && !isError && !isCurrentlyLoading" class="message-bubble__actions">
             <button v-if="showCopy"
               :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': copyStatus === 'copied' }]"
               @click="handleCopy">
@@ -77,6 +77,7 @@
 
 <script>
 import LucideIcon from './LucideIcon.vue';
+import { getTextArray } from '../utils/i18n.js';
 
 export default {
   name: 'Elements',
@@ -123,7 +124,10 @@ export default {
       hoverRating: 0,
       localCopyStatus: null,
       dotCount: 0,
-      dotInterval: null
+      dotInterval: null,
+      messageInterval: null,
+      currentLoadingMessage: '',
+      selectedRating: 0 // 선택된 별점 유지용
     };
   },
 
@@ -156,7 +160,7 @@ export default {
         'message-bubble',
         `message-bubble--${msgType}`,
         {
-          'message-bubble--loading': this.message?.isLoading || this.loading,
+          'message-bubble--loading': this.isCurrentlyLoading,
           'message-bubble--error': this.message?.isError || this.isError
         }
       ];
@@ -171,7 +175,7 @@ export default {
     },
 
     currentRating() {
-      return this.hoverRating || this.value;
+      return this.hoverRating || this.selectedRating || this.value;
     },
 
     formattedContent() {
@@ -194,8 +198,13 @@ export default {
     },
 
     dynamicLoadingMessage() {
-      const dots = '.'.repeat(this.dotCount + 1);
-      return this.loadingMessage + dots;
+      const dots = '.'.repeat(this.dotCount === 0 ? 1 : this.dotCount); // 1-5개 점 표시
+      const baseMessage = this.currentLoadingMessage || this.getRandomLoadingMessage();
+      return baseMessage + dots;
+    },
+
+    isCurrentlyLoading() {
+      return this.loading || this.message?.isLoading || false;
     }
   },
 
@@ -208,6 +217,8 @@ export default {
 
     selectRating(rating) {
       if (this.disabled) return;
+      // 선택된 별점을 상태로 유지
+      this.selectedRating = rating;
       this.$emit('input', rating);
       this.$emit('change', rating);
     },
@@ -280,9 +291,17 @@ export default {
 
     startDotAnimation() {
       this.dotCount = 0;
+      this.currentLoadingMessage = this.getRandomLoadingMessage();
+
+      // 점 애니메이션 (0.3초 간격, 5개 점)
       this.dotInterval = setInterval(() => {
-        this.dotCount = (this.dotCount + 1) % 4;
-      }, 2000);
+        this.dotCount = (this.dotCount + 1) % 6; // 0-5 사이클 (5개 점)
+      }, 300);
+
+      // 메시지 변경 (1.5초 간격)
+      this.messageInterval = setInterval(() => {
+        this.currentLoadingMessage = this.getRandomLoadingMessage();
+      }, 1500);
     },
 
     stopDotAnimation() {
@@ -290,27 +309,52 @@ export default {
         clearInterval(this.dotInterval);
         this.dotInterval = null;
       }
+      if (this.messageInterval) {
+        clearInterval(this.messageInterval);
+        this.messageInterval = null;
+      }
+    },
+
+    getRandomLoadingMessage() {
+      const messages = getTextArray(this.currentLanguage, 'loadingMessages');
+      if (messages && messages.length > 0) {
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        return messages[randomIndex];
+      }
+
+      return this.currentLanguage === 'ko' ?
+        '응답을 생성하고 있습니다' :
+        'Generating response';
     }
   },
 
   watch: {
-    loading(newVal) {
+    isCurrentlyLoading(newVal) {
       if (newVal) {
         this.startDotAnimation();
       } else {
         this.stopDotAnimation();
       }
+    },
+    
+    value(newVal) {
+      // prop으로 전달된 값이 변경되면 내부 상태도 업데이트
+      this.selectedRating = newVal;
     }
   },
 
   mounted() {
-    if (this.loading) {
+    if (this.isCurrentlyLoading) {
       this.startDotAnimation();
     }
+    
+    // 초기 선택된 별점 설정
+    this.selectedRating = this.value;
   },
 
   beforeDestroy() {
     this.stopDotAnimation();
+    this.currentLoadingMessage = '';
   }
 };
 </script>
@@ -409,11 +453,18 @@ export default {
   stroke-width: 1.5 !important;
   transform: translateZ(0) !important;
   backface-visibility: hidden !important;
+  fill: none !important;
 }
 
 .star-rating__star--active .lucide-icon {
   fill: #F59E0B !important;
   color: #F59E0B !important;
+  stroke: #F59E0B !important;
+}
+
+.star-rating__star--active .lucide-icon svg {
+  fill: #F59E0B !important;
+  stroke: #F59E0B !important;
 }
 
 .star-rating__text {
@@ -439,6 +490,11 @@ export default {
   align-items: flex-end;
 }
 
+.message--ai {
+  margin-bottom: var(--space-xl);
+  /* 복사 버튼 공간 확보 */
+}
+
 .message-bubble {
   width: 100%;
   position: relative;
@@ -457,7 +513,7 @@ export default {
 }
 
 .message-bubble--user .message-bubble__content {
-  background: var(--color-surface-medium);
+  background: var(--color-chat-bubble-user);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
@@ -483,6 +539,7 @@ export default {
   border: none;
   box-shadow: none;
   padding: 0;
+  margin-bottom: var(--space-2xl);
 }
 
 .message-bubble--loading {
@@ -503,7 +560,7 @@ export default {
 }
 
 .message-bubble--ai .message-bubble__content {
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--color-chat-bubble-bot);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
@@ -607,7 +664,10 @@ export default {
   flex-direction: column;
   gap: var(--space-md);
   align-items: center;
+  justify-content: center;
   padding: var(--space-lg);
+  text-align: center;
+  width: 100%;
 }
 
 .loading-dots {
@@ -632,10 +692,13 @@ export default {
 }
 
 .loading-text {
-  font-size: var(--font-size-sm);
+  font-size: 17px;
+  /* 2px larger than normal 15px */
   color: var(--color-text-muted);
   font-weight: 500;
   text-align: center;
+  width: 100%;
+  display: block;
 }
 
 .message-bubble__content {
@@ -646,7 +709,7 @@ export default {
 
 .message-bubble__actions {
   position: absolute;
-  bottom: -10px;
+  bottom: -35px;
   right: 0px;
   display: flex;
   gap: var(--space-sm);

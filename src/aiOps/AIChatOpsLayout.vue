@@ -25,7 +25,7 @@
 
         <div class="actions">
           <div class="easter-egg-trigger" @click="openRandomEasterEgg">
-            <LucideIcon name="sparkles" fill="currentColor" :width="1" :height="1" />
+            <LucideIcon name="sparkles" fill="currentColor" :width="4" :height="4" />
           </div>
 
           <button class="theme-selector header-btn header-btn--md" @click="cycleTheme" :title="getCurrentThemeName()">
@@ -183,6 +183,7 @@ export default {
       isInitialized: false,
       isLoading: false,
       isInitializing: false,
+      isClosing: false,
       currentView: 'categorySelect',
       selectedCategory: null,
       selectedPersona: null,
@@ -406,8 +407,8 @@ export default {
 
     async toggleChat() {
       if (!this.isOpen) {
-        // 이미 초기화 진행 중이면 대기
-        if (this.isInitializing) {
+        // 이미 초기화 진행 중이거나 닫기 진행 중이면 대기
+        if (this.isInitializing || this.isClosing) {
           return;
         }
 
@@ -436,9 +437,17 @@ export default {
         this.isInitializing = false;
 
       } else {
+        // 이미 닫기 진행 중이면 대기
+        if (this.isClosing) {
+          return;
+        }
+
+        this.isClosing = true;
         this.isOpen = false;
+
         setTimeout(() => {
           this.isInitialized = false;
+          this.isClosing = false;
         }, 300);
       }
     },
@@ -1106,18 +1115,16 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-card-bg);
   border-radius: var(--radius-md);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-card-enhanced);
   border: 1px solid var(--color-border-light);
 }
 
 .category-card:hover:not(.disabled) {
   transform: translateY(-2px);
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -1304,18 +1311,16 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--color-card-bg);
   border-radius: var(--radius-md);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-card-enhanced);
   border: 1px solid var(--color-border-light);
 }
 
 .persona-card:hover:not(.disabled) {
   transform: translateY(-2px);
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
@@ -1342,7 +1347,7 @@ export default {
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   transition: transform var(--motion-fast);
 }
 

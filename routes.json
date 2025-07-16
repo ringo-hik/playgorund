@@ -1,0 +1,3 @@
+{
+  "/api/v1/devportal/ai-chatops/*": "/$1"
+}
