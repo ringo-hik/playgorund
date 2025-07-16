@@ -1,125 +1,75 @@
 <template>
   <div>
-    <component 
-      v-if="componentType === 'button'"
-      :is="'button'"
-      :class="buttonClasses"
-      :disabled="disabled || loading"
-      :type="type"
-      @click="handleClick"
-    >
-      <Elements
-        v-if="loading"
-        component-type="spinner"
-        :size="size"
-        class="ai-chatops-button__spinner"
-      />
-      
-      <LucideIcon
-        v-if="icon && !loading"
-        :name="icon"
-        fill="currentColor"
-        :width="iconSize"
-        :height="iconSize"
-        class="ai-chatops-button__icon"
-      />
-      
+    <!-- 버튼 컴포넌트 -->
+    <component v-if="componentType === 'button'" :is="'button'" :class="buttonClasses" :disabled="disabled || loading"
+      :type="type" @click="handleClick">
+      <Elements v-if="loading" component-type="spinner" :size="size" class="ai-chatops-button__spinner" />
+
+      <LucideIcon v-if="icon && !loading" :name="icon" fill="currentColor" :width="iconSize" :height="iconSize"
+        class="ai-chatops-button__icon" />
+
       <span v-if="$slots.default" class="ai-chatops-button__text">
         <slot />
       </span>
     </component>
 
-    <div
-      v-if="componentType === 'spinner'"
-      :class="spinnerClasses"
-      role="status"
-    >
+    <!-- 스피너 컴포넌트 -->
+    <div v-if="componentType === 'spinner'" :class="spinnerClasses" role="status">
       <span class="sr-only">{{ loadingText }}</span>
     </div>
 
+    <!-- 별점 컴포넌트 -->
     <div v-if="componentType === 'rating'" class="star-rating">
       <div class="star-rating__stars">
-        <button
-          v-for="star in maxRating"
-          :key="star"
-          :class="getStarClasses(star)"
-          @click="selectRating(star)"
-          @mouseenter="hoverRating = star"
-          @mouseleave="hoverRating = 0"
-          @focus="hoverRating = star"
-          @blur="hoverRating = 0"
-          :disabled="disabled"
-          type="button"
-        >
-          <LucideIcon
-            name="heart"
-            :fill="getStarFill(star)"
-            :width="starIconSize"
-            :height="starIconSize"
-          />
+        <button v-for="star in maxRating" :key="star" :class="getStarClasses(star)" @click="selectRating(star)"
+          @mouseenter="hoverRating = star" @mouseleave="hoverRating = 0" @focus="hoverRating = star"
+          @blur="hoverRating = 0" :disabled="disabled" type="button">
+          <LucideIcon name="star" :fill="getStarFill(star)" :width="starIconSize" :height="starIconSize" />
         </button>
-      </div>
-      
-      <div v-if="showText" class="star-rating__text">
-        {{ getRatingText() }}
       </div>
     </div>
 
-    <div v-if="componentType === 'message'" :class="['message', `message--${actualMessageType}`]">
+    <!-- 메시지 컴포넌트 -->
+    <div v-if="componentType === 'message'" :class="['message', `message--${messageType}`]">
       <div :class="messageClasses">
         <template v-if="loading">
           <div class="message-bubble__loading">
-            <div class="loading-animation-container">
-              <div class="loading-typing-indicator">
-                <div class="typing-dots">
-                  <span></span><span></span><span></span>
-                </div>
-              </div>
-              <div class="loading-text-animated">{{ loadingMessage }}</div>
+            <div class="loading-dots">
+              <span></span><span></span><span></span>
             </div>
+            <div class="loading-text">{{ loadingMessage }}</div>
           </div>
         </template>
-        
+
         <template v-else>
-          <!-- 디버깅 정보 -->
-          <div v-if="debugMode && !hasValidData" class="debug-warning">
-            ⚠️ No valid data: {{ debugInfo }}
-          </div>
-          
-          <!-- USER 메시지 브랜딩 - 미니먀 -->
-          <div v-if="actualMessageType === 'user'" class="user-message-brand">
-            <div class="user-badge-minimal">
-              <LucideIcon name="user" :width="14" :height="14" />
+          <div v-if="effectiveMessageType === 'user'" class="user-message-brand">
+            <div v-if="timestamp" class="message-timestamp">
+              {{ formatTimestamp(timestamp) }}
+            </div>
+            <div class="user-badge">
+              <LucideIcon name="user" fill="currentColor" :width="14" :height="14" />
               <span>USER</span>
             </div>
           </div>
-          
-          <!-- BOT 메시지 브랜딩 - 미니먀 -->
-          <div v-if="actualMessageType === 'ai'" class="bot-message-brand">
-            <div class="bot-badge-minimal" :class="{ 'bot-badge--error': actualIsError }">
-              <LucideIcon name="robot" :width="14" :height="14" />
-              <span>{{ getPersonaBotName() }}</span>
+
+          <div v-if="effectiveMessageType === 'ai'" class="bot-message-brand">
+            <div class="bot-badge">
+              <LucideIcon name="robot" fill="currentColor" :width="14" :height="14" />
+              <span>Bot</span>
+            </div>
+            <div v-if="timestamp" class="message-timestamp">
+              {{ formatTimestamp(timestamp) }}
             </div>
           </div>
-          
-          <!-- 데이터 없음 상태 -->
-          <div v-if="!hasValidData" class="message-bubble__empty">
-            <div class="empty-message">
-              <span class="empty-icon">💭</span>
-              <span class="empty-text">메시지를 불러오는 중...</span>
-            </div>
-          </div>
-          
-          <!-- 정상 데이터 -->
-          <div v-else class="message-bubble__content" v-html="formattedContent"></div>
-          
-          <div v-if="actualMessageType === 'ai' && !actualIsError" class="message-bubble__actions">
-            <button
-              v-if="showCopy"
+
+          <div class="message-bubble__content" v-html="formattedContent"></div>
+
+          <div v-if="effectiveMessageType === 'ai' && !isError" class="message-bubble__actions">
+            <button v-if="showCopy"
               :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': copyStatus === 'copied' }]"
-              @click="handleCopy"
-            >
-              <LucideIcon :name="copyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12" :height="12" />
+              @click="handleCopy">
+              <LucideIcon :name="copyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12"
+                :height="12" />
             </button>
           </div>
         </template>
@@ -136,7 +86,7 @@ export default {
   components: {
     LucideIcon
   },
-  
+
   props: {
     componentType: {
       type: String,
@@ -153,31 +103,31 @@ export default {
     color: { type: String, default: 'primary' },
     centered: { type: Boolean, default: false },
     loadingText: { type: String, default: '로딩 중입니다...' },
-    
+
+    // 별점 관련 props
     value: { type: Number, default: 0 },
     maxRating: { type: Number, default: 5 },
     showText: { type: Boolean, default: false },
-    textLabels: { type: Array, default: () => ['매우 나쁨', '나쁨', '보통', '좋음', '매우 좋음'] },
-    
+
+    // 메시지 관련 props
+    message: { type: Object, default: () => ({}) },
     messageType: { type: String, default: 'user' },
     content: { type: [String, Number], default: '' },
-    message: { type: Object, default: null },
     loadingMessage: { type: String, default: '응답을 생성하고 있습니다...' },
     isError: { type: Boolean, default: false },
     showCopy: { type: Boolean, default: true },
     copyStatus: { type: String, default: null },
     timestamp: { type: [Number, String, Date], default: null },
-    persona: { type: Object, default: null }
+    currentLanguage: { type: String, default: 'ko' }
   },
-  
+
   data() {
     return {
       hoverRating: 0,
-      debugMode: process.env.NODE_ENV === 'development',
-      renderingErrors: []
+      localCopyStatus: null
     };
   },
-  
+
   computed: {
     buttonClasses() {
       return [
@@ -191,7 +141,7 @@ export default {
         }
       ];
     },
-    
+
     spinnerClasses() {
       return [
         'loading-spinner',
@@ -200,134 +150,64 @@ export default {
         { 'loading-spinner--centered': this.centered }
       ];
     },
-    
+
     messageClasses() {
-      const type = this.message?.type || this.messageType;
-      const isLoading = this.message?.isLoading || this.loading;
-      const isError = this.message?.isError || this.isError;
-      
+      const msgType = this.message?.type || this.messageType;
       return [
         'message-bubble',
-        `message-bubble--${type}`,
+        `message-bubble--${msgType}`,
         {
-          'message-bubble--loading': isLoading,
-          'message-bubble--error': isError
+          'message-bubble--loading': this.message?.isLoading || this.loading,
+          'message-bubble--error': this.message?.isError || this.isError
         }
       ];
     },
-    
+
     iconSize() {
       return { sm: 12, md: 14, lg: 16 }[this.size] || 14;
     },
-    
+
     starIconSize() {
       return { sm: 16, md: 18, lg: 20 }[this.size] || 18;
     },
-    
+
     currentRating() {
       return this.hoverRating || this.value;
     },
-    
+
     formattedContent() {
-      const content = this.message?.content || this.content;
-      const formatted = String(content || '');
-      
-      if (this.debugMode) {
-        console.log('🔍 [Elements] formattedContent:', {
-          messageContent: this.message?.content,
-          propsContent: this.content,
-          finalContent: formatted,
-          messageType: this.actualMessageType,
-          isError: this.actualIsError
-        });
+      if (this.message?.content) {
+        return String(this.message.content);
       }
-      
-      return formatted;
+      return String(this.content || '');
     },
-    
-    actualMessageType() {
-      const type = this.message?.type || this.messageType;
-      
-      if (this.debugMode) {
-        console.log('🔍 [Elements] actualMessageType:', {
-          messageType: this.message?.type,
-          propsType: this.messageType,
-          finalType: type,
-          message: this.message
-        });
-      }
-      
-      return type;
+
+    effectiveTimestamp() {
+      return this.message?.timestamp || this.timestamp;
     },
-    
-    actualIsError() {
-      const isError = this.message?.isError || this.isError;
-      
-      if (this.debugMode) {
-        console.log('🔍 [Elements] actualIsError:', {
-          messageIsError: this.message?.isError,
-          propsIsError: this.isError,
-          finalIsError: isError
-        });
-      }
-      
-      return isError;
+
+    effectiveMessageType() {
+      return this.message?.type || this.messageType;
     },
-    
-    hasValidData() {
-      return !!(this.message || this.content);
-    },
-    
-    debugInfo() {
-      return {
-        componentType: this.componentType,
-        hasMessage: !!this.message,
-        hasContent: !!this.content,
-        messageType: this.actualMessageType,
-        isError: this.actualIsError,
-        persona: this.persona,
-        timestamp: new Date().toISOString()
-      };
+
+    effectiveCopyStatus() {
+      return this.localCopyStatus || this.copyStatus;
     }
   },
-  
-  mounted() {
-    if (this.debugMode) {
-      console.log('🚀 [Elements] Component mounted:', this.debugInfo);
-    }
-  },
-  
-  watch: {
-    message: {
-      handler(newMessage, oldMessage) {
-        if (this.debugMode) {
-          console.log('🔄 [Elements] Message changed:', {
-            old: oldMessage,
-            new: newMessage,
-            debugInfo: this.debugInfo
-          });
-        }
-      },
-      deep: true
-    }
-  },
-  
+
   methods: {
     handleClick(event) {
       if (!this.disabled && !this.loading) {
-        if (this.debugMode) {
-          console.log('💆 [Elements] Button clicked:', { event, debugInfo: this.debugInfo });
-        }
         this.$emit('click', event);
       }
     },
-    
+
     selectRating(rating) {
       if (this.disabled) return;
       this.$emit('input', rating);
       this.$emit('change', rating);
     },
-    
+
     getStarClasses(star) {
       return [
         'star-rating__star',
@@ -341,62 +221,51 @@ export default {
         }
       ];
     },
-    
+
     getStarFill(star) {
-      return star <= this.currentRating ? 'var(--color-accent)' : 'transparent';
+      const isActive = star <= this.currentRating;
+      return isActive ? '#F59E0B' : 'none';
     },
-    
-    getRatingText() {
-      if (!this.currentRating) return '';
-      return this.textLabels[this.currentRating - 1] || '';
-    },
-    
+
     handleCopy() {
-      this.$emit('copy');
+      this.localCopyStatus = 'copied';
+
+      // 메시지 데이터 전달
+      const messageData = this.message || {
+        content: this.content,
+        id: Date.now(),
+        type: this.messageType
+      };
+
+      this.$emit('copy-message', messageData);
+
+      // 2초 후 상태 리셋
+      setTimeout(() => {
+        this.localCopyStatus = null;
+      }, 2000);
     },
-    
-    getPersonaBotName() {
-      const isError = this.actualIsError;
-      const personaTitle = this.persona?.title || this.persona?.name || this.persona?.personaName;
-      
-      if (this.debugMode) {
-        console.log('🔍 [Elements] getPersonaBotName:', {
-          isError,
-          persona: this.persona,
-          personaTitle,
-          result: isError 
-            ? (personaTitle ? `${personaTitle} Error` : 'Bot Error')
-            : (personaTitle ? `${personaTitle} BOT` : 'BOT')
-        });
-      }
-      
-      if (isError) {
-        return personaTitle ? `${personaTitle} Error` : 'Bot Error';
-      }
-      return personaTitle ? `${personaTitle} BOT` : 'BOT';
-    },
-    
+
     formatTimestamp(timestamp) {
       if (!timestamp) return '';
-      
+
       const date = new Date(timestamp);
       const now = new Date();
       const diff = now - date;
-      
+
       if (diff < 60000) {
         return '방금 전';
       }
-      
+
       if (diff < 3600000) {
         const minutes = Math.floor(diff / 60000);
         return `${minutes}분 전`;
       }
-      
+
       if (diff < 86400000) {
         const hours = Math.floor(diff / 3600000);
         return `${hours}시간 전`;
       }
-      
+
       return date.toLocaleDateString('ko-KR', {
         month: 'short',
         day: 'numeric',
@@ -409,6 +278,7 @@ export default {
 </script>
 
 <style scoped>
+/* ----- 스피너 스타일 ----- */
 .loading-spinner {
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-top-color: var(--color-primary);
@@ -416,9 +286,20 @@ export default {
   animation: spin 1s linear infinite;
 }
 
-.loading-spinner--sm { width: 12px; height: 12px; }
-.loading-spinner--md { width: 16px; height: 16px; }
-.loading-spinner--lg { width: 20px; height: 20px; }
+.loading-spinner--sm {
+  width: 12px;
+  height: 12px;
+}
+
+.loading-spinner--md {
+  width: 16px;
+  height: 16px;
+}
+
+.loading-spinner--lg {
+  width: 20px;
+  height: 20px;
+}
 
 .loading-spinner--centered {
   margin: 0 auto;
@@ -432,6 +313,7 @@ export default {
   border-top-color: var(--color-accent);
 }
 
+/* ----- 별점 스타일 ----- */
 .star-rating {
   display: flex;
   flex-direction: column;
@@ -445,33 +327,55 @@ export default {
 }
 
 .star-rating__star {
-  width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  background: var(--color-surface-light) !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  background: transparent !important;
   border: 1px solid var(--color-border-light) !important;
+  border-radius: var(--radius-md) !important;
   transition: all var(--motion-normal) !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .star-rating__star:hover:not(.star-rating__star--disabled) {
   background: var(--color-accent-subtle) !important;
   border-color: var(--color-accent) !important;
   box-shadow: var(--shadow-soft) !important;
+  transform: scale(1.1) !important;
 }
 
 .star-rating__star--active:not(.star-rating__star--disabled) {
   background: var(--color-accent-medium) !important;
   border-color: var(--color-accent) !important;
+  transform: scale(1.05) !important;
 }
 
 .star-rating__star--disabled {
   opacity: 0.5 !important;
   cursor: not-allowed !important;
+  pointer-events: none !important;
 }
 
 .star-rating__star--disabled:hover {
   transform: none !important;
   box-shadow: none !important;
+}
+
+.star-rating__star .lucide-icon {
+  color: #F59E0B !important;
+  stroke: #F59E0B !important;
+  stroke-width: 1.5 !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+}
+
+.star-rating__star--active .lucide-icon {
+  fill: #F59E0B !important;
+  color: #F59E0B !important;
 }
 
 .star-rating__text {
@@ -483,6 +387,7 @@ export default {
   transition: all var(--motion-fast);
 }
 
+/* ----- 메시지 스타일 ----- */
 .message {
   width: 100%;
   padding: var(--space-lg) var(--space-xl);
@@ -492,6 +397,10 @@ export default {
   align-items: flex-start;
 }
 
+.message--user {
+  align-items: flex-end;
+}
+
 .message-bubble {
   width: 100%;
   position: relative;
@@ -499,13 +408,12 @@ export default {
 }
 
 .message-bubble--user {
-  width: 100%;
+  width: 60%;
   background: transparent;
   padding: 0;
   border-radius: 0;
   box-shadow: none;
-  display: flex;
-  justify-content: flex-end;
+  margin-left: auto;
 }
 
 .message-bubble--user .message-bubble__content {
@@ -518,7 +426,7 @@ export default {
   word-wrap: break-word;
   box-shadow: var(--shadow-minimal);
   margin-bottom: var(--space-md);
-  max-width: 60%;
+  text-align: right;
 }
 
 .message-bubble--ai {
@@ -553,13 +461,14 @@ export default {
 }
 
 .message-bubble--ai .message-bubble__content {
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(0, 0, 0, 0.02);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: -0.01em;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .user-message-brand {
@@ -571,8 +480,7 @@ export default {
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  flex-direction: column;
-  align-items: flex-end;
+  gap: var(--space-sm);
 }
 
 .user-badge {
@@ -654,58 +562,10 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  align-items: flex-start;
-  padding: var(--space-md) 0;
-  background: transparent;
-}
-
-.loading-animation-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  align-items: flex-start;
-}
-
-.loading-typing-indicator {
-  display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  padding: var(--space-lg);
 }
 
-.typing-dots {
-  display: flex;
-  gap: 3px;
-  padding: var(--space-sm) var(--space-md);
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 18px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.typing-dots span {
-  width: 6px;
-  height: 6px;
-  background: var(--color-accent);
-  border-radius: 50%;
-  animation: typing-wave 1.4s ease-in-out infinite;
-}
-
-.typing-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typing-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-.loading-text-animated {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  opacity: 0;
-  animation: text-fade-in 0.8s ease-out 0.5s forwards;
-}
-
-/* 기존 스타일 유지 (하위 호환성) */
 .loading-dots {
   display: flex;
   gap: 6px;
@@ -790,67 +650,25 @@ export default {
   border: 0;
 }
 
+/* ----- 애니메이션 ----- */
 @keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* 새로운 타이핑 웨이브 애니메이션 */
-@keyframes typing-wave {
-  0%, 60%, 100% {
-    transform: translateY(0) scale(1);
-    opacity: 0.4;
-  }
-  30% {
-    transform: translateY(-8px) scale(1.1);
-    opacity: 1;
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@keyframes text-fade-in {
-  0% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 기존 애니메이션 유지 (하위 호환성) */
 @keyframes loading-pulse {
-  0%, 80%, 100% {
+
+  0%,
+  80%,
+  100% {
     transform: translateY(0) scale(1);
     opacity: 0.9;
   }
+
   40% {
     transform: translateY(-6px) scale(var(--transform-gentle));
     opacity: 1;
-  }
-}
-
-/* 접근성 지원 - 애니메이션 감소 옵션 */
-@media (prefers-reduced-motion: reduce) {
-  .typing-dots span,
-  .loading-dots span {
-    animation: none !important;
-  }
-  
-  .typing-dots span {
-    opacity: 0.6;
-  }
-  
-  .typing-dots span:nth-child(2) {
-    opacity: 0.8;
-  }
-  
-  .typing-dots span:nth-child(3) {
-    opacity: 1;
-  }
-  
-  .loading-text-animated {
-    opacity: 1;
-    animation: none;
   }
 }
 
@@ -859,50 +677,52 @@ export default {
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* ----- 반응형 ----- */
 @media (max-width: 640px) {
   .message {
     padding: var(--space-md) var(--space-lg);
   }
-  
+
   .message-bubble--user .message-bubble__content,
   .message-bubble--error .message-bubble__content {
     padding: var(--space-sm) var(--space-md) !important;
     font-size: var(--font-size-sm) !important;
   }
-  
+
   .message-bubble--ai .message-bubble__content {
     font-size: var(--font-size-sm);
     padding: var(--space-sm) 0 var(--space-md);
   }
-  
+
   .bot-badge,
   .user-badge {
     font-size: 9px;
     padding: 2px 8px;
   }
-  
+
   .message-timestamp {
     font-size: 9px;
     padding: 1px 4px;
   }
-  
+
   .loading-dots span {
     width: 6px;
     height: 6px;
   }
-  
+
   .message-action {
     width: 28px !important;
     height: 28px !important;
     min-height: 28px !important;
   }
-  
+
   .star-rating__star {
     width: 32px !important;
     height: 32px !important;
@@ -910,6 +730,7 @@ export default {
   }
 }
 
+/* ----- 테마별 봇 뱃지 색상 ----- */
 .theme-timeless .bot-badge {
   background: linear-gradient(90deg, var(--timeless-accent), #991B1B);
 }
@@ -918,82 +739,11 @@ export default {
   background: linear-gradient(90deg, var(--heritage-accent), #7F1D1D);
 }
 
+.theme-modern .bot-badge {
+  background: linear-gradient(90deg, var(--modern-accent), #A16207);
+}
+
 .theme-hermes .bot-badge {
   background: linear-gradient(90deg, var(--hermes-accent), #D97706);
-}
-
-/* 미니멀 배지 스타일 */
-.user-badge-minimal {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  background: rgba(156, 163, 175, 0.1);
-  color: var(--color-text-muted);
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.bot-badge-minimal {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 6px;
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--color-primary);
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.bot-badge-minimal.bot-badge--error {
-  background: rgba(220, 38, 38, 0.1);
-  color: var(--color-error);
-}
-
-.bot-emoji {
-  font-size: 12px;
-}
-
-/* 디버깅 및 빈 상태 스타일 */
-.debug-warning {
-  background: rgba(255, 193, 7, 0.1);
-  border: 1px solid #ffc107;
-  border-radius: var(--radius-md);
-  padding: var(--space-sm);
-  margin: var(--space-sm) 0;
-  font-size: var(--font-size-xs);
-  color: #856404;
-  font-family: monospace;
-}
-
-.message-bubble__empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-lg);
-  opacity: 0.6;
-}
-
-.empty-message {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  text-align: center;
-}
-
-.empty-icon {
-  font-size: 24px;
-  opacity: 0.5;
-}
-
-.empty-text {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  font-style: italic;
 }
 </style>

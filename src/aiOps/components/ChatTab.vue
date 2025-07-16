@@ -19,30 +19,21 @@
             <span>{{ getPersonaDisplayName(selectedPersona) }}</span>
           </div>
         </div>
-        
+
         <div class="header-actions">
-          <button
-            @click="$emit('go-persona-list')"
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="페르소나 목록으로"
-          >
+          <button @click="$emit('go-persona-list')"
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="페르소나 목록으로">
             <LucideIcon name="users" :width="14" :height="14" />
           </button>
-          
-          <button
-            @click="$emit('go-home')"
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="홈으로"
-          >
+
+          <button @click="$emit('go-home')" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+            title="홈으로">
             <LucideIcon name="home" :width="14" :height="14" />
           </button>
-          
-          <button
-            @click="clearChatHistory"
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="메시지 내역 삭제"
-          >
-            <LucideIcon name="trash-2" :width="14" :height="14" />
+
+          <button @click="clearChatHistory" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+            title="메시지 삭제">
+            <LucideIcon name="trash" :width="14" :height="14" />
           </button>
         </div>
       </div>
@@ -60,96 +51,65 @@
                 <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="currentColor" :width="24" :height="24" />
               </div>
               <h2 class="welcome-title">
-                {{ getText('welcomeChat').replace('{persona}', getPersonaDisplayName(selectedPersona)) }}
+                {{ (getText('welcomeChat') || '').replace('{persona}', selectedPersona ? getPersonaDisplayName(selectedPersona) : '') }}
               </h2>
             </div>
-            <p class="welcome-description">{{ getText('welcomeTip') }}</p>
+            <p class="welcome-description">{{ getText('welcomeTip') || '' }}</p>
           </div>
         </div>
 
         <div class="messages-list">
-          <Elements
-            v-for="message in messages"
-            :key="message.id"
-            component-type="message"
-            :message="message"
-            :persona="selectedPersona"
-            :current-language="currentLanguage"
-            @copy-message="handleCopyMessage"
-            @regenerate-message="handleRegenerateMessage"
-            @feedback-message="handleFeedbackMessage"
-          />
+          <Elements v-for="message in messages" :key="message.id" component-type="message" :message="message"
+            :persona="selectedPersona" :current-language="currentLanguage" @copy-message="handleCopyMessage"
+            @regenerate-message="handleRegenerateMessage" @feedback-message="handleFeedbackMessage" />
         </div>
       </div>
 
       <div class="input-area" ref="inputArea">
         <!-- 빠른 질문 셀렉트박스 형태로 변경 -->
-        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-dropdown" ref="quickQuestionsDropdown">
+        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-dropdown"
+          ref="quickQuestionsDropdown">
           <div class="quick-questions-list">
-            <div
-              v-for="(question, index) in quickQuestions" 
-              :key="index" 
-              @click="sendQuickQuestion(question)" 
-              class="quick-question-item"
-            >
+            <div v-for="(question, index) in quickQuestions" :key="index" @click="sendQuickQuestion(question)"
+              class="quick-question-item">
               {{ question }}
             </div>
           </div>
         </div>
-        
+
         <div class="input-container card-system">
           <div class="input-box">
-            <textarea 
-              v-model="currentMessage" 
-              ref="messageInput" 
-              :placeholder="getText('inputPlaceholder')"
-              @keydown="handleKeyDown"
-              @input="handleInput"
-              @focus="handleFocus"
-              :disabled="isProcessing" 
-              class="message-textarea form-input enhanced-input"
-            />
-            
+            <textarea v-model="currentMessage" ref="messageInput" :placeholder="getText('inputPlaceholder')"
+              @keydown="handleKeyDown" @input="handleInput" @focus="handleFocus" :disabled="isProcessing"
+              class="message-textarea form-input enhanced-input" />
+
             <div class="input-bottom-row">
               <div class="left-actions">
-                <button
-                  @click="generateQuickQuestions" 
-                  :disabled="isProcessing || isQuickQuestionsLoading"
+                <button @click="generateQuickQuestions" :disabled="isProcessing || isQuickQuestionsLoading"
                   class="btn-system btn-system--ghost btn-system--sm quick-questions-generate-btn"
-                  :title="getText('generateQuestions') || '질문 생성하기'"
-                >
+                  :title="getText('generateQuestions') || '질문 생성하기'">
                   <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
                   <LucideIcon v-else name="lightbulb" :width="12" :height="12" />
                 </button>
-                
-                <button
-                  @click="toggleContinuousChat"
-                  :disabled="isProcessing"
-                  :class="[
-                    'btn-system',
-                    'btn-system--sm',
-                    'continuous-chat-btn',
-                    continuousChatEnabled ? 'btn-system--success' : 'btn-system--ghost'
-                  ]"
-                  :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'"
-                >
+
+                <button @click="toggleContinuousChat" :disabled="isProcessing" :class="[
+                  'btn-system',
+                  'btn-system--sm',
+                  'continuous-chat-btn',
+                  continuousChatEnabled ? 'btn-system--success' : 'btn-system--ghost'
+                ]" :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'">
                   <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" />
                 </button>
               </div>
-              
-              <button
-                @click="sendMessage" 
-                :disabled="!canSendMessage" 
-                :class="[
-                  'btn-system', 
-                  'btn-system--send', 
-                  'btn-system--sm', 
-                  'btn-system--icon-only', 
-                  'send-button-enhanced', 
-                  { 'loading': isProcessing }
-                ]"
-                title="메시지 전송"
-              >
+
+              <button @click="sendMessage" :disabled="!canSendMessage" :class="[
+                'btn-system',
+                'btn-system--send',
+                'btn-system--sm',
+                'btn-system--icon-only',
+                'send-button-enhanced',
+                { 'loading': isProcessing }
+              ]" title="메시지 전송">
                 <Elements v-if="isProcessing" component-type="spinner" size="sm" color="accent" />
                 <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14" />
               </button>
@@ -170,11 +130,13 @@
             </div>
             <div class="dev-info-item">
               <span class="dev-label">Pending:</span>
-              <span class="dev-value" :class="{ 'dev-value--active': pendingMessages.length > 0 }">{{ pendingMessages.length }}</span>
+              <span class="dev-value" :class="{ 'dev-value--active': pendingMessages.length > 0 }">{{
+                pendingMessages.length }}</span>
             </div>
             <div class="dev-info-item">
               <span class="dev-label">Rendering:</span>
-              <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes' : 'No' }}</span>
+              <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes'
+                : 'No' }}</span>
             </div>
           </div>
         </div>
@@ -187,7 +149,7 @@
 import LucideIcon from './LucideIcon.vue';
 import Elements from './Elements.vue';
 import { getText, getTextArray } from '../utils/i18n.js';
-import aiChatOpsService from '@/service/aiChatOpsService.js';
+import aiChatOpsService from '../service/aiChatOpsService.js';
 
 export default {
   name: 'ChatTab',
@@ -195,7 +157,7 @@ export default {
     LucideIcon,
     Elements
   },
-  
+
   props: {
     selectedPersona: {
       type: Object,
@@ -218,7 +180,7 @@ export default {
       default: null
     }
   },
-  
+
   data() {
     return {
       currentMessage: '',
@@ -240,11 +202,11 @@ export default {
       debugMode: true, // 강제 디버깅 모드
       renderingStates: [],
       lastApiCall: null,
-      
+
       pendingMessages: [],
       renderingScheduled: false,
       batchUpdateTimeout: null,
-      
+
       enhancedInputManager: {
         minHeight: 38,
         maxHeight: 400,
@@ -257,15 +219,15 @@ export default {
       }
     };
   },
-  
+
   computed: {
     canSendMessage() {
       return this.currentMessage.trim().length > 0 && !this.isProcessing && this.selectedPersona;
     },
-    
+
     recentConversations() {
       if (!this.continuousChatEnabled) return [];
-      
+
       const conversationPairs = [];
       for (let i = 0; i < this.messages.length - 1; i += 2) {
         if (this.messages[i]?.type === 'user' && this.messages[i + 1]?.type === 'ai') {
@@ -284,13 +246,13 @@ export default {
         'initial-loading': this.loadingHistory
       };
     },
-    
+
     isExpanded() {
       if (!this.windowSize) return false;
       return this.windowSize.width > 600 || this.windowSize.height > 800;
     }
   },
-  
+
   watch: {
     currentLanguage() {
       console.log('🌐 [ChatTab] currentLanguage changed:', this.currentLanguage);
@@ -298,7 +260,7 @@ export default {
         this.trackInputChanges();
       });
     },
-    
+
     isProcessing(newVal, oldVal) {
       console.log('⚙️ [ChatTab] isProcessing changed:', { from: oldVal, to: newVal });
       if (!newVal) {
@@ -309,7 +271,7 @@ export default {
         console.log('🔄 [ChatTab] isProcessing: Hidden quick questions due to processing');
       }
     },
-    
+
     selectedPersona: {
       handler(newPersona, oldPersona) {
         console.log('👤 [ChatTab] selectedPersona changed:', {
@@ -317,7 +279,7 @@ export default {
           to: newPersona?.personaCode || 'none',
           hasPersona: !!newPersona
         });
-        
+
         if (newPersona) {
           this.loadPersonaHistory();
         } else {
@@ -328,15 +290,15 @@ export default {
       immediate: true
     }
   },
-  
+
   methods: {
     getText,
-    
+
     getPersonaIconName(persona) {
       if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
     },
-    
+
     getPersonaDescription(persona) {
       if (!persona) return '';
       if (this.currentLanguage === 'en' && persona.descriptionEn) {
@@ -366,33 +328,33 @@ export default {
         console.warn('🚫 [ChatTab] loadPersonaHistory: No persona code');
         return;
       }
-      
+
       console.log('🚀 [ChatTab] Loading persona history:', this.selectedPersona.personaCode);
-      
+
       this.loadingHistory = true;
       this.isInitialLoad = true;
-      
+
       try {
         const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
-        
+
         console.log('📜 [ChatTab] History API response:', response);
-        
+
         if (response.success && response.data && Array.isArray(response.data)) {
           this.messages = [];
           this.pendingMessages = [];
-          
+
           const normalizedConversations = response.data.map(conv => ({
             ...conv,
             userQuery: conv.userQuery,
             conversationId: conv.conversationId || conv.id || Date.now()
           }));
-          
+
           console.log('📝 [ChatTab] Normalized conversations:', normalizedConversations);
-          
+
           const historyMessages = aiChatOpsService.convertConversationsToMessages(normalizedConversations);
-          
+
           console.log('💬 [ChatTab] History messages:', historyMessages);
-          
+
           if (historyMessages.length > 0) {
             this.messages = historyMessages;
             this.$nextTick(() => {
@@ -444,31 +406,31 @@ export default {
       if (!textarea) return;
 
       const manager = this.enhancedInputManager;
-      
+
       textarea.style.height = 'auto';
       const newHeight = Math.min(Math.max(textarea.scrollHeight, manager.minHeight), manager.maxHeight);
       textarea.style.height = newHeight + 'px';
-      
+
       const lineCount = Math.ceil(newHeight / 24);
       manager.currentState.lineCount = lineCount;
       manager.currentState.isExpanded = newHeight > manager.minHeight + 20;
       manager.currentState.hasScrolled = textarea.scrollHeight > manager.maxHeight;
-      
+
       this.updateInputContainerClasses();
     },
 
     updateInputContainerClasses() {
       const container = this.$refs.messageInput?.closest('.input-container');
       if (!container) return;
-      
+
       const manager = this.enhancedInputManager;
-      
+
       if (manager.currentState.isExpanded) {
         container.classList.add('enhanced-input--expanded');
       } else {
         container.classList.remove('enhanced-input--expanded');
       }
-      
+
       if (manager.currentState.hasScrolled) {
         container.classList.add('enhanced-input--scrolling');
       }
@@ -499,7 +461,7 @@ export default {
           return;
         }
       }
-      
+
       if (event.ctrlKey && event.key === 'Enter') {
         event.preventDefault();
         if (this.canSendMessage) {
@@ -507,7 +469,7 @@ export default {
         }
         return;
       }
-      
+
       if (event.ctrlKey && event.key === 'a') {
         return;
       }
@@ -524,7 +486,7 @@ export default {
     trackInputChanges() {
       this.adjustTextareaHeight();
     },
-    
+
     toggleContinuousChat() {
       this.continuousChatEnabled = !this.continuousChatEnabled;
     },
@@ -535,7 +497,7 @@ export default {
         hasPersona: !!this.selectedPersona,
         currentMessage: this.currentMessage
       });
-      
+
       if (!this.canSendMessage || !this.selectedPersona) {
         console.warn('🚫 [ChatTab] Cannot send message:', {
           canSend: this.canSendMessage,
@@ -543,15 +505,15 @@ export default {
         });
         return;
       }
-      
+
       const messageContent = this.currentMessage.trim();
       const plainTextContent = aiChatOpsService.htmlToPlainText(messageContent);
-      
+
       console.log('📝 [ChatTab] Processing message:', {
         original: messageContent,
         plainText: plainTextContent
       });
-      
+
       const userMessage = {
         id: `user-${this.generateUniqueId()}`,
         type: 'user',
@@ -559,12 +521,12 @@ export default {
         timestamp: new Date(),
         isLoading: false
       };
-      
+
       console.log('💬 [ChatTab] Created user message:', userMessage);
-      
+
       this.addMessageWithLimit(userMessage);
       this.currentMessage = '';
-      
+
       this.$nextTick(() => {
         const textarea = this.$refs.messageInput;
         if (textarea) {
@@ -574,18 +536,18 @@ export default {
           this.applyInputVisualFeedback();
         }
       });
-      
+
       this.startLoadingMessages();
-      
+
       let queryHistory = null;
-      
+
       if (this.continuousChatEnabled && this.recentConversations.length > 0) {
         queryHistory = this.recentConversations.map(conv => ({
           question: aiChatOpsService.htmlToPlainText(conv.question),
           answer: aiChatOpsService.htmlToPlainText(conv.answer)
         }));
       }
-      
+
       try {
         const messageData = {
           personaCode: this.selectedPersona.personaCode,
@@ -593,20 +555,20 @@ export default {
           sessionId: this.getSessionId(),
           currentLanguage: this.currentLanguage
         };
-        
+
         if (queryHistory) {
           messageData.queryHistory = queryHistory;
         }
-        
+
         console.log('🚀 [ChatTab] Emitting message-sent:', messageData);
         this.lastApiCall = {
           timestamp: new Date(),
           data: messageData,
           status: 'sent'
         };
-        
+
         this.$emit('message-sent', messageData);
-        
+
       } catch (error) {
         console.error('❌ [ChatTab] 메시지 전송 오류:', error);
         this.lastApiCall = {
@@ -614,7 +576,7 @@ export default {
           error: error,
           status: 'failed'
         };
-        
+
         this.addAiResponse({
           success: false,
           message: '메시지 전송 중 오류가 발생했습니다.'
@@ -627,7 +589,7 @@ export default {
       this.currentMessage = question;
       this.showQuickQuestions = false;
       this.quickQuestions = [];
-      
+
       // 바로 전송
       this.$nextTick(() => {
         this.sendMessage();
@@ -636,7 +598,7 @@ export default {
 
     addAiResponse(response) {
       console.log('🚀 [ChatTab] addAiResponse called:', response);
-      
+
       if (this.loadingMessageId) {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
         if (loadingIndex !== -1) {
@@ -645,20 +607,20 @@ export default {
         }
         this.loadingMessageId = null;
       }
-      
+
       this.stopLoadingMessages();
-      
+
       let responseMessage;
-      
+
       if (response.success) {
         // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
-        const aiResponseContent = response.data?.aiResponse || 
-                                 response.data?.aiQuery || 
-                                 response.aiResponse || 
-                                 response.aiQuery ||
-                                 response.message ||
-                                 '응답을 받았습니다.';
-        
+        const aiResponseContent = response.data?.aiResponse ||
+          response.data?.aiQuery ||
+          response.aiResponse ||
+          response.aiQuery ||
+          response.message ||
+          '응답을 받았습니다.';
+
         console.log('💬 [ChatTab] AI Response content extraction:', {
           'response.data?.aiResponse': response.data?.aiResponse,
           'response.data?.aiQuery': response.data?.aiQuery,
@@ -667,7 +629,7 @@ export default {
           'response.message': response.message,
           'finalContent': aiResponseContent
         });
-        
+
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
           type: 'ai',
@@ -684,7 +646,7 @@ export default {
           'getText(aiError)': this.getText('aiError'),
           'finalContent': errorContent
         });
-        
+
         responseMessage = {
           id: `error-${this.generateUniqueId()}`,
           type: 'ai',
@@ -694,18 +656,18 @@ export default {
           isLoading: false
         };
       }
-      
+
       console.log('💬 [ChatTab] Created response message:', responseMessage);
-      
+
       this.addMessageWithLimit(responseMessage);
-      
+
       // API 호출 상태 업데이트
       if (this.lastApiCall) {
         this.lastApiCall.status = 'completed';
         this.lastApiCall.response = response;
       }
     },
-    
+
     addErrorMessage(errorText) {
       const errorMessage = {
         id: `error-${this.generateUniqueId()}`,
@@ -715,40 +677,40 @@ export default {
         isError: true,
         isLoading: false
       };
-      
+
       console.log('❌ [ChatTab] Adding error message:', errorMessage);
       this.addMessageWithLimit(errorMessage);
     },
 
     async generateQuickQuestions() {
       if (this.isQuickQuestionsLoading || this.isProcessing) return;
-      
+
       this.isQuickQuestionsLoading = true;
-      
+
       try {
         const questionData = {
           personaCode: this.selectedPersona.personaCode,
           currentLanguage: this.currentLanguage
         };
-        
+
         const response = await aiChatOpsService.generateQuickQuestions(questionData);
-        
+
         if (response.success) {
           // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
-          const quickQuestionsData = response.data?.questions || 
-                                    response.data?.aiQuery || 
-                                    response.questions || 
-                                    response.data || 
-                                    response.aiQuery ||
-                                    response.aiResponse;
+          const quickQuestionsData = response.data?.questions ||
+            response.data?.aiQuery ||
+            response.questions ||
+            response.data ||
+            response.aiQuery ||
+            response.aiResponse;
           this.displayQuickQuestionsResponse(quickQuestionsData);
         } else {
           throw new Error(response.message || response.errorMessage);
         }
-        
+
       } catch (error) {
         console.error('빠른 질문 생성 오류:', error);
-        
+
         // 기본 질문으로 폴백
         this.quickQuestions = this.getDefaultQuickQuestions();
         this.showQuickQuestions = true;
@@ -757,29 +719,22 @@ export default {
       }
     },
 
-    generateQuestionPrompt() {
-      const persona = this.selectedPersona;
-      const category = this.selectedCategory;
-      
-      return `현재 대화 상황에 맞는 유용하고 실용적인 빠른 질문 3-5개를 생성해주세요. \n\n컨텍스트:\n- 페르소나: ${persona?.personaName || '일반'}\n- 카테고리: ${category || '일반 문의'}\n- 언어: ${this.currentLanguage === 'ko' ? '한국어' : 'English'}\n\n요구사항:\n1. 질문은 간결하고 명확해야 함\n2. 사용자가 즉시 클릭할 수 있는 형태로 제시\n3. 현재 대화 맥락에 연관성 있는 내용\n4. 다양한 주제와 난이도로 구성\n\n반드시 다음 형식으로 답변해주세요:\n["질문1", "질문2", "질문3", ...] 형태의 JSON 배열`;
-    },
-
     getLoadingMessage() {
       const messages = getTextArray(this.currentLanguage, 'loadingMessages');
       if (messages && messages.length > 0) {
         const randomIndex = Math.floor(Math.random() * messages.length);
         return messages[randomIndex];
       }
-      
-      return this.currentLanguage === 'ko' ? 
-        '응답을 생성하고 있습니다...' : 
+
+      return this.currentLanguage === 'ko' ?
+        '응답을 생성하고 있습니다...' :
         'Generating response...';
     },
 
     displayQuickQuestionsResponse(responseData) {
       try {
         let questionsList = [];
-        
+
         if (typeof responseData === 'string') {
           const jsonMatch = responseData.match(/\[.*\]/);
           if (jsonMatch) {
@@ -798,19 +753,19 @@ export default {
             questionsList = [questionsList];
           }
         }
-        
+
         questionsList = questionsList.filter(q => q && q.trim()).slice(0, 5);
-        
+
         if (questionsList.length > 0) {
           this.quickQuestions = questionsList;
           this.showQuickQuestions = true;
         } else {
           throw new Error('빠른 질문 목록이 비어있습니다.');
         }
-        
+
       } catch (error) {
         console.error('빠른 질문 답변 처리 오류:', error);
-        
+
         this.quickQuestions = this.getDefaultQuickQuestions();
         this.showQuickQuestions = true;
       }
@@ -818,17 +773,13 @@ export default {
 
     getDefaultQuickQuestions() {
       return [
-        '안녕하세요! 어떻게 도와드릴까요?',
-        '오늘 주요 업무는 무엇인가요?',
-        '업무 효율성을 높이는 방법은?',
-        '현재 진행 중인 프로젝트는?',
-        '추천하고 싶은 도구나 방법이 있나요?'
+        '당신은 무엇을 잘 합니까?',
       ];
     },
 
     startLoadingMessages() {
       if (this.loadingMessageId) return;
-      
+
       const loadingMessage = {
         id: `loading-${this.generateUniqueId()}`,
         type: 'ai',
@@ -836,10 +787,10 @@ export default {
         timestamp: new Date(),
         isLoading: true
       };
-      
+
       this.addMessageWithLimit(loadingMessage);
       this.loadingMessageId = loadingMessage.id;
-      
+
       this.loadingInterval = setInterval(() => {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
         if (loadingIndex !== -1) {
@@ -861,16 +812,16 @@ export default {
         currentMessagesCount: this.messages.length,
         pendingCount: this.pendingMessages.length
       });
-      
+
       this.pendingMessages.push(newMessage);
       this.scheduleBatchUpdate();
     },
 
     scheduleBatchUpdate() {
       if (this.renderingScheduled) return;
-      
+
       this.renderingScheduled = true;
-      
+
       this.$nextTick(() => {
         this.processBatchMessages();
         this.renderingScheduled = false;
@@ -881,15 +832,15 @@ export default {
       if (this.pendingMessages.length === 0) return;
 
       this.messages.push(...this.pendingMessages);
-      
+
       if (this.messages.length > this.maxSessionMessages) {
         const excessCount = this.messages.length - this.maxSessionMessages;
         const removeCount = Math.ceil(excessCount / 2) * 2;
         this.messages.splice(0, removeCount);
       }
-      
+
       this.pendingMessages = [];
-      
+
       this.$nextTick(() => {
         this.scrollToBottomSmooth();
       });
@@ -932,7 +883,7 @@ export default {
         if (container) {
           container.style.scrollBehavior = 'auto';
           container.scrollTop = container.scrollHeight;
-          
+
           setTimeout(() => {
             container.style.scrollBehavior = 'smooth';
           }, 100);
@@ -974,9 +925,15 @@ export default {
       if (this.showQuickQuestions) {
         const dropdown = this.$refs.quickQuestionsDropdown;
         const inputArea = this.$refs.inputArea;
-        
-        if (dropdown && !dropdown.contains(event.target) && 
-            inputArea && !inputArea.contains(event.target)) {
+        const generateBtn = event.target.closest('.quick-questions-generate-btn');
+
+        // 질문 생성 버튼을 클릭한 경우는 제외
+        if (generateBtn) {
+          return;
+        }
+
+        if (dropdown && !dropdown.contains(event.target) &&
+          inputArea && !inputArea.contains(event.target)) {
           this.showQuickQuestions = false;
         }
       }
@@ -990,11 +947,11 @@ export default {
       this.quickQuestions = [];
       this.stopLoadingMessages();
     },
-    
+
     resetToInitialState() {
       this.stopLoadingMessages();
       this.stopMemoryMonitoring();
-      
+
       Object.assign(this, {
         currentMessage: '',
         messages: [],
@@ -1009,7 +966,7 @@ export default {
         pendingMessages: [],
         renderingScheduled: false
       });
-      
+
       this.enhancedInputManager.currentState = {
         isExpanded: false,
         hasScrolled: false,
@@ -1017,7 +974,7 @@ export default {
       };
     }
   },
-  
+
   mounted() {
     this.$nextTick(() => {
       const textarea = this.$refs.messageInput;
@@ -1026,9 +983,9 @@ export default {
         this.applyInputVisualFeedback();
       }
     });
-    
+
     this.startMemoryMonitoring();
-    
+
     if (this.isDevelopment) {
       document.addEventListener('keydown', (e) => {
         if (e.altKey && e.key === 'd') {
@@ -1036,23 +993,23 @@ export default {
         }
       });
     }
-    
+
     // 외부 클릭 이벤트 리스너 추가
     document.addEventListener('click', this.handleClickOutside);
   },
-  
+
   beforeDestroy() {
     this.stopLoadingMessages();
     this.stopMemoryMonitoring();
-    
+
     if (this.batchUpdateTimeout) {
       clearTimeout(this.batchUpdateTimeout);
       this.batchUpdateTimeout = null;
     }
-    
+
     // 외부 클릭 이벤트 리스너 제거
     document.removeEventListener('click', this.handleClickOutside);
-    
+
     Object.assign(this, {
       messages: [],
       currentMessage: '',
@@ -1357,14 +1314,22 @@ export default {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse-send-enhanced {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
   }
+
   50% {
     box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
@@ -1438,10 +1403,13 @@ export default {
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.7;
     transform: translateY(-50%) scale(1);
   }
+
   50% {
     opacity: 1;
     transform: translateY(-50%) scale(1.2);
@@ -1464,12 +1432,13 @@ export default {
 }
 
 @media (max-width: 768px) {
+
   .quick-questions-generate-btn,
   .continuous-chat-btn {
     min-width: auto;
     padding: var(--space-sm) !important;
   }
-  
+
   .btn-text {
     display: none;
   }
@@ -1479,24 +1448,24 @@ export default {
   .input-area {
     padding: var(--space-sm) var(--space-md) var(--space-sm);
   }
-  
+
   .input-container {
     padding: 6px;
   }
-  
+
   .input-box {
     gap: 6px;
   }
-  
+
   .message-textarea {
     height: 21px;
     min-height: 21px;
   }
-  
+
   .left-actions {
     gap: 4px;
   }
-  
+
   .dev-info-tooltip {
     font-size: 10px;
     min-width: 140px;
@@ -1507,7 +1476,7 @@ export default {
   .dev-value {
     font-size: 9px;
   }
-  
+
   .quick-questions-dropdown {
     left: var(--space-md);
     right: var(--space-md);

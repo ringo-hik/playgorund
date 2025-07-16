@@ -1,34 +1,14 @@
 <template>
   <div class="ai-chatops-chat">
-    <button
-      :class="['ai-chatops-chat-button', { 'is-active': isOpen }]"
-      @click="toggleChat"
-    >
+    <button :class="['ai-chatops-chat-button', { 'is-active': isOpen }]" @click="toggleChat">
       <Elements v-if="isLoading" component-type="spinner" size="md" />
-      <LucideIcon 
-        v-if="!isLoading && isOpen" 
-        name="x" 
-        fill="currentColor" 
-        :width="28" 
-        :height="28" 
-        key="close-icon"
-      />
-      <LucideIcon 
-        v-if="!isLoading && !isOpen" 
-        name="robot" 
-        fill="currentColor" 
-        :width="28" 
-        :height="28" 
-        key="chat-icon"
-      />
+      <LucideIcon v-if="!isLoading && isOpen" name="x" fill="currentColor" :width="28" :height="28" key="close-icon" />
+      <LucideIcon v-if="!isLoading && !isOpen" name="robot" fill="currentColor" :width="28" :height="28"
+        key="chat-icon" />
     </button>
 
-    <div 
-      v-show="isOpen && isInitialized" 
-      class="ai-chatops-chat-window" 
-      :class="[windowClasses, currentTheme]"
-      ref="chatWindow"
-    >
+    <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" :class="[windowClasses, currentTheme]"
+      ref="chatWindow">
       <div class="chat-header">
         <div class="bot-info">
           <div class="avatar">
@@ -42,44 +22,29 @@
             </div>
           </div>
         </div>
-        
+
         <div class="actions">
-          <div class="easter-egg-trigger header-btn" @click="openRandomEasterEgg">
+          <div class="easter-egg-trigger" @click="openRandomEasterEgg">
             <LucideIcon name="sparkles" fill="currentColor" :width="1" :height="1" />
           </div>
-          
-          <button 
-            class="theme-selector header-btn header-btn--md" 
-            @click="cycleTheme" 
-            :title="getCurrentThemeName()"
-          >
+
+          <button class="theme-selector header-btn header-btn--md" @click="cycleTheme" :title="getCurrentThemeName()">
             <span class="theme-indicator">{{ getThemeDisplayName() }}</span>
           </button>
-          
-          <button
-            class="language-btn header-btn header-btn--md"
-            @click="toggleLanguage"
-          >
+
+          <button class="language-btn header-btn header-btn--md" @click="toggleLanguage">
             <span>{{ currentLanguage === 'ko' ? 'KO' : 'EN' }}</span>
           </button>
-          
+
           <div class="window-controls">
-            <button
-              class="window-control-btn header-btn"
-              @click="minimizeWindow"
-            >
+            <button class="window-control-btn header-btn" @click="minimizeWindow">
               <LucideIcon name="minus" fill="currentColor" :width="12" :height="12" />
             </button>
-            <button
-              class="window-control-btn header-btn"
-              @click="toggleMaximizeWindow"
-            >
-              <LucideIcon :name="windowState === 'maximized' ? 'minimize-2' : 'maximize-2'" fill="currentColor" :width="12" :height="12" />
+            <button class="window-control-btn header-btn" @click="toggleMaximizeWindow">
+              <LucideIcon :name="windowState === 'maximized' ? 'minimize-2' : 'maximize-2'" fill="currentColor"
+                :width="12" :height="12" />
             </button>
-            <button
-              class="window-control-btn header-btn"
-              @click="closeChat"
-            >
+            <button class="window-control-btn header-btn" @click="closeChat">
               <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
             </button>
           </div>
@@ -97,16 +62,12 @@
               <p>{{ getText('welcomeMessage') }}</p>
             </div>
           </div>
-          
+
           <div class="category-container">
             <div class="category-grid">
-              <div
-                v-for="category in categories"
-                :key="category.key"
-                @click="selectCategory(category.key)"
+              <div v-for="category in categories" :key="category.key" @click="selectCategory(category.key)"
                 class="category-card card-system card-system--interactive"
-                :class="{ disabled: chatProcessingCount > 0 }"
-              >
+                :class="{ disabled: chatProcessingCount > 0 }">
                 <div class="category-icon" :class="`category-icon--${category.key}`">
                   <LucideIcon :name="category.icon" fill="white" :width="20" :height="20" />
                 </div>
@@ -119,13 +80,10 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="feedback-section">
-              <button
-                @click="goToFeedback"
-                :disabled="chatProcessingCount > 0"
-                class="feedback-btn btn-system btn-system--accent btn-system--md"
-              >
+              <button @click="goToFeedback" :disabled="chatProcessingCount > 0"
+                class="feedback-btn btn-system btn-system--accent btn-system--md">
                 <LucideIcon name="heart" fill="currentColor" :width="16" :height="16" />
                 {{ getText('sendFeedback') }}
               </button>
@@ -135,22 +93,14 @@
 
         <div v-show="currentView === 'personaList'" class="persona-list-tab">
           <div class="persona-header">
-            <button
-              @click="goToCategorySelect"
-              class="back-btn btn-system btn-system--ghost btn-system--sm"
-            >
+            <button @click="goToCategorySelect" class="back-btn btn-system btn-system--ghost btn-system--sm">
               <LucideIcon name="arrow-left" fill="currentColor" :width="14" :height="14" />
               {{ getText('back') }}
             </button>
-            
+
             <div class="header-content">
               <div class="category-badge">
-                <LucideIcon 
-                  :name="getCategoryIcon(selectedCategory)" 
-                  fill="white" 
-                  :width="16" 
-                  :height="16"
-                />
+                <LucideIcon :name="getCategoryIcon(selectedCategory)" fill="white" :width="16" :height="16" />
                 <span>{{ getCategoryDisplayName(selectedCategory) }}</span>
               </div>
               <h3>{{ getText('selectPersonaDesc') }}</h3>
@@ -167,36 +117,27 @@
               <LucideIcon name="info" fill="var(--text-muted)" :width="40" :height="40" />
               <h4>{{ getText('noPersonas') }}</h4>
               <p>{{ getText('noPersonasDesc') }}</p>
-              <button
-                @click="goToCategorySelect"
-                class="btn-system btn-system--primary btn-system--md"
-              >
+              <button @click="goToCategorySelect" class="btn-system btn-system--primary btn-system--md">
                 <LucideIcon name="home-heart" fill="currentColor" :width="16" :height="16" />
                 {{ getText('goHome') }}
               </button>
             </div>
 
             <div v-show="!loadingPersonas && filteredPersonas.length > 0" class="persona-grid">
-              <div
-                v-for="(persona, index) in filteredPersonas"
-                :key="persona.personaCode"
-                @click="selectPersona(persona)"
-                class="persona-card card-system card-system--interactive"
-                :class="{ disabled: loadingPersonas }"
-              >
+              <div v-for="(persona, index) in filteredPersonas" :key="persona.personaCode"
+                @click="selectPersona(persona)" class="persona-card card-system card-system--interactive"
+                :class="{ disabled: loadingPersonas }">
                 <div class="persona-card-content">
-                  <div 
-                    class="persona-icon" 
-                    :style="{ backgroundColor: getPersonaColor(index, getPersonaDescription(persona)) }"
-                  >
+                  <div class="persona-icon"
+                    :style="{ backgroundColor: getPersonaColor(index, getPersonaDescription(persona)) }">
                     <LucideIcon :name="getPersonaIconName(persona)" fill="white" :width="20" :height="20" />
                   </div>
-                  
+
                   <div class="persona-info">
                     <h4 class="persona-title">{{ persona.title || persona.personaCode }}</h4>
                     <p class="persona-description">{{ getPersonaDescription(persona) }}</p>
                   </div>
-                  
+
                   <div class="persona-arrow">
                     <LucideIcon name="chevron-right" fill="currentColor" :width="14" :height="14" />
                   </div>
@@ -206,35 +147,22 @@
           </div>
         </div>
 
-        <ChatTab 
-          v-if="currentView === 'chat' && isInitialized" 
-          ref="chatTab" 
-          :selected-persona="selectedPersona"
-          :is-processing="chatProcessingCount > 0" 
-          :current-language="currentLanguage" 
-          :window-size="windowSize"
-          :selected-category="selectedCategory"
-          @message-sent="handleMessageSent" 
-          @processing-state-changed="handleProcessingStateChanged"
-          @go-persona-list="goToPersonaList" 
-          @go-home="goToCategorySelect" 
-        />
-        
-        <FeedbackTab 
-          v-if="currentView === 'feedback' && isInitialized" 
-          ref="feedbackTab" 
-          :current-language="currentLanguage" 
-          @feedback-sent="handleFeedbackSent"
-          @go-home="goToCategorySelect" 
-        />
+        <ChatTab v-if="currentView === 'chat' && isInitialized" ref="chatTab" :selected-persona="selectedPersona"
+          :is-processing="chatProcessingCount > 0" :current-language="currentLanguage" :window-size="windowSize"
+          :selected-category="selectedCategory" @message-sent="handleMessageSent"
+          @processing-state-changed="handleProcessingStateChanged" @go-persona-list="goToPersonaList"
+          @go-home="goToCategorySelect" />
+
+        <FeedbackTab v-if="currentView === 'feedback' && isInitialized" ref="feedbackTab"
+          :current-language="currentLanguage" @feedback-sent="handleFeedbackSent" @go-home="goToCategorySelect" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import aiChatOpsService from '@/service/aiChatOpsService';
-import { getText } from './utils/i18n';
+import aiChatOpsService from './service/aiChatOpsService.js';
+import { getText } from './utils/i18n.js';
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
 import Elements from './components/Elements.vue';
@@ -242,13 +170,13 @@ import LucideIcon from './components/LucideIcon.vue';
 
 export default {
   name: 'AIChatOpsLayout',
-  components: { 
-    ChatTab, 
-    FeedbackTab, 
+  components: {
+    ChatTab,
+    FeedbackTab,
     Elements,
     LucideIcon
   },
-  
+
   data() {
     return {
       isOpen: false,
@@ -310,7 +238,7 @@ export default {
       ]
     };
   },
-  
+
   computed: {
     windowClasses() {
       return {
@@ -318,18 +246,18 @@ export default {
         'maximized': this.windowState === 'maximized'
       };
     },
-    
+
     filteredPersonas() {
       if (!this.selectedCategory) {
         console.log('🔍 [AIChatOpsLayout] filteredPersonas: No category selected, returning empty array');
         return [];
       }
-      
+
       if (!this.personas) {
         console.log('🔍 [AIChatOpsLayout] filteredPersonas: No personas data, returning empty array');
         return [];
       }
-      
+
       if (!Array.isArray(this.personas)) {
         console.error('❌ [AIChatOpsLayout] filteredPersonas: personas is not an array:', {
           type: typeof this.personas,
@@ -337,19 +265,19 @@ export default {
         });
         return [];
       }
-      
+
       const filtered = this.personas.filter(persona => {
         if (!persona) {
           console.warn('⚠️ [AIChatOpsLayout] filteredPersonas: Found null/undefined persona');
           return false;
         }
-        
+
         const matchesCategory = persona.category === this.selectedCategory;
         const matchesTags = persona.tags && Array.isArray(persona.tags) && persona.tags.includes(this.selectedCategory);
-        
+
         return matchesCategory || matchesTags;
       });
-      
+
       console.log('🔍 [AIChatOpsLayout] filteredPersonas: Filtering result:', {
         selectedCategory: this.selectedCategory,
         totalPersonas: this.personas.length,
@@ -359,16 +287,16 @@ export default {
           tagsMatch: this.personas.filter(p => p?.tags && Array.isArray(p.tags) && p.tags.includes(this.selectedCategory)).length
         }
       });
-      
+
       return filtered;
     }
   },
-  
+
   methods: {
     getText(key, params = {}) {
       return getText(this.currentLanguage, key, params);
     },
-    
+
     getInitialLanguage() {
       try {
         return localStorage.getItem('ai-chatops-chat-lang') || 'ko';
@@ -376,7 +304,7 @@ export default {
         return 'ko';
       }
     },
-    
+
     getInitialTheme() {
       try {
         return localStorage.getItem('ai-chatops-chat-theme') || 'theme-ai-chatops';
@@ -384,51 +312,51 @@ export default {
         return 'theme-ai-chatops';
       }
     },
-    
+
     cycleTheme() {
       const currentIndex = this.availableThemes.findIndex(theme => theme.key === this.currentTheme);
       const nextIndex = (currentIndex + 1) % this.availableThemes.length;
       const nextTheme = this.availableThemes[nextIndex];
-      
+
       this.currentTheme = nextTheme.key;
       this.applyTheme(nextTheme.key);
       this.saveThemePreference(nextTheme.key);
     },
-    
+
     applyTheme(themeKey) {
       console.log('🎨 테마 적용 시작:', themeKey);
       const body = document.body;
       const chatWindow = this.$refs.chatWindow;
-      
+
       console.log('📦 chatWindow 참조:', chatWindow ? '존재' : '없음');
-      
+
       this.availableThemes.forEach(theme => {
         body.classList.remove(theme.key);
         if (chatWindow) {
           chatWindow.classList.remove(theme.key);
         }
       });
-      
+
       body.classList.add(themeKey);
       if (chatWindow) {
         chatWindow.classList.add(themeKey);
         console.log('✅ 테마 클래스 추가됨:', themeKey);
         console.log('📋 현재 chatWindow 클래스:', chatWindow.className);
       }
-      
+
       console.log('🔄 body 클래스 목록:', body.className);
     },
-    
+
     getCurrentThemeName() {
       const theme = this.availableThemes.find(t => t.key === this.currentTheme);
       return theme ? theme.name : 'Default';
     },
-    
+
     getThemeDisplayName() {
       const theme = this.availableThemes.find(t => t.key === this.currentTheme);
       return theme ? theme.displayName : 'D';
     },
-    
+
     saveThemePreference(themeKey) {
       try {
         localStorage.setItem('ai-chatops-chat-theme', themeKey);
@@ -436,7 +364,7 @@ export default {
         console.log('Could not save theme preference');
       }
     },
-    
+
     getCategoryIcon(category) {
       const iconMap = {
         'operation': 'settings',
@@ -445,22 +373,22 @@ export default {
       };
       return iconMap[category] || 'grid';
     },
-    
+
     getCategoryDisplayName(category) {
       const displayNames = {
         'personal': 'personalCategory',
         'general': 'generalCategory',
         'operation': 'operationCategory'
       };
-      
+
       return this.getText(displayNames[category] || category);
     },
-    
+
     getPersonaIconName(persona) {
       if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
     },
-    
+
     getPersonaDescription(persona) {
       if (!persona) return '';
       if (this.currentLanguage === 'en' && persona.descriptionEn) {
@@ -481,31 +409,31 @@ export default {
         if (this.isInitializing) {
           return;
         }
-        
+
         this.isInitializing = true;
-        
+
         const newState = {
           windowState: 'normal',
           currentView: 'categorySelect',
           isOpen: true,
           isInitialized: true
         };
-        
+
         Object.assign(this, newState);
-        
+
         await this.$nextTick();
-        
+
         this.applyTheme(this.currentTheme);
-        
+
         this.$nextTick(() => {
           Promise.all([
             this.loadPersonas(),
             this.preloadPopularPersonas()
           ]).catch(console.error);
         });
-        
+
         this.isInitializing = false;
-        
+
       } else {
         this.isOpen = false;
         setTimeout(() => {
@@ -513,10 +441,10 @@ export default {
         }, 300);
       }
     },
-    
+
     closeChat() {
       this.saveCurrentMessages();
-      
+
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -524,15 +452,15 @@ export default {
         selectedPersona: null,
         windowState: 'normal'
       });
-      
+
       setTimeout(() => {
         this.isInitialized = false;
       }, 300);
-      
+
       this.cancelAllPendingRequests();
       if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
     },
-    
+
     minimizeWindow() {
       if (this.windowState === 'minimized') {
         this.windowState = 'normal';
@@ -540,7 +468,7 @@ export default {
         this.windowState = 'minimized';
       }
     },
-    
+
     toggleMaximizeWindow() {
       if (this.windowState === 'maximized') {
         this.windowState = 'normal';
@@ -548,46 +476,46 @@ export default {
         this.windowState = 'maximized';
       }
     },
-    
+
     goToCategorySelect() {
       this.saveCurrentMessages();
-      
+
       Object.assign(this, {
         currentView: 'categorySelect',
         selectedCategory: null,
         selectedPersona: null
       });
-      
+
       if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
     },
-    
+
     goToPersonaList() {
       this.saveCurrentMessages();
-      
+
       Object.assign(this, {
         currentView: 'personaList',
         selectedPersona: null
       });
-      
+
       if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
     },
-    
+
     goToFeedback() {
       this.currentView = 'feedback';
     },
-    
+
     selectCategory(category) {
       console.log('🎯 [AIChatOpsLayout] selectCategory:', {
         category,
         totalPersonas: this.personas.length,
         willFilter: true
       });
-      
+
       Object.assign(this, {
         selectedCategory: category,
         currentView: 'personaList'
       });
-      
+
       // 필터링 결과 즉시 확인
       this.$nextTick(() => {
         const filtered = this.filteredPersonas;
@@ -601,21 +529,21 @@ export default {
             tags: p.tags
           }))
         });
-        
+
         if (filtered.length === 0) {
           console.warn('⚠️ [AIChatOpsLayout] selectCategory: No personas found for category:', category);
         }
       });
     },
-    
+
     selectPersona(persona) {
       this.saveCurrentMessages();
-      
+
       Object.assign(this, {
         selectedPersona: persona,
         currentView: 'chat'
       });
-      
+
       this.$nextTick(() => {
         if (this.$refs.chatTab) {
           if (!this.loadCachedMessages(persona.personaCode)) {
@@ -624,7 +552,7 @@ export default {
         }
       });
     },
-    
+
     toggleLanguage() {
       this.currentLanguage = this.currentLanguage === 'ko' ? 'en' : 'ko';
       try {
@@ -633,7 +561,7 @@ export default {
         console.log('Could not save language preference');
       }
     },
-    
+
     openRandomEasterEgg() {
       const randomNumber = Math.floor(Math.random() * 5) + 1;
       const easterEggUrl = `/playground/easter-egg${randomNumber}.html`;
@@ -660,7 +588,7 @@ export default {
 
     async preloadPopularPersonas() {
       const popularPersonas = this.personas.slice(0, 3);
-      
+
       for (const persona of popularPersonas) {
         if (!this.personaMessageCache.has(persona.personaCode)) {
           try {
@@ -699,16 +627,16 @@ export default {
         this.cacheCleanupInterval = null;
       }
     },
-    
+
     loadPersonas() {
       if (this.loadingPersonas) {
         console.log('🔄 [AIChatOpsLayout] loadPersonas: Already loading, skipping');
         return Promise.resolve();
       }
-      
+
       console.log('🚀 [AIChatOpsLayout] loadPersonas: Starting to load personas');
       this.loadingPersonas = true;
-      
+
       return aiChatOpsService.getPersonas()
         .then(response => {
           console.log('📡 [AIChatOpsLayout] loadPersonas: API response received:', {
@@ -718,11 +646,11 @@ export default {
             dataLength: Array.isArray(response.data) ? response.data.length : 'not array',
             fullResponse: response
           });
-          
+
           if (response.success) {
             const personas = response.data || [];
             this.personas = personas;
-            
+
             console.log('✅ [AIChatOpsLayout] loadPersonas: Personas loaded successfully:', {
               count: personas.length,
               personas: personas.map(p => ({
@@ -732,7 +660,7 @@ export default {
                 tags: p.tags
               }))
             });
-            
+
             // 데이터 검증 로그
             if (personas.length === 0) {
               console.warn('⚠️ [AIChatOpsLayout] loadPersonas: No personas found in response');
@@ -757,20 +685,20 @@ export default {
           console.log('🔚 [AIChatOpsLayout] loadPersonas: Loading completed, personas count:', this.personas.length);
         });
     },
-    
+
     handleMessageSent(data) {
       const requestId = `${data.personaCode}-${Date.now()}-${Math.random()}`;
       this.pendingRequests.set(requestId, {
         personaCode: data.personaCode,
         startTime: Date.now()
       });
-      
+
       this.updateProcessingState();
-      
+
       if (!data.sessionId && this.personaSessionMap[data.personaCode]) {
         data.sessionId = this.personaSessionMap[data.personaCode];
       }
-      
+
       aiChatOpsService.sendMessage(data)
         .then(response => {
           if (response.success) {
@@ -788,7 +716,7 @@ export default {
           this.updateProcessingState();
         });
     },
-    
+
     handleSuccessResponse(data, response) {
       console.log('✅ [AIChatOpsLayout] handleSuccessResponse:', {
         hasSessionId: !!response.sessionId,
@@ -798,7 +726,7 @@ export default {
         responseKeys: Object.keys(response),
         hasChatTab: !!this.$refs.chatTab
       });
-      
+
       if (response.sessionId) {
         this.personaSessionMap[data.personaCode] = response.sessionId;
         try {
@@ -808,26 +736,26 @@ export default {
           console.error('❌ [AIChatOpsLayout] handleSuccessResponse: Could not save session data:', error);
         }
       }
-      
+
       if (this.$refs.chatTab) {
         this.$refs.chatTab.addAiResponse(response);
         console.log('📤 [AIChatOpsLayout] handleSuccessResponse: Response sent to chatTab');
       } else {
         console.error('❌ [AIChatOpsLayout] handleSuccessResponse: No chatTab ref found');
       }
-      
+
       this.isConnected = true;
     },
-    
+
     handleErrorResponse(errorMessage) {
       console.error('❌ [AIChatOpsLayout] handleErrorResponse:', {
         errorMessage,
         hasChatTab: !!this.$refs.chatTab,
         isConnected: this.isConnected
       });
-      
+
       if (this.$refs.chatTab) {
-        this.$refs.chatTab.addAiResponse({ 
+        this.$refs.chatTab.addAiResponse({
           success: false,
           message: errorMessage
         });
@@ -836,27 +764,27 @@ export default {
         console.error('❌ [AIChatOpsLayout] handleErrorResponse: No chatTab ref found, cannot display error');
       }
     },
-    
+
     updateProcessingState() {
       const newCount = this.pendingRequests.size;
       const oldCount = this.chatProcessingCount;
       this.chatProcessingCount = newCount;
-      
+
       if (oldCount !== newCount) {
         this.$emit('processing-state-changed', newCount > 0);
       }
     },
-    
+
     handleProcessingStateChanged(isProcessing) {
-      
+
     },
-    
+
     cancelAllPendingRequests() {
       this.pendingRequests.clear();
       this.updateProcessingState();
       this.chatProcessingCount = 0;
     },
-    
+
     handleFeedbackSent(feedbackData) {
       aiChatOpsService.sendFeedback(feedbackData)
         .then(response => {
@@ -876,7 +804,7 @@ export default {
           }
         });
     },
-    
+
     loadStoredSessions() {
       try {
         const sessionData = localStorage.getItem('ai-chatops-chat-sessions');
@@ -887,7 +815,7 @@ export default {
         this.personaSessionMap = {};
       }
     },
-    
+
     startHealthCheck() {
       this.healthCheckInterval = setInterval(() => {
         aiChatOpsService.healthCheck()
@@ -899,7 +827,7 @@ export default {
           });
       }, 30000);
     },
-    
+
     stopHealthCheck() {
       if (this.healthCheckInterval) {
         clearInterval(this.healthCheckInterval);
@@ -907,17 +835,17 @@ export default {
       }
     }
   },
-  
+
   mounted() {
     this.loadStoredSessions();
     this.startHealthCheck();
     this.startCacheCleanup();
-    
+
     this.$nextTick(() => {
       this.applyTheme(this.currentTheme);
     });
   },
-  
+
   beforeDestroy() {
     this.stopHealthCheck();
     this.stopCacheCleanup();
@@ -930,7 +858,7 @@ export default {
     this.healthCheckInterval = null;
     this.cacheCleanupInterval = null;
     this.personaSessionMap = {};
-    
+
     if (this.$refs.chatTab) {
       this.$refs.chatTab.resetToInitialState();
     }
@@ -1167,7 +1095,6 @@ export default {
 
 .category-grid .category-card:first-child {
   margin-top: 3px;
-  border: 1px solid var(--color-border-light);
 }
 
 .category-card {
@@ -1180,15 +1107,15 @@ export default {
   transition: all var(--motion-fast);
   background: rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--color-border-light);
 }
 
 .category-card:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
@@ -1378,15 +1305,15 @@ export default {
   transition: all var(--motion-fast);
   background: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border-light);
 }
 
 .persona-card:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
@@ -1449,7 +1376,7 @@ export default {
   color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.3;
-  
+
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -1480,7 +1407,8 @@ export default {
   width: var(--layout-float-size);
   height: var(--layout-float-size);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  border: none;  /* 테두리 제거 */
+  border: none;
+  /* 테두리 제거 */
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
@@ -1491,7 +1419,7 @@ export default {
   position: relative;
   overflow: hidden;
   color: var(--color-surface-white);
-  
+
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: transform;
@@ -1521,10 +1449,13 @@ export default {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(1.05);
@@ -1532,50 +1463,51 @@ export default {
 }
 
 @media (max-width: 640px) {
+
   .category-select,
   .persona-list-tab {
     padding: 0;
   }
-  
+
   .welcome-section {
     padding: var(--space-md) var(--space-lg) var(--space-sm);
   }
-  
+
   .category-container {
     padding: 0 var(--space-lg) var(--space-md);
   }
-  
+
   .persona-content {
     padding: var(--space-sm) var(--space-lg) var(--space-md);
   }
-  
+
   .category-card,
   .persona-card {
     padding: var(--space-sm);
     gap: var(--space-sm);
     min-height: 60px;
   }
-  
+
   .persona-card {
     max-height: 60px;
   }
-  
+
   .category-icon,
   .persona-icon {
     width: 36px;
     height: 36px;
   }
-  
+
   .category-content h4,
   .persona-title {
     font-size: var(--font-size-sm);
   }
-  
+
   .category-content p,
   .persona-description {
     font-size: var(--font-size-xs);
   }
-  
+
   .ai-chatops-chat {
     bottom: 16px;
     right: 16px;

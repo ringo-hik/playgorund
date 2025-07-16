@@ -1,19 +1,20 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1/devportal/ai-chatops';
+const API_BASE_URL = 'http://localhost:3003/api/v1/devportal/ai-chatops';
 
 const aiChatOpsService = {
 
   async healthCheck() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/health`, {
+      // Mock 서버에서 단순히 API 엔드포인트 확인
+      const response = await axios.get(`http://localhost:3003/api`, {
         timeout: 10000
       });
 
       return {
         success: true,
         data: response.data,
-        message: response.data.message || 'Health check successful'
+        message: 'Health check successful'
       };
 
     } catch (error) {
@@ -29,7 +30,8 @@ const aiChatOpsService = {
     console.log('🚀 [aiChatOpsService] getPersonas: Starting API call');
     
     try {
-      const response = await axios.get(`${API_BASE_URL}/personas`, {
+      // Mock 서버에서 페르소나 데이터 가져오기
+      const response = await axios.get(`http://localhost:3003/api`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -45,7 +47,7 @@ const aiChatOpsService = {
         fullData: response.data
       });
 
-      const personas = response.data.data || response.data;
+      const personas = response.data.v1.devportal['ai-chatops'].personas;
       
       console.log('📄 [aiChatOpsService] getPersonas: Processed personas data:', {
         personasType: typeof personas,
@@ -180,42 +182,30 @@ const aiChatOpsService = {
         hasQueryHistory: !!requestBody.queryHistory
       });
 
-      const response = await axios.post(`${API_BASE_URL}/message/async`, requestBody, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 60000
+      // Mock 서버 연동: 실제 채팅 응답 시뮬레이션
+      const mockResponse = await axios.get(`http://localhost:3003/chat`);
+      const responses = mockResponse.data.responses;
+      
+      // personaCode에 맞는 응답 찾기 또는 랜덤 선택
+      let selectedResponse = responses.find(r => r.personaCode === messageData.personaCode);
+      if (!selectedResponse) {
+        selectedResponse = responses[Math.floor(Math.random() * responses.length)];
+      }
+
+      console.log('📡 [aiChatOpsService] sendMessage: Mock response selected:', {
+        personaCode: selectedResponse.personaCode,
+        query: selectedResponse.query,
+        hasResponse: !!selectedResponse.response
       });
 
-      console.log('📡 [aiChatOpsService] sendMessage: Raw API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        hasData: !!response.data,
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        success: response.data?.success,
-        hasAiQuery: !!response.data?.aiQuery,
-        hasAiResponse: !!response.data?.data?.aiResponse,
-        hasSessionId: !!response.data?.sessionId,
-        fullResponse: response.data
-      });
-
-      // API 응답 구조 통일: response.data.success와 response.data.aiQuery 사용
-      const aiResponse = response.data.aiQuery || response.data.data?.aiResponse || response.data.data;
-      
-      console.log('🤖 [aiChatOpsService] sendMessage: AI response extracted:', {
-        aiResponseType: typeof aiResponse,
-        aiResponseLength: typeof aiResponse === 'string' ? aiResponse.length : 'not string',
-        aiResponsePreview: typeof aiResponse === 'string' ? aiResponse.substring(0, 100) + '...' : aiResponse
-      });
-      
       const result = {
-        success: response.data.success || true,
+        success: true,
         data: {
-          aiResponse: aiResponse,
-          success: response.data.success
+          aiResponse: selectedResponse.response,
+          success: true
         },
-        sessionId: response.data.sessionId || messageData.sessionId,
-        message: response.data.message || 'Message sent successfully'
+        sessionId: messageData.sessionId || `session_${Date.now()}`,
+        message: 'Message sent successfully'
       };
       
       console.log('✅ [aiChatOpsService] sendMessage: Final result prepared:', {
@@ -401,17 +391,24 @@ const aiChatOpsService = {
 
   async getConversations(personaCode) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/conversations/${personaCode}`, {
+      // Mock 서버에서 채팅 세션 데이터 가져오기
+      const response = await axios.get(`http://localhost:3003/chat/sessions`, {
         headers: {
           'Content-Type': 'application/json'
         },
         timeout: 15000
       });
 
+      // personaCode에 맞는 세션 찾기
+      const sessions = response.data || [];
+      const userSession = sessions.find(session => session.personaCode === personaCode);
+      
+      const conversations = userSession ? userSession.conversations : [];
+
       return {
         success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Conversations loaded successfully'
+        data: conversations,
+        message: 'Conversations loaded successfully'
       };
 
     } catch (error) {

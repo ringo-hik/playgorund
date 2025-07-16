@@ -19,28 +19,52 @@
   --heritage-secondary: #991B1B;  /* 진한 빨간색 */
   --heritage-accent: #DC2626;     /* 밝은 빨간색 */
   --heritage-neutral: #78716C;    /* 갈색 회색 */
-  --heritage-background: #FEF7F0; /* 따뜻한 배경 */
+  --heritage-background: #FEFCFB; /* 따뜻한 배경 */
   --heritage-text: #451A03;       /* 진한 갈색 텍스트 */
   --heritage-text-light: #FFFFFF;
-  --heritage-border: #F3E8FF;
+  --heritage-border: #E7E5E4;     /* 뉴트럴 보더 */
   
   /* 🎨 새로운 Heritage 보조 색상 */
   --heritage-highlight: #EF4444;   /* 선명한 빨간색 - 강조용 */
   --heritage-warm: #F59E0B;        /* 따뜻한 황금색 - 보조 액센트 */
+  
+  /* 🎨 Heritage 뉴트럴 색상 팔레트 */
+  --heritage-gray-50: #FAFAF9;
+  --heritage-gray-100: #F5F5F4;
+  --heritage-gray-200: #E7E5E4;
+  --heritage-gray-300: #D6D3D1;
+  --heritage-gray-400: #A8A29E;
+  --heritage-gray-500: #78716C;
+  --heritage-gray-600: #57534E;
+  --heritage-gray-700: #44403C;
+  --heritage-gray-800: #292524;
+  --heritage-gray-900: #1C1917;
 
   /* Hermes 테마 색상 (에르메스 시그니처 오렌지) */
   --hermes-primary: #FF7F00;      /* 에르메스 시그니처 오렌지 */
   --hermes-secondary: #E65100;    /* 어두운 오렌지 */
   --hermes-accent: #8D6E63;       /* 에르메스 브라운 레더 */
   --hermes-neutral: #5D4037;      /* 진한 브라운 */
-  --hermes-background: #FFF3E0;   /* 따뜻한 아이보리 */
+  --hermes-background: #FEFEFE;   /* 깔끔한 화이트 */
   --hermes-text: #2E2E2E;         /* 텍스트 (대비 5:1) */
   --hermes-text-light: #FFFFFF;
-  --hermes-border: #FFB74D;       /* 부드러운 오렌지 */
+  --hermes-border: #D7CCC8;       /* 부드러운 베이지 */
   
   /* 🎨 새로운 Hermes 보조 색상 */
   --hermes-highlight: #F57C00;     /* 강조용 오렌지 */
   --hermes-sage: #A1887F;         /* 에르메스 베이지 */
+  
+  /* 🎨 Hermes 뉴트럴 색상 팔레트 */
+  --hermes-gray-50: #FAFAFA;
+  --hermes-gray-100: #F5F5F5;
+  --hermes-gray-200: #EEEEEE;
+  --hermes-gray-300: #E0E0E0;
+  --hermes-gray-400: #BDBDBD;
+  --hermes-gray-500: #9E9E9E;
+  --hermes-gray-600: #757575;
+  --hermes-gray-700: #616161;
+  --hermes-gray-800: #424242;
+  --hermes-gray-900: #212121;
 
   /* ----- 통일된 컬러 시스템 ---------------------------- */
   --color-primary: var(--ai-chatops-primary);
@@ -59,12 +83,14 @@
   --color-text-primary: #1F2937;
   --color-text-secondary: #4B5563;
   --color-text-muted: #6B7280;
+  --color-text-tertiary: #9CA3AF;
   --color-text-light: #FFFFFF;
 
   /* 배경 컬러 */
   --color-surface-white: #FFFFFF;
   --color-surface-light: #F9FAFB;
   --color-surface-medium: #F3F4F6;
+  --color-surface-elevated: #FFFFFF;
 
   /* 보더 컬러 */
   --color-border-light: #E2E8F0;
@@ -239,10 +265,22 @@
   --color-accent: var(--heritage-accent);
   --color-accent-secondary: var(--heritage-neutral);
   --color-text-primary: var(--heritage-text);
+  --color-text-secondary: var(--heritage-gray-600);
+  --color-text-muted: var(--heritage-gray-500);
+  --color-text-tertiary: var(--heritage-gray-400);
   --color-text-light: var(--heritage-text-light);
-  --color-surface-light: var(--heritage-background);
-  --color-surface-white: var(--heritage-background);
-  --color-border-light: var(--heritage-border);
+  
+  /* 🎨 Heritage 깊이별 배경 색상 */
+  --color-surface-white: var(--heritage-gray-50);
+  --color-surface-light: var(--heritage-gray-100);
+  --color-surface-medium: var(--heritage-gray-200);
+  --color-surface-elevated: var(--heritage-background);
+  
+  /* 🎨 Heritage 뉴트럴 보더 색상 */
+  --color-border-light: var(--heritage-gray-300);
+  --color-border-medium: var(--heritage-gray-400);
+  --color-border-accent: var(--heritage-accent);
+  
   --color-header-bg: var(--heritage-primary);
   --color-header-accent: var(--heritage-accent);
   
@@ -268,10 +306,22 @@
   --color-accent: var(--hermes-accent);
   --color-accent-secondary: var(--hermes-neutral);
   --color-text-primary: var(--hermes-text);
+  --color-text-secondary: var(--hermes-gray-600);
+  --color-text-muted: var(--hermes-gray-500);
+  --color-text-tertiary: var(--hermes-gray-400);
   --color-text-light: var(--hermes-text-light);
-  --color-surface-light: var(--hermes-background);
-  --color-surface-white: var(--hermes-background);
-  --color-border-light: var(--hermes-border);
+  
+  /* 🎨 Hermes 깊이별 배경 색상 */
+  --color-surface-white: var(--hermes-gray-50);
+  --color-surface-light: var(--hermes-gray-100);
+  --color-surface-medium: var(--hermes-gray-200);
+  --color-surface-elevated: var(--hermes-background);
+  
+  /* 🎨 Hermes 뉴트럴 보더 색상 */
+  --color-border-light: var(--hermes-gray-300);
+  --color-border-medium: var(--hermes-gray-400);
+  --color-border-accent: var(--hermes-accent);
+  
   --color-header-bg: var(--hermes-primary);
   --color-header-accent: var(--hermes-accent);
   
@@ -289,6 +339,55 @@
   --markdown-code-bg: rgba(217, 119, 6, 0.08);
   --markdown-code-border: rgba(217, 119, 6, 0.2);
   --markdown-quote-border: var(--hermes-accent);
+}
+
+/* ----- 깊이별 배경 및 시각적 계층 강화 ----- */
+.theme-heritage .card-system,
+.theme-heritage .input-container,
+.theme-heritage .persona-card,
+.theme-heritage .category-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px rgba(68, 64, 60, 0.1);
+}
+
+.theme-heritage .messages-container {
+  background: var(--color-surface-white);
+}
+
+.theme-heritage .message-bubble--user .message-bubble__content {
+  background: var(--color-surface-medium);
+  border: 1px solid var(--color-border-light);
+}
+
+.theme-heritage .quick-questions-list {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 12px rgba(68, 64, 60, 0.15);
+}
+
+.theme-hermes .card-system,
+.theme-hermes .input-container,
+.theme-hermes .persona-card,
+.theme-hermes .category-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px rgba(66, 66, 66, 0.1);
+}
+
+.theme-hermes .messages-container {
+  background: var(--color-surface-white);
+}
+
+.theme-hermes .message-bubble--user .message-bubble__content {
+  background: var(--color-surface-medium);
+  border: 1px solid var(--color-border-light);
+}
+
+.theme-hermes .quick-questions-list {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 12px rgba(66, 66, 66, 0.15);
 }
 
 /* ----- 통일된 버튼 시스템 ----- */
