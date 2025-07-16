@@ -120,7 +120,6 @@
                 >
                   <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
                   <LucideIcon v-else name="lightbulb" :width="12" :height="12" />
-                  <span class="btn-text">빠른 질문</span>
                 </button>
                 
                 <button
@@ -135,9 +134,6 @@
                   :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'"
                 >
                   <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" />
-                  <span class="btn-text">
-                    {{ continuousChatEnabled ? '단일 대화' : '연속 대화' }}
-                  </span>
                 </button>
               </div>
               
@@ -1326,9 +1322,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: var(--space-sm) var(--space-md) !important;
+  padding: var(--space-sm) !important;
   transition: all 0.2s ease;
   border-radius: var(--radius-md);
+  background: transparent !important;
+  border: none !important;
 }
 
 .quick-questions-generate-btn:hover {

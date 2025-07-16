@@ -7,25 +7,26 @@
           <h4>{{ getText('feedbackSuccess') }}</h4>
           <p>{{ resultMessage }}</p>
         </div>
-        <div class="result-actions">
-          <Elements
-            component-type="button"
-            @click="resetForm"
-            variant="primary"
-            icon="star"
-          >
-            {{ getText('sendAnother') }}
-          </Elements>
-          <Elements
-            component-type="button"
-            @click="$emit('go-home')"
-            variant="accent"
-            icon="home"
-          >
-            {{ getText('goHome') }}
-          </Elements>
-        </div>
       </template>
+      
+      <div v-if="resultType === 'success'" class="result-actions-separate">
+        <Elements
+          component-type="button"
+          @click="resetForm"
+          variant="primary"
+          icon="star"
+        >
+          {{ getText('sendAnother') }}
+        </Elements>
+        <Elements
+          component-type="button"
+          @click="$emit('go-home')"
+          variant="accent"
+          icon="home"
+        >
+          {{ getText('goHome') }}
+        </Elements>
+      </div>
       
       <template v-if="resultType === 'error'">
         <LucideIcon name="alert-triangle" fill="var(--error-color)" :width="20" :height="20" />
@@ -51,7 +52,6 @@
           v-model="selectedRating"
           :disabled="isSubmitting"
           :show-text="true"
-          :text-labels="ratingTexts"
           size="md"
           @change="clearResult"
         />
@@ -142,10 +142,6 @@ export default {
   },
   
   computed: {
-    ratingTexts() {
-      return getTextArray(this.currentLanguage, 'ratingTexts');
-    },
-    
     isFormValid() {
       return this.comment.trim().length > 0;
     }
@@ -374,6 +370,23 @@ export default {
   margin-top: var(--space-md);
 }
 
+.result-actions-separate {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  width: 100%;
+}
+
+.result-actions-separate .premium-button {
+  color: white !important;
+  flex: 1;
+  justify-content: center;
+}
+
+.result-actions-separate .premium-button:hover {
+  color: white !important;
+}
+
 @media (max-width: 640px) {
   .feedback-tab {
     padding: var(--space-md) var(--space-lg) var(--space-lg);
@@ -403,6 +416,17 @@ export default {
   .result-actions .premium-button {
     width: 100%;
     justify-content: center;
+  }
+  
+  .result-actions-separate {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .result-actions-separate .premium-button {
+    width: 100%;
+    justify-content: center;
+    color: white !important;
   }
 }
 </style>

@@ -52,7 +52,7 @@
           type="button"
         >
           <LucideIcon
-            name="star"
+            name="heart"
             :fill="getStarFill(star)"
             :width="starIconSize"
             :height="starIconSize"
@@ -85,7 +85,7 @@
           <!-- USER 메시지 브랜딩 - 미니먀 -->
           <div v-if="actualMessageType === 'user'" class="user-message-brand">
             <div class="user-badge-minimal">
-              <span>👤</span>
+              <LucideIcon name="user" :width="12" :height="12" />
               <span>USER</span>
             </div>
           </div>
@@ -93,7 +93,7 @@
           <!-- BOT 메시지 브랜딩 - 미니먀 -->
           <div v-if="actualMessageType === 'ai'" class="bot-message-brand">
             <div class="bot-badge-minimal" :class="{ 'bot-badge--error': actualIsError }">
-              <span class="bot-emoji">🤖</span>
+              <LucideIcon name="bot" :width="12" :height="12" />
               <span>{{ getPersonaBotName() }}</span>
             </div>
           </div>
@@ -500,6 +500,8 @@ export default {
   padding: 0;
   border-radius: 0;
   box-shadow: none;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .message-bubble--user .message-bubble__content {
@@ -512,6 +514,7 @@ export default {
   word-wrap: break-word;
   box-shadow: var(--shadow-minimal);
   margin-bottom: var(--space-md);
+  max-width: 60%;
 }
 
 .message-bubble--ai {
@@ -546,9 +549,10 @@ export default {
 }
 
 .message-bubble--ai .message-bubble__content {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.05);
   color: var(--color-text-primary);
-  padding: var(--space-md) 0 var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
   font-size: 15px;
   line-height: 1.6;
   letter-spacing: -0.01em;
@@ -558,10 +562,10 @@ export default {
   position: relative;
   margin-bottom: var(--space-sm);
   z-index: 2;
-  text-align: left;
+  text-align: right;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
 }
 

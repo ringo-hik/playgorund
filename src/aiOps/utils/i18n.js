@@ -67,8 +67,6 @@ const i18nResources = {
     sendAnother: '다른 피드백 보내기',
     
     easterEgg: '이스터 에그 ',
-    
-    ratingTexts: ['매우 나쁨', '나쁨', '보통', '좋음', '매우 좋음'],
 
     loadingMessages: [
   "Prompting...",
@@ -183,8 +181,6 @@ const i18nResources = {
     sendAnother: 'Send Another Feedback',
     
     easterEgg: 'Easter Egg ',
-    
-    ratingTexts: ['Very Poor', 'Poor', 'Average', 'Good', 'Excellent'],
 
     loadingMessages: [
   "Prompting...",

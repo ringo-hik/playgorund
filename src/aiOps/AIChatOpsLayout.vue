@@ -45,7 +45,7 @@
         
         <div class="actions">
           <div class="easter-egg-trigger header-btn" @click="openRandomEasterEgg">
-            <LucideIcon name="sparkles" fill="currentColor" :width="12" :height="12" />
+            <LucideIcon name="sparkles" fill="currentColor" :width="1" :height="1" />
           </div>
           
           <button 
@@ -254,6 +254,7 @@ export default {
       isOpen: false,
       isInitialized: false,
       isLoading: false,
+      isInitializing: false,
       currentView: 'categorySelect',
       selectedCategory: null,
       selectedPersona: null,
@@ -476,6 +477,13 @@ export default {
 
     async toggleChat() {
       if (!this.isOpen) {
+        // 이미 초기화 진행 중이면 대기
+        if (this.isInitializing) {
+          return;
+        }
+        
+        this.isInitializing = true;
+        
         const newState = {
           windowState: 'normal',
           currentView: 'categorySelect',
@@ -495,6 +503,8 @@ export default {
             this.preloadPopularPersonas()
           ]).catch(console.error);
         });
+        
+        this.isInitializing = false;
         
       } else {
         this.isOpen = false;
@@ -1066,11 +1076,19 @@ export default {
 
 .easter-egg-trigger {
   opacity: 0.7;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .easter-egg-trigger:hover {
   opacity: 1;
-  transform: scale(1.1) rotate(15deg);
+  transform: scale(2) rotate(15deg);
 }
 
 .theme-selector .theme-indicator {
@@ -1144,6 +1162,11 @@ export default {
   overflow-y: auto;
 }
 
+.category-grid .category-card:first-child {
+  margin-top: 3px;
+  border: 1px solid var(--color-border-light);
+}
+
 .category-card {
   display: flex;
   align-items: center;
@@ -1152,6 +1175,7 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .category-card:hover:not(.disabled) {
@@ -1342,6 +1366,7 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .persona-card:hover:not(.disabled) {
