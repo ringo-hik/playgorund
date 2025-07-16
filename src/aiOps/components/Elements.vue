@@ -77,23 +77,19 @@
         </template>
         
         <template v-else>
+          <!-- USER 메시지 브랜딩 - 미니먀 -->
           <div v-if="messageType === 'user'" class="user-message-brand">
-            <div class="user-badge">
-              <LucideIcon name="user" fill="currentColor" :width="14" :height="14" />
+            <div class="user-badge-minimal">
+              <span>👤</span>
               <span>USER</span>
-            </div>
-            <div v-if="timestamp" class="message-timestamp">
-              {{ formatTimestamp(timestamp) }}
             </div>
           </div>
           
+          <!-- BOT 메시지 브랜딩 - 미니먀 -->
           <div v-if="messageType === 'ai'" class="bot-message-brand">
-            <div class="bot-badge">
-              <LucideIcon name="robot" fill="currentColor" :width="14" :height="14" />
-              <span>Bot</span>
-            </div>
-            <div v-if="timestamp" class="message-timestamp">
-              {{ formatTimestamp(timestamp) }}
+            <div class="bot-badge-minimal" :class="{ 'bot-badge--error': isError }">
+              <span class="bot-emoji">🤖</span>
+              <span>{{ getPersonaBotName() }}</span>
             </div>
           </div>
           
@@ -151,7 +147,8 @@ export default {
     isError: { type: Boolean, default: false },
     showCopy: { type: Boolean, default: true },
     copyStatus: { type: String, default: null },
-    timestamp: { type: [Number, String, Date], default: null }
+    timestamp: { type: [Number, String, Date], default: null },
+    persona: { type: Object, default: null }
   },
   
   data() {
@@ -249,6 +246,13 @@ export default {
     
     handleCopy() {
       this.$emit('copy');
+    },
+    
+    getPersonaBotName() {
+      if (this.isError) {
+        return this.persona?.title ? `${this.persona.title} Error` : 'Bot Error';
+      }
+      return this.persona?.title ? `${this.persona.title} BOT` : 'BOT';
     },
     
     formatTimestamp(timestamp) {
@@ -692,5 +696,41 @@ export default {
 
 .theme-hermes .bot-badge {
   background: linear-gradient(90deg, var(--hermes-accent), #D97706);
+}
+
+/* 미니멀 배지 스타일 */
+.user-badge-minimal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(156, 163, 175, 0.1);
+  color: var(--color-text-muted);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.bot-badge-minimal {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--color-primary);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.bot-badge-minimal.bot-badge--error {
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--color-error);
+}
+
+.bot-emoji {
+  font-size: 12px;
 }
 </style>

@@ -1,0 +1,12 @@
+{
+  "filesystem": {
+    "command": "npx",
+    "args": ["@modelcontextprotocol/server-filesystem", "D:\\workspace\\playground\\aiops\\playground"],
+    "env": {}
+  },
+  "puppeteer": {
+    "command": "npx",
+    "args": ["@modelcontextprotocol/server-puppeteer"],
+    "env": {}
+  }
+}

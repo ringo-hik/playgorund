@@ -65,6 +65,7 @@
             :key="message.id"
             component-type="message"
             :message="message"
+            :persona="selectedPersona"
             :current-language="currentLanguage"
             @copy-message="handleCopyMessage"
             @regenerate-message="handleRegenerateMessage"
@@ -106,21 +107,12 @@
                 <button
                   @click="generateQuickQuestions" 
                   :disabled="isProcessing || isQuickQuestionsLoading"
-                  :class="[
-                    'btn-system', 
-                    'btn-system--quick-action', 
-                    'btn-system--sm', 
-                    'quick-questions-generate-btn', 
-                    { 
-                      'btn-system--icon-only': !isExpanded, 
-                      'loading': isQuickQuestionsLoading 
-                    }
-                  ]"
+                  class="btn-system btn-system--ghost btn-system--sm quick-questions-generate-btn"
                   :title="getText('generateQuestions') || '질문 생성하기'"
                 >
                   <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
-                  <LucideIcon v-else name="sparkles" fill="currentColor" :width="12" :height="12" />
-                  <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('generateQuestions') || '질문 생성하기' }}</span>
+                  <LucideIcon v-else name="lightbulb" :width="12" :height="12" />
+                  <span class="btn-text">빠른 질문</span>
                 </button>
                 
                 <button
@@ -128,17 +120,14 @@
                   :disabled="isProcessing"
                   :class="[
                     'btn-system',
-                    continuousChatEnabled ? 'btn-system--continuous-active' : 'btn-system--ghost',
                     'btn-system--sm',
-                    'continuous-chat-enhanced-btn',
-                    {
-                      'btn-system--icon-only': !isExpanded
-                    }
+                    'continuous-chat-btn',
+                    continuousChatEnabled ? 'btn-system--success' : 'btn-system--ghost'
                   ]"
                   :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'"
                 >
-                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" fill="currentColor" :width="12" :height="12" />
-                  <span v-if="isExpanded" class="btn-text-enhanced">
+                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" />
+                  <span class="btn-text">
                     {{ continuousChatEnabled ? '단일 대화' : '연속 대화' }}
                   </span>
                 </button>
@@ -597,7 +586,6 @@ export default {
                                  response.data?.aiQuery || 
                                  response.aiResponse || 
                                  response.aiQuery ||
-                                 response.message || 
                                  '응답을 받았습니다.';
         
         responseMessage = {
@@ -1195,49 +1183,31 @@ export default {
   gap: 6px;
 }
 
-.quick-questions-generate-btn {
-  position: relative;
-  transition: all 0.3s ease-out;
-  border-radius: var(--radius-lg);
-}
-
-.quick-questions-generate-btn:not(.btn-system--icon-only) {
-  padding: var(--space-sm) var(--space-lg);
-  min-width: 120px;
-}
-
-.quick-questions-generate-btn .btn-text-enhanced {
-  margin-left: var(--space-xs);
-  font-size: var(--font-size-sm);
+.btn-text {
+  margin-left: 4px;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   white-space: nowrap;
+}
+
+.quick-questions-generate-btn,
+.continuous-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-sm) var(--space-md) !important;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-md);
 }
 
 .quick-questions-generate-btn:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
-}
-
-.continuous-chat-enhanced-btn {
-  position: relative;
-  transition: all 0.3s ease-out;
-  border-radius: var(--radius-lg);
-}
-
-.continuous-chat-enhanced-btn:not(.btn-system--icon-only) {
-  padding: var(--space-sm) var(--space-lg);
-  min-width: 100px;
-}
-
-.continuous-chat-enhanced-btn .btn-text-enhanced {
-  margin-left: var(--space-xs);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.continuous-chat-enhanced-btn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+}
+
+.continuous-chat-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.15);
 }
 
 .send-button-enhanced {
@@ -1365,13 +1335,13 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .quick-questions-generate-btn:not(.btn-system--icon-only),
-  .continuous-chat-enhanced-btn:not(.btn-system--icon-only) {
+  .quick-questions-generate-btn,
+  .continuous-chat-btn {
     min-width: auto;
-    padding: var(--space-sm);
+    padding: var(--space-sm) !important;
   }
   
-  .btn-text-enhanced {
+  .btn-text {
     display: none;
   }
 }
