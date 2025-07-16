@@ -1075,7 +1075,7 @@ export default {
 }
 
 .easter-egg-trigger {
-  opacity: 0.7;
+  opacity: 0.3;
   width: 1px;
   height: 1px;
   border-radius: 50%;
@@ -1084,11 +1084,14 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border: none;
+  box-shadow: none;
+  position: relative;
 }
 
 .easter-egg-trigger:hover {
-  opacity: 1;
-  transform: scale(2) rotate(15deg);
+  opacity: 0.5;
+  transform: scale(1.5);
 }
 
 .theme-selector .theme-indicator {
@@ -1175,12 +1178,19 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .category-card:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-moderate);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .category-card.disabled {
@@ -1366,12 +1376,19 @@ export default {
   padding: var(--space-md);
   cursor: pointer;
   transition: all var(--motion-fast);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .persona-card:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-moderate);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .persona-card.disabled {

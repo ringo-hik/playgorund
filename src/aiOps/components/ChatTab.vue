@@ -845,7 +845,7 @@ export default {
         if (loadingIndex !== -1) {
           this.messages[loadingIndex].content = this.getLoadingMessage();
         }
-      }, 3000);
+      }, 1000);
     },
 
     stopLoadingMessages() {

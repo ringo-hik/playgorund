@@ -69,10 +69,14 @@
       <div :class="messageClasses">
         <template v-if="loading">
           <div class="message-bubble__loading">
-            <div class="loading-dots">
-              <span></span><span></span><span></span>
+            <div class="loading-animation-container">
+              <div class="loading-typing-indicator">
+                <div class="typing-dots">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <div class="loading-text-animated">{{ loadingMessage }}</div>
             </div>
-            <div class="loading-text">{{ loadingMessage }}</div>
           </div>
         </template>
         
@@ -85,7 +89,7 @@
           <!-- USER 메시지 브랜딩 - 미니먀 -->
           <div v-if="actualMessageType === 'user'" class="user-message-brand">
             <div class="user-badge-minimal">
-              <LucideIcon name="user" :width="12" :height="12" />
+              <LucideIcon name="user" :width="14" :height="14" />
               <span>USER</span>
             </div>
           </div>
@@ -93,7 +97,7 @@
           <!-- BOT 메시지 브랜딩 - 미니먀 -->
           <div v-if="actualMessageType === 'ai'" class="bot-message-brand">
             <div class="bot-badge-minimal" :class="{ 'bot-badge--error': actualIsError }">
-              <LucideIcon name="bot" :width="12" :height="12" />
+              <LucideIcon name="robot" :width="14" :height="14" />
               <span>{{ getPersonaBotName() }}</span>
             </div>
           </div>
@@ -549,7 +553,7 @@ export default {
 }
 
 .message-bubble--ai .message-bubble__content {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.03);
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-lg);
@@ -567,6 +571,8 @@ export default {
   align-items: center;
   justify-content: flex-end;
   width: 100%;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .user-badge {
@@ -648,10 +654,58 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  align-items: center;
-  padding: var(--space-lg);
+  align-items: flex-start;
+  padding: var(--space-md) 0;
+  background: transparent;
 }
 
+.loading-animation-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: flex-start;
+}
+
+.loading-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.typing-dots {
+  display: flex;
+  gap: 3px;
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  animation: typing-wave 1.4s ease-in-out infinite;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.loading-text-animated {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  opacity: 0;
+  animation: text-fade-in 0.8s ease-out 0.5s forwards;
+}
+
+/* 기존 스타일 유지 (하위 호환성) */
 .loading-dots {
   display: flex;
   gap: 6px;
@@ -740,6 +794,30 @@ export default {
   to { transform: rotate(360deg); }
 }
 
+/* 새로운 타이핑 웨이브 애니메이션 */
+@keyframes typing-wave {
+  0%, 60%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-8px) scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes text-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 기존 애니메이션 유지 (하위 호환성) */
 @keyframes loading-pulse {
   0%, 80%, 100% {
     transform: translateY(0) scale(1);
@@ -748,6 +826,31 @@ export default {
   40% {
     transform: translateY(-6px) scale(var(--transform-gentle));
     opacity: 1;
+  }
+}
+
+/* 접근성 지원 - 애니메이션 감소 옵션 */
+@media (prefers-reduced-motion: reduce) {
+  .typing-dots span,
+  .loading-dots span {
+    animation: none !important;
+  }
+  
+  .typing-dots span {
+    opacity: 0.6;
+  }
+  
+  .typing-dots span:nth-child(2) {
+    opacity: 0.8;
+  }
+  
+  .typing-dots span:nth-child(3) {
+    opacity: 1;
+  }
+  
+  .loading-text-animated {
+    opacity: 1;
+    animation: none;
   }
 }
 
