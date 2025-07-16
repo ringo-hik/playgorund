@@ -186,6 +186,9 @@ const aiChatOpsService = {
       const mockResponse = await axios.get(`http://localhost:3003/chat`);
       const responses = mockResponse.data.responses;
       
+      // 로딩 메시지 5초 딜레이 추가
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      
       // personaCode에 맞는 응답 찾기 또는 랜덤 선택
       let selectedResponse = responses.find(r => r.personaCode === messageData.personaCode);
       if (!selectedResponse) {

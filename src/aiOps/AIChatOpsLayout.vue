@@ -206,7 +206,7 @@ export default {
       availableThemes: [
         { key: 'theme-ai-chatops', name: 'AI-ChatOps', displayName: 'AI' },
         { key: 'theme-heritage', name: 'Heritage', displayName: 'HT' },
-        { key: 'theme-hermes', name: 'Hermes', displayName: 'HM' }
+        { key: 'theme-nyf', name: 'nyf', displayName: 'NY' }
       ],
       personaColors: [
         '#8B7FD6', '#7FB069', '#D4A574', '#9B8AA0', '#6B9BD2',

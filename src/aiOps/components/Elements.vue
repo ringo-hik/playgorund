@@ -34,10 +34,7 @@
       <div :class="messageClasses">
         <template v-if="loading">
           <div class="message-bubble__loading">
-            <div class="loading-dots">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="loading-text">{{ loadingMessage }}</div>
+            <div class="loading-text">{{ dynamicLoadingMessage }}</div>
           </div>
         </template>
 
@@ -113,7 +110,7 @@ export default {
     message: { type: Object, default: () => ({}) },
     messageType: { type: String, default: 'user' },
     content: { type: [String, Number], default: '' },
-    loadingMessage: { type: String, default: '응답을 생성하고 있습니다...' },
+    loadingMessage: { type: String, default: '응답을 생성하고 있습니다' },
     isError: { type: Boolean, default: false },
     showCopy: { type: Boolean, default: true },
     copyStatus: { type: String, default: null },
@@ -124,7 +121,9 @@ export default {
   data() {
     return {
       hoverRating: 0,
-      localCopyStatus: null
+      localCopyStatus: null,
+      dotCount: 0,
+      dotInterval: null
     };
   },
 
@@ -192,6 +191,11 @@ export default {
 
     effectiveCopyStatus() {
       return this.localCopyStatus || this.copyStatus;
+    },
+
+    dynamicLoadingMessage() {
+      const dots = '.'.repeat(this.dotCount + 1);
+      return this.loadingMessage + dots;
     }
   },
 
@@ -272,7 +276,41 @@ export default {
         hour: '2-digit',
         minute: '2-digit'
       });
+    },
+
+    startDotAnimation() {
+      this.dotCount = 0;
+      this.dotInterval = setInterval(() => {
+        this.dotCount = (this.dotCount + 1) % 4;
+      }, 2000);
+    },
+
+    stopDotAnimation() {
+      if (this.dotInterval) {
+        clearInterval(this.dotInterval);
+        this.dotInterval = null;
+      }
     }
+  },
+
+  watch: {
+    loading(newVal) {
+      if (newVal) {
+        this.startDotAnimation();
+      } else {
+        this.stopDotAnimation();
+      }
+    }
+  },
+
+  mounted() {
+    if (this.loading) {
+      this.startDotAnimation();
+    }
+  },
+
+  beforeDestroy() {
+    this.stopDotAnimation();
   }
 };
 </script>
@@ -408,7 +446,9 @@ export default {
 }
 
 .message-bubble--user {
-  width: 60%;
+  max-width: 70%;
+  min-width: 50px;
+  width: fit-content;
   background: transparent;
   padding: 0;
   border-radius: 0;
@@ -427,6 +467,8 @@ export default {
   box-shadow: var(--shadow-minimal);
   margin-bottom: var(--space-md);
   text-align: right;
+  display: inline-block;
+  max-width: 100%;
 }
 
 .message-bubble--ai {
