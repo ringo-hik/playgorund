@@ -4,9 +4,7 @@
       :class="['ai-chatops-chat-button', { 'is-active': isOpen }]"
       @click="toggleChat"
     >
-      <!-- 🆕 수정: 아이콘 렌더링 안정성 개선 (v-else 제거, 명확한 조건부 렌더링) -->
       <Elements v-if="isLoading" component-type="spinner" size="md" />
-      <!-- 🆕 수정: 각 아이콘을 개별적으로 렌더링하여 토글 시 안정성 확보 -->
       <LucideIcon 
         v-if="!isLoading && isOpen" 
         name="x" 
@@ -15,10 +13,9 @@
         :height="28" 
         key="close-icon"
       />
-      <!-- 🎯 개선: 더 친근한 채팅 아이콘으로 변경 -->
       <LucideIcon 
         v-if="!isLoading && !isOpen" 
-        name="message-square-heart" 
+        name="robot" 
         fill="currentColor" 
         :width="28" 
         :height="28" 
@@ -26,7 +23,6 @@
       />
     </button>
 
-    <!-- 🔧 FIX: v-if → v-show 최적화 적용 -->
     <div 
       v-show="isOpen && isInitialized" 
       class="ai-chatops-chat-window" 
@@ -36,7 +32,6 @@
       <div class="chat-header">
         <div class="bot-info">
           <div class="avatar">
-            <!-- 🎯 개선: 더 현대적인 로봇 아이콘으로 변경 -->
             <LucideIcon name="robot" fill="white" :width="26" :height="26" />
           </div>
           <div class="details">
@@ -49,43 +44,40 @@
         </div>
         
         <div class="actions">
-          <!-- 🎯 개선: 더 매력적인 이스터에그 아이콘 -->
-          <div class="easter-egg-trigger btn-system btn-system--icon-only btn-system--sm" @click="openRandomEasterEgg">
+          <div class="easter-egg-trigger header-btn" @click="openRandomEasterEgg">
             <LucideIcon name="sparkles" fill="currentColor" :width="12" :height="12" />
           </div>
           
-          <!-- 🎯 개선: 테마 선택기에 색상 적용 -->
           <button 
-            class="theme-selector btn-system btn-system--ghost btn-system--sm btn-system--quick-action" 
+            class="theme-selector header-btn header-btn--md" 
             @click="cycleTheme" 
             :title="getCurrentThemeName()"
           >
             <span class="theme-indicator">{{ getThemeDisplayName() }}</span>
           </button>
           
-          <!-- 🎯 개선: 언어 버튼에 색상 적용 -->
           <button
-            class="language-btn btn-system btn-system--ghost btn-system--sm btn-system--continuous-active"
+            class="language-btn header-btn header-btn--md"
             @click="toggleLanguage"
           >
-            <span>{{ currentLanguage === 'kr' ? 'KR' : 'EN' }}</span>
+            <span>{{ currentLanguage === 'ko' ? 'KO' : 'EN' }}</span>
           </button>
           
           <div class="window-controls">
             <button
-              class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+              class="window-control-btn header-btn"
               @click="minimizeWindow"
             >
               <LucideIcon name="minus" fill="currentColor" :width="12" :height="12" />
             </button>
             <button
-              class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+              class="window-control-btn header-btn"
               @click="toggleMaximizeWindow"
             >
               <LucideIcon :name="windowState === 'maximized' ? 'minimize-2' : 'maximize-2'" fill="currentColor" :width="12" :height="12" />
             </button>
             <button
-              class="window-control-btn btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+              class="window-control-btn header-btn"
               @click="closeChat"
             >
               <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
@@ -95,11 +87,9 @@
       </div>
 
       <div class="content">
-        <!-- 🔧 FIX: v-if → v-show 최적화 적용 -->
         <div v-show="currentView === 'categorySelect'" class="category-select">
           <div class="welcome-section">
             <div class="welcome-icon">
-              <!-- 🎯 개선: 더 따뜻한 환영 아이콘 -->
               <LucideIcon name="heart" fill="var(--color-primary)" :width="28" :height="28" />
             </div>
             <div class="welcome-content">
@@ -125,14 +115,12 @@
                   <p>{{ getText(category.descKey) }}</p>
                 </div>
                 <div class="category-arrow">
-                  <!-- 🎯 개선: 더 직관적인 화살표 아이콘 -->
-                  <LucideIcon name="arrow-up-right" fill="currentColor" :width="14" :height="14" />
+                  <LucideIcon name="chevron-right" fill="currentColor" :width="14" :height="14" />
                 </div>
               </div>
             </div>
             
             <div class="feedback-section">
-              <!-- 🎯 개선: 피드백 버튼에 색상 적용 -->
               <button
                 @click="goToFeedback"
                 :disabled="chatProcessingCount > 0"
@@ -145,10 +133,8 @@
           </div>
         </div>
 
-        <!-- 🔧 FIX: v-if → v-show 최적화 적용 -->
         <div v-show="currentView === 'personaList'" class="persona-list-tab">
           <div class="persona-header">
-            <!-- 🎯 개선: 뒤로가기 버튼에 색상 적용 -->
             <button
               @click="goToCategorySelect"
               class="back-btn btn-system btn-system--ghost btn-system--sm"
@@ -172,7 +158,6 @@
           </div>
 
           <div class="persona-content">
-            <!-- 🔧 FIX: 로딩 상태도 v-show 사용 -->
             <div v-show="loadingPersonas" class="loading-container">
               <Elements component-type="spinner" size="lg" centered />
               <span>{{ getText('loadingPersonas') }}</span>
@@ -182,12 +167,10 @@
               <LucideIcon name="info" fill="var(--text-muted)" :width="40" :height="40" />
               <h4>{{ getText('noPersonas') }}</h4>
               <p>{{ getText('noPersonasDesc') }}</p>
-              <!-- 🎯 개선: 홈 버튼에 색상 적용 -->
               <button
                 @click="goToCategorySelect"
                 class="btn-system btn-system--primary btn-system--md"
               >
-                <!-- 🎯 개선: 더 친근한 홈 아이콘 -->
                 <LucideIcon name="home-heart" fill="currentColor" :width="16" :height="16" />
                 {{ getText('goHome') }}
               </button>
@@ -215,8 +198,7 @@
                   </div>
                   
                   <div class="persona-arrow">
-                    <!-- 🎯 개선: 더 직관적인 화살표 아이콘 -->
-                    <LucideIcon name="arrow-up-right" fill="currentColor" :width="14" :height="14" />
+                    <LucideIcon name="chevron-right" fill="currentColor" :width="14" :height="14" />
                   </div>
                 </div>
               </div>
@@ -224,7 +206,6 @@
           </div>
         </div>
 
-        <!-- 🔧 FIX: 채팅과 피드백은 무거운 컴포넌트이므로 v-if 유지 -->
         <ChatTab 
           v-if="currentView === 'chat' && isInitialized" 
           ref="chatTab" 
@@ -252,9 +233,8 @@
 </template>
 
 <script>
-// 🔧 수정: 경로 변경 ('./service/aiChatOpsService' -> '@/service/aiChatOpsService')
 import aiChatOpsService from '@/service/aiChatOpsService';
-import { getText } from './utils/i18n'; // 🔧 수정: 경로 통일
+import { getText } from './utils/i18n';
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
 import Elements from './components/Elements.vue';
@@ -307,7 +287,6 @@ export default {
         '#C2A2D6', '#7ACFD6', '#D4A285', '#98B6E8', '#B8D4B8',
         '#F0C570', '#D0A8E8', '#85D4D4', '#E8C085', '#A8C0F0'
       ],
-      // 🎯 개선: 카테고리 아이콘 업데이트
       categories: [
         {
           key: 'personal',
@@ -355,9 +334,9 @@ export default {
     
     getInitialLanguage() {
       try {
-        return localStorage.getItem('ai-chatops-chat-lang') || 'kr';
+        return localStorage.getItem('ai-chatops-chat-lang') || 'ko';
       } catch (error) {
-        return 'kr';
+        return 'ko';
       }
     },
     
@@ -459,10 +438,8 @@ export default {
       return this.personaColors[colorIndex];
     },
 
-    // 🔧 FIX: 상태 변경 배치 처리 적용
     async toggleChat() {
       if (!this.isOpen) {
-        // 상태 변경을 배치로 처리하여 플리커링 방지
         const newState = {
           windowState: 'normal',
           currentView: 'categorySelect',
@@ -470,16 +447,12 @@ export default {
           isInitialized: true
         };
         
-        // 한 번에 상태 업데이트
         Object.assign(this, newState);
         
-        // 단일 nextTick으로 DOM 업데이트 최적화
         await this.$nextTick();
         
-        // 테마 적용
         this.applyTheme(this.currentTheme);
         
-        // 비동기 작업들은 별도로 처리 (UI 블로킹 방지)
         this.$nextTick(() => {
           Promise.all([
             this.loadPersonas(),
@@ -498,7 +471,6 @@ export default {
     closeChat() {
       this.saveCurrentMessages();
       
-      // 배치 상태 변경으로 플리커링 방지
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -516,17 +488,24 @@ export default {
     },
     
     minimizeWindow() {
-      this.windowState = this.windowState === 'minimized' ? 'normal' : 'minimized';
+      if (this.windowState === 'minimized') {
+        this.windowState = 'normal';
+      } else {
+        this.windowState = 'minimized';
+      }
     },
     
     toggleMaximizeWindow() {
-      this.windowState = this.windowState === 'maximized' ? 'normal' : 'maximized';
+      if (this.windowState === 'maximized') {
+        this.windowState = 'normal';
+      } else {
+        this.windowState = 'maximized';
+      }
     },
     
     goToCategorySelect() {
       this.saveCurrentMessages();
       
-      // 배치 상태 변경
       Object.assign(this, {
         currentView: 'categorySelect',
         selectedCategory: null,
@@ -539,7 +518,6 @@ export default {
     goToPersonaList() {
       this.saveCurrentMessages();
       
-      // 배치 상태 변경
       Object.assign(this, {
         currentView: 'personaList',
         selectedPersona: null
@@ -553,7 +531,6 @@ export default {
     },
     
     selectCategory(category) {
-      // 배치 상태 변경
       Object.assign(this, {
         selectedCategory: category,
         currentView: 'personaList'
@@ -563,7 +540,6 @@ export default {
     selectPersona(persona) {
       this.saveCurrentMessages();
       
-      // 배치 상태 변경
       Object.assign(this, {
         selectedPersona: persona,
         currentView: 'chat'
@@ -579,7 +555,7 @@ export default {
     },
     
     toggleLanguage() {
-      this.currentLanguage = this.currentLanguage === 'kr' ? 'en' : 'kr';
+      this.currentLanguage = this.currentLanguage === 'ko' ? 'en' : 'ko';
       try {
         localStorage.setItem('ai-chatops-chat-lang', this.currentLanguage);
       } catch (error) {
@@ -672,7 +648,6 @@ export default {
         });
     },
     
-    // 🔧 수정: 네이밍 통일 (userQuery → userQuery) - 이미 올바름
     handleMessageSent(data) {
       const requestId = `${data.personaCode}-${Date.now()}-${Math.random()}`;
       this.pendingRequests.set(requestId, {
@@ -686,7 +661,6 @@ export default {
         data.sessionId = this.personaSessionMap[data.personaCode];
       }
       
-      // 🔧 수정: 항상 비동기 처리 (useAsync 파라미터 제거)
       aiChatOpsService.sendMessage(data)
         .then(response => {
           if (response.success) {
@@ -716,7 +690,6 @@ export default {
       }
       
       if (this.$refs.chatTab) {
-        // 🔧 수정: addAiResponse 메서드명 그대로 유지 (Layout에서는 addAiQuery가 아님)
         this.$refs.chatTab.addAiResponse(response);
       }
       this.isConnected = true;
@@ -724,7 +697,6 @@ export default {
     
     handleErrorResponse(errorMessage) {
       if (this.$refs.chatTab) {
-        // 🔧 수정: addAiResponse 메서드명 그대로 유지
         this.$refs.chatTab.addAiResponse({ 
           success: false,
           message: errorMessage
@@ -842,7 +814,6 @@ export default {
 </style>
 
 <style scoped>
-/* ----- 플로팅 챗봇 컨테이너 ----- */
 .ai-chatops-chat {
   position: fixed;
   bottom: var(--space-2xl);
@@ -851,7 +822,6 @@ export default {
   font-family: var(--font-family);
 }
 
-/* 🔧 FIX: GPU 가속 트랜지션으로 플리커링 방지 */
 .ai-chatops-chat-window {
   position: absolute;
   right: 0;
@@ -884,7 +854,6 @@ export default {
   right: 24px;
 }
 
-/* 기존 스타일 유지... */
 .chat-header {
   background: var(--color-header-bg) !important;
   padding: var(--space-md) var(--space-lg);
@@ -918,7 +887,6 @@ export default {
   width: 36px;
   height: 36px;
   background: var(--color-header-accent) !important;
-  border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -974,44 +942,22 @@ export default {
 }
 
 .easter-egg-trigger {
-  width: 20px !important;
-  height: 20px !important;
-  min-height: 20px !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  opacity: 0.7;
 }
 
 .easter-egg-trigger:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--color-header-accent) !important;
-  transform: scale(1.1);
+  opacity: 1;
+  transform: scale(1.1) rotate(15deg);
 }
 
-/* 🎯 개선: 테마 선택기와 언어 버튼에 색상 적용 */
-.theme-selector {
-  color: var(--color-header-text) !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+.theme-selector .theme-indicator {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
 }
 
-.theme-selector:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--color-header-accent) !important;
-  transform: scale(1.05);
-}
-
-.language-btn,
-.window-control-btn {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: var(--color-header-text) !important;
-}
-
-.language-btn:hover,
-.window-control-btn:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  border-color: var(--color-header-accent) !important;
-  transform: scale(1.05);
+.language-btn span {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
 }
 
 .window-controls {
@@ -1082,6 +1028,12 @@ export default {
   min-height: 64px;
   padding: var(--space-md);
   cursor: pointer;
+  transition: all var(--motion-fast);
+}
+
+.category-card:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-moderate);
 }
 
 .category-card.disabled {
@@ -1155,7 +1107,7 @@ export default {
 
 .category-card:hover:not(.disabled) .category-arrow {
   color: var(--color-primary);
-  transform: translateX(2px) translateY(-2px);
+  transform: translateX(2px);
 }
 
 .category-card:hover:not(.disabled) .category-icon {
@@ -1266,6 +1218,12 @@ export default {
   max-height: 80px;
   padding: var(--space-md);
   cursor: pointer;
+  transition: all var(--motion-fast);
+}
+
+.persona-card:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-moderate);
 }
 
 .persona-card.disabled {
@@ -1345,19 +1303,19 @@ export default {
 
 .persona-card:hover:not(.disabled) .persona-arrow {
   color: var(--color-primary);
-  transform: translateX(2px) translateY(-2px);
+  transform: translateX(2px);
 }
 
 .persona-card:hover:not(.disabled) .persona-icon {
   transform: scale(1.05);
 }
 
-/* 🆕 수정: 플로팅 챗봇 버튼 - 아이콘 렌더링 안정화 */
+/* 플로팅 챗봇 버튼 - 외곽 테두리 제거 */
 .ai-chatops-chat-button {
   width: var(--layout-float-size);
   height: var(--layout-float-size);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  border: 2px solid var(--color-surface-white);
+  border: none;  /* 테두리 제거 */
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;
@@ -1369,7 +1327,6 @@ export default {
   overflow: hidden;
   color: var(--color-surface-white);
   
-  /* 🆕 수정: 아이콘 렌더링 안정화를 위한 추가 속성 */
   transform: translateZ(0);
   backface-visibility: hidden;
   will-change: transform;
@@ -1378,7 +1335,6 @@ export default {
 .ai-chatops-chat-button .lucide-icon {
   color: var(--color-surface-white) !important;
   fill: var(--color-surface-white) !important;
-  /* 🆕 수정: 아이콘 안정성을 위한 추가 속성 */
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -1397,18 +1353,6 @@ export default {
 .ai-chatops-chat-button:hover {
   transform: scale(1.05) translateZ(0);
   box-shadow: var(--shadow-floating), 0 0 20px rgba(37, 99, 235, 0.3);
-}
-
-@keyframes sparkle {
-  0%, 100% {
-    opacity: 0.6;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.8);
-  }
 }
 
 @keyframes pulse {
@@ -1467,7 +1411,6 @@ export default {
     font-size: var(--font-size-xs);
   }
   
-  /* ----- 플로팅 챗봇 반응형 ----- */
   .ai-chatops-chat {
     bottom: 16px;
     right: 16px;

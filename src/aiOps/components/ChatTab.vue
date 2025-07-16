@@ -1,10 +1,8 @@
 <template>
   <div class="chat-tab">
-    <!-- 🏠 홈 화면 또는 채팅 화면 조건부 표시 -->
     <div v-if="!selectedPersona" class="no-persona-selected">
       <div class="persona-selection-guide">
         <div class="guide-icon">
-          <!-- 🎯 홈으로 돌아가라는 의미의 아이콘으로 변경 -->
           <LucideIcon name="home-heart" fill="none" stroke="currentColor" :width="24" :height="24" />
         </div>
         <h3 class="guide-title">{{ getText('noPersonaSelected') }}</h3>
@@ -12,17 +10,41 @@
       </div>
     </div>
 
-    <!-- 🤖 채팅 화면 -->
     <div v-else class="chat-interface">
-      <!-- 📝 메시지 목록 영역 -->
+      <!-- 채팅 헤더 추가 -->
+      <div class="chat-header">
+        <div class="persona-info">
+          <div class="persona-badge">
+            <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="white" :width="16" :height="16" />
+            <span>{{ getPersonaDisplayName(selectedPersona) }}</span>
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <button
+            @click="$emit('go-persona-list')"
+            class="icon-btn clear-btn"
+            title="페르소나 목록으로"
+          >
+            <LucideIcon name="arrow-left" fill="currentColor" :width="14" :height="14" />
+          </button>
+          
+          <button
+            @click="$emit('go-home')"
+            class="icon-btn home-btn"
+            title="홈으로"
+          >
+            <LucideIcon name="home" fill="currentColor" :width="14" :height="14" />
+          </button>
+        </div>
+      </div>
+
       <div ref="messagesContainer" class="messages-container" :class="messagesClasses">
-        <!-- 히스토리 로딩 상태 -->
         <div v-if="loadingHistory" class="loading-history">
           <Elements component-type="spinner" size="sm" color="accent" />
           <span class="loading-text">{{ getText('loadingHistory') }}</span>
         </div>
 
-        <!-- 환영 메시지 -->
         <div v-else-if="messages.length === 0" class="welcome-section">
           <div class="welcome-content">
             <div class="welcome-header">
@@ -37,7 +59,6 @@
           </div>
         </div>
 
-        <!-- 📬 메시지 목록 -->
         <div class="messages-list">
           <Elements
             v-for="message in messages"
@@ -52,25 +73,18 @@
         </div>
       </div>
 
-      <!-- 📝 입력 영역 -->
-      <div class="input-area">
-        <!-- 🎯 빠른 질문 버튼들 (통일된 네이밍) -->
-        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-section">
-          <div class="quick-questions-header">
-            <span class="quick-questions-title">{{ getText('quickQuestions') || '빠른 질문' }}</span>
-            <button @click="showQuickQuestions = false" class="btn-system btn-system--ghost btn-system--sm">
-              <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
-            </button>
-          </div>
+      <div class="input-area" ref="inputArea">
+        <!-- 빠른 질문 셀렉트박스 형태로 변경 -->
+        <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-dropdown" ref="quickQuestionsDropdown">
           <div class="quick-questions-list">
-            <button
-              v-for="question in quickQuestions" 
-              :key="question" 
+            <div
+              v-for="(question, index) in quickQuestions" 
+              :key="index" 
               @click="sendQuickQuestion(question)" 
-              class="btn-system btn-system--ghost btn-system--sm quick-question-item"
+              class="quick-question-item"
             >
               {{ question }}
-            </button>
+            </div>
           </div>
         </div>
         
@@ -89,7 +103,6 @@
             
             <div class="input-bottom-row">
               <div class="left-actions">
-                <!-- 🎯 개선된 빠른 질문 생성 버튼 (통일된 네이밍) -->
                 <button
                   @click="generateQuickQuestions" 
                   :disabled="isProcessing || isQuickQuestionsLoading"
@@ -110,7 +123,6 @@
                   <span v-if="isExpanded" class="btn-text-enhanced">{{ getText('generateQuestions') || '질문 생성하기' }}</span>
                 </button>
                 
-                <!-- 🎯 연속/단일 토글 버튼 -->
                 <button
                   @click="toggleContinuousChat"
                   :disabled="isProcessing"
@@ -132,7 +144,6 @@
                 </button>
               </div>
               
-              <!-- 🎯 개선된 전송 버튼 -->
               <button
                 @click="sendMessage" 
                 :disabled="!canSendMessage" 
@@ -153,7 +164,6 @@
           </div>
         </div>
 
-        <!-- 🔧 개발자 정보 (개발 모드에서만) -->
         <div v-if="isDevelopment && showDevInfo" class="dev-info-tooltip">
           <div class="dev-info-header">🔧 Dev Info</div>
           <div class="dev-info-content">
@@ -235,12 +245,10 @@ export default {
       isDevelopment: process.env.NODE_ENV === 'development',
       showDevInfo: false,
       
-      // 🔧 배치 처리를 위한 상태
       pendingMessages: [],
       renderingScheduled: false,
       batchUpdateTimeout: null,
       
-      // 🔧 Enhanced Input Manager
       enhancedInputManager: {
         minHeight: 38,
         maxHeight: 400,
@@ -259,7 +267,6 @@ export default {
       return this.currentMessage.trim().length > 0 && !this.isProcessing && this.selectedPersona;
     },
     
-    // 🎯 연속 대화를 위한 최근 대화 관리
     recentConversations() {
       if (!this.continuousChatEnabled) return [];
       
@@ -282,7 +289,6 @@ export default {
       };
     },
     
-    // 반응형 UI: 채팅창 확대 상태 판단
     isExpanded() {
       if (!this.windowSize) return false;
       return this.windowSize.width > 600 || this.windowSize.height > 800;
@@ -301,7 +307,6 @@ export default {
         this.stopLoadingMessages();
       }
       if (newVal) {
-        // 🔧 수정: 네이밍 통일
         this.showQuickQuestions = false;
       }
     },
@@ -319,7 +324,6 @@ export default {
   methods: {
     getText,
     
-    // 🎯 페르소나 관련 유틸리티
     getPersonaIconName(persona) {
       if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
@@ -349,7 +353,6 @@ export default {
       return 'session-' + Date.now();
     },
 
-    // 🎯 페르소나 히스토리 로드
     async loadPersonaHistory() {
       if (!this.selectedPersona?.personaCode) return;
       
@@ -363,7 +366,6 @@ export default {
           this.messages = [];
           this.pendingMessages = [];
           
-          // 🔧 수정: API 응답 정규화
           const normalizedConversations = response.data.map(conv => ({
             ...conv,
             userQuery: conv.userQuery,
@@ -387,7 +389,6 @@ export default {
       }
     },
 
-    // 🎯 메모리 모니터링 시스템
     measureMemoryUsage() {
       if (performance.memory) {
         const memory = performance.memory;
@@ -414,7 +415,6 @@ export default {
       }
     },
 
-    // 🎯 향상된 텍스트에어리어 관리
     adjustTextareaHeight() {
       const textarea = this.$refs.messageInput;
       if (!textarea) return;
@@ -463,7 +463,6 @@ export default {
       }
     },
 
-    // 🎯 키보드 이벤트 처리
     handleKeyDown(event) {
       if (event.key === 'Enter') {
         if (event.shiftKey) {
@@ -501,17 +500,11 @@ export default {
     trackInputChanges() {
       this.adjustTextareaHeight();
     },
-
-    // 🔧 수정: 함수명 통일
-    toggleQuickQuestions() {
-      this.showQuickQuestions = !this.showQuickQuestions;
-    },
     
     toggleContinuousChat() {
       this.continuousChatEnabled = !this.continuousChatEnabled;
     },
 
-    // 🎯 메시지 전송 (핵심 로직)
     async sendMessage() {
       if (!this.canSendMessage || !this.selectedPersona) return;
       
@@ -545,15 +538,15 @@ export default {
       
       if (this.continuousChatEnabled && this.recentConversations.length > 0) {
         queryHistory = this.recentConversations.map(conv => ({
-          question: conv.question,
-          answer: conv.answer
+          question: aiChatOpsService.htmlToPlainText(conv.question),
+          answer: aiChatOpsService.htmlToPlainText(conv.answer)
         }));
       }
       
       try {
         const messageData = {
           personaCode: this.selectedPersona.personaCode,
-          userQuery: plainTextContent, // 🔧 수정: 표준화된 필드명
+          userQuery: plainTextContent,
           sessionId: this.getSessionId(),
           currentLanguage: this.currentLanguage
         };
@@ -562,8 +555,7 @@ export default {
           messageData.queryHistory = queryHistory;
         }
         
-        const response = await aiChatOpsService.sendMessage(messageData);
-        this.addAiResponse(response);
+        this.$emit('message-sent', messageData);
         
       } catch (error) {
         console.error('메시지 전송 오류:', error);
@@ -574,21 +566,18 @@ export default {
       }
     },
 
+    // 빠른 질문 클릭 시 바로 전송하도록 수정
     sendQuickQuestion(question) {
       this.currentMessage = question;
       this.showQuickQuestions = false;
       this.quickQuestions = [];
       
+      // 바로 전송
       this.$nextTick(() => {
-        const textarea = this.$refs.messageInput;
-        if (textarea) {
-          textarea.focus();
-          this.trackInputChanges();
-        }
+        this.sendMessage();
       });
     },
 
-    // 🎯 AI 응답 추가
     addAiResponse(response) {
       if (this.loadingMessageId) {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
@@ -603,8 +592,13 @@ export default {
       let responseMessage;
       
       if (response.success) {
-        // 🔧 수정: API 응답 처리 표준화
-        const aiResponseContent = response.data?.aiResponse || response.aiResponse || response.message || '응답을 받았습니다.';
+        // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
+        const aiResponseContent = response.data?.aiResponse || 
+                                 response.data?.aiQuery || 
+                                 response.aiResponse || 
+                                 response.aiQuery ||
+                                 response.message || 
+                                 '응답을 받았습니다.';
         
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
@@ -634,35 +628,21 @@ export default {
       this.isQuickQuestionsLoading = true;
       
       try {
-        const loadingMessage = {
-          id: 'quick-questions-loading-' + Date.now(),
-          type: 'ai',
-          content: this.getLoadingMessage(),
-          timestamp: new Date(),
-          isLoading: true
-        };
-        
-        this.addMessageWithLimit(loadingMessage);
-        
-        const questionPrompt = this.generateQuestionPrompt();
-        const plainTextPrompt = aiChatOpsService.htmlToPlainText(questionPrompt);
-        
         const questionData = {
           personaCode: this.selectedPersona.personaCode,
-          conversationContext: plainTextPrompt,
           currentLanguage: this.currentLanguage
         };
         
         const response = await aiChatOpsService.generateQuickQuestions(questionData);
         
-        const loadingIndex = this.messages.findIndex(msg => msg.id === loadingMessage.id);
-        if (loadingIndex !== -1) {
-          this.messages.splice(loadingIndex, 1);
-        }
-        
         if (response.success) {
-          // 🔧 수정: API 응답 처리 표준화
-          const quickQuestionsData = response.data?.questions || response.questions || response.data || response.aiResponse;
+          // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
+          const quickQuestionsData = response.data?.questions || 
+                                    response.data?.aiQuery || 
+                                    response.questions || 
+                                    response.data || 
+                                    response.aiQuery ||
+                                    response.aiResponse;
           this.displayQuickQuestionsResponse(quickQuestionsData);
         } else {
           throw new Error(response.message || response.errorMessage);
@@ -671,15 +651,9 @@ export default {
       } catch (error) {
         console.error('빠른 질문 생성 오류:', error);
         
-        const errorMessage = {
-          id: 'error-' + Date.now(),
-          type: 'ai',
-          content: '빠른 질문 생성 중 오류가 발생했습니다. 다시 시도해 주세요.',
-          timestamp: new Date(),
-          isError: true
-        };
-        
-        this.addMessageWithLimit(errorMessage);
+        // 기본 질문으로 폴백
+        this.quickQuestions = this.getDefaultQuickQuestions();
+        this.showQuickQuestions = true;
       } finally {
         this.isQuickQuestionsLoading = false;
       }
@@ -704,18 +678,18 @@ export default {
         'Generating response...';
     },
 
-      displayQuickQuestionsResponse(responseData) {
+    displayQuickQuestionsResponse(responseData) {
       try {
         let questionsList = [];
         
         if (typeof responseData === 'string') {
-          const jsonMatch = responseData.match(/\\[.*\\]/);
+          const jsonMatch = responseData.match(/\[.*\]/);
           if (jsonMatch) {
             questionsList = JSON.parse(jsonMatch[0]);
           } else {
             questionsList = responseData.split('\n')
               .filter(q => q.trim())
-              .map(q => q.replace(/^[-\*•]\\s*/, '').trim())
+              .map(q => q.replace(/^[-\*•]\s*/, '').trim())
               .slice(0, 5);
           }
         } else if (Array.isArray(responseData)) {
@@ -732,16 +706,6 @@ export default {
         if (questionsList.length > 0) {
           this.quickQuestions = questionsList;
           this.showQuickQuestions = true;
-          
-          const successMessage = {
-            id: 'quick-questions-success-' + Date.now(),
-            type: 'ai',
-            content: `현재 대화에 맞는 빠른 질문 ${questionsList.length}개를 준비했습니다. 아래에서 선택해주세요!`,
-            timestamp: new Date(),
-            isQuickQuestions: true
-          };
-          
-          this.addMessageWithLimit(successMessage);
         } else {
           throw new Error('빠른 질문 목록이 비어있습니다.');
         }
@@ -751,16 +715,6 @@ export default {
         
         this.quickQuestions = this.getDefaultQuickQuestions();
         this.showQuickQuestions = true;
-        
-        const fallbackMessage = {
-          id: 'quick-questions-fallback-' + Date.now(),
-          type: 'ai',
-          content: '빠른 질문 생성에 실패했지만, 기본 질문들을 준비했습니다. 아래에서 선택해주세요!',
-          timestamp: new Date(),
-          isQuickQuestions: true
-        };
-        
-        this.addMessageWithLimit(fallbackMessage);
       }
     },
 
@@ -774,7 +728,6 @@ export default {
       ];
     },
 
-    // 🎯 로딩 메시지 관리
     startLoadingMessages() {
       if (this.loadingMessageId) return;
       
@@ -804,7 +757,6 @@ export default {
       }
     },
 
-    // 🔧 메시지 추가 배치 처리 시스템
     addMessageWithLimit(newMessage) {
       this.pendingMessages.push(newMessage);
       this.scheduleBatchUpdate();
@@ -839,7 +791,6 @@ export default {
       });
     },
 
-    // 🎯 스크롤 관리 시스템
     scrollToBottomInstantly() {
       this.$nextTick(() => {
         const container = this.$refs.messagesContainer;
@@ -885,7 +836,6 @@ export default {
       });
     },
 
-    // 🎯 메시지 액션 핸들러들
     async handleCopyMessage(message) {
       try {
         const textToCopy = aiChatOpsService.htmlToPlainText(message.content);
@@ -915,7 +865,19 @@ export default {
       });
     },
 
-    // 🎯 초기 상태로 리셋
+    // 외부 클릭 감지 로직 추가
+    handleClickOutside(event) {
+      if (this.showQuickQuestions) {
+        const dropdown = this.$refs.quickQuestionsDropdown;
+        const inputArea = this.$refs.inputArea;
+        
+        if (dropdown && !dropdown.contains(event.target) && 
+            inputArea && !inputArea.contains(event.target)) {
+          this.showQuickQuestions = false;
+        }
+      }
+    },
+
     resetToInitialState() {
       this.stopLoadingMessages();
       this.stopMemoryMonitoring();
@@ -926,7 +888,6 @@ export default {
         loadingHistory: false,
         currentLoadingMessage: '',
         loadingMessageId: null,
-        // 🔧 수정: 네이밍 통일
         showQuickQuestions: false,
         quickQuestions: [],
         continuousChatEnabled: true,
@@ -962,6 +923,9 @@ export default {
         }
       });
     }
+    
+    // 외부 클릭 이벤트 리스너 추가
+    document.addEventListener('click', this.handleClickOutside);
   },
   
   beforeDestroy() {
@@ -972,6 +936,9 @@ export default {
       clearTimeout(this.batchUpdateTimeout);
       this.batchUpdateTimeout = null;
     }
+    
+    // 외부 클릭 이벤트 리스너 제거
+    document.removeEventListener('click', this.handleClickOutside);
     
     Object.assign(this, {
       messages: [],
@@ -987,7 +954,6 @@ export default {
 </script>
 
 <style scoped>
-/* 🎯 기본 레이아웃 (기존 스타일 유지, 클래스명만 수정) */
 .chat-tab {
   display: flex;
   flex-direction: column;
@@ -1031,6 +997,9 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
 .messages-container {
@@ -1109,62 +1078,59 @@ export default {
   margin: 0;
 }
 
-/* 🔧 수정: 클래스명 통일 (quick-query → quick-questions) */
 .input-area {
   background: var(--color-surface-white);
   border-top: 1px solid var(--color-border-light);
   padding: var(--space-md) var(--space-xl) var(--space-lg);
   z-index: 5;
+  position: relative;
 }
 
-.quick-questions-section {
-  margin-bottom: var(--space-md);
+/* 빠른 질문 드롭다운 스타일 */
+.quick-questions-dropdown {
+  position: absolute;
+  top: -8px;
+  left: var(--space-xl);
+  right: var(--space-xl);
   background: var(--color-surface-white);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  padding: var(--space-md);
-}
-
-.quick-questions-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-sm);
-}
-
-.quick-questions-title {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  box-shadow: var(--shadow-moderate);
+  z-index: 10;
+  transform: translateY(-100%);
 }
 
 .quick-questions-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
+  max-height: 200px;
+  overflow-y: auto;
 }
 
 .quick-question-item {
-  flex: 0 1 auto;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-  text-align: left;
+  padding: var(--space-sm) var(--space-md);
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color var(--motion-fast);
   font-size: var(--font-size-sm);
-  transition: transform var(--motion-fast), background-color var(--motion-fast);
+  line-height: 1.4;
+}
+
+.quick-question-item:last-child {
+  border-bottom: none;
 }
 
 .quick-question-item:hover {
-  transform: translateX(2px);
   background-color: var(--color-accent-subtle);
 }
 
-/* 🎯 나머지 스타일들은 기존과 동일하게 유지 */
+.quick-question-item:active {
+  background-color: var(--color-accent-medium);
+}
+
 .input-container {
   padding: var(--space-sm);
   transition: all var(--motion-fast);
   position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .input-container.enhanced-input--focused {
@@ -1188,7 +1154,7 @@ export default {
   height: 38px;
   min-height: 38px;
   max-height: 400px;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.03);
   background: var(--color-surface-white);
   resize: none;
   outline: none;
@@ -1203,6 +1169,7 @@ export default {
   overflow-y: auto;
   word-wrap: break-word;
   white-space: pre-wrap;
+  border-radius: var(--radius-md);
 }
 
 .message-textarea::placeholder {
@@ -1228,7 +1195,6 @@ export default {
   gap: 6px;
 }
 
-/* 🔧 수정: 클래스명 통일 */
 .quick-questions-generate-btn {
   position: relative;
   transition: all 0.3s ease-out;
@@ -1305,7 +1271,6 @@ export default {
   }
 }
 
-/* 🎯 개발자 정보 및 기타 스타일들은 기존과 동일 */
 .dev-info-tooltip {
   position: absolute;
   bottom: 100%;
@@ -1399,7 +1364,6 @@ export default {
   z-index: 5;
 }
 
-/* 🎯 반응형 디자인 */
 @media (max-width: 768px) {
   .quick-questions-generate-btn:not(.btn-system--icon-only),
   .continuous-chat-enhanced-btn:not(.btn-system--icon-only) {
@@ -1444,5 +1408,23 @@ export default {
   .dev-value {
     font-size: 9px;
   }
+  
+  .quick-questions-dropdown {
+    left: var(--space-md);
+    right: var(--space-md);
+  }
+}
+
+/* 테마별 채팅박스 보더 색상 */
+.theme-ai-chatops .chat-interface {
+  border-color: var(--ai-chatops-primary);
+}
+
+.theme-heritage .chat-interface {
+  border-color: var(--heritage-primary);
+}
+
+.theme-hermes .chat-interface {
+  border-color: var(--hermes-primary);
 }
 </style>

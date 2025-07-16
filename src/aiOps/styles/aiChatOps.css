@@ -222,6 +222,14 @@
   --alert-error-bg: rgba(254, 242, 242, 0.9);
   --alert-error-border: rgba(239, 68, 68, 0.3);
   --alert-error-text: #991b1b;
+
+  /* ----- 채팅 헤더 통일된 변수 ----- */
+  --header-button-bg: rgba(255, 255, 255, 0.1);
+  --header-button-border: rgba(255, 255, 255, 0.2);
+  --header-button-hover-bg: rgba(255, 255, 255, 0.2);
+  --header-button-text: var(--color-header-text);
+  --header-button-size-sm: 28px;
+  --header-button-size-md: 32px;
 }
 
 /* ----- 테마별 CSS 변수 오버라이드 ----- */
@@ -283,59 +291,7 @@
   --markdown-quote-border: var(--hermes-accent);
 }
 
-/* ----- 🎨 향상된 버튼 색상 시스템 ----- */
-
-/* 전송 버튼 전용 스타일 */
-.btn-system--send {
-  background: var(--color-send-button) !important;
-  border-color: var(--color-send-button) !important;
-  color: var(--color-text-light) !important;
-  box-shadow: var(--shadow-send);
-}
-
-.btn-system--send:hover:not(:disabled) {
-  background: #047857 !important;
-  border-color: #047857 !important;
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-system--send:active:not(:disabled) {
-  transform: translateY(0) scale(1);
-  box-shadow: var(--shadow-send);
-}
-
-/* 연속 채팅 활성 상태 */
-.btn-system--continuous-active {
-  background: var(--color-continuous-active) !important;
-  border-color: var(--color-continuous-active) !important;
-  color: var(--color-text-light) !important;
-  box-shadow: var(--shadow-continuous);
-}
-
-.btn-system--continuous-active:hover:not(:disabled) {
-  background: #047857 !important;
-  border-color: #047857 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-}
-
-/* 빠른 액션 버튼 */
-.btn-system--quick-action {
-  background: var(--color-quick-action) !important;
-  border-color: var(--color-quick-action) !important;
-  color: var(--color-text-light) !important;
-  box-shadow: 0 2px 6px var(--color-quick-subtle);
-}
-
-.btn-system--quick-action:hover:not(:disabled) {
-  background: #0284c7 !important;
-  border-color: #0284c7 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
-}
-
-/* 🎨 기존 버튼 시스템 유지하면서 색상 강화 */
+/* ----- 통일된 버튼 시스템 ----- */
 .btn-system {
   display: inline-flex;
   align-items: center;
@@ -368,6 +324,35 @@
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* ----- 헤더 버튼 전용 스타일 (CSS 정합성 개선) ----- */
+.header-btn {
+  width: var(--header-button-size-sm) !important;
+  height: var(--header-button-size-sm) !important;
+  min-height: var(--header-button-size-sm) !important;
+  padding: 0 !important;
+  background: var(--header-button-bg) !important;
+  border: 1px solid var(--header-button-border) !important;
+  color: var(--header-button-text) !important;
+  border-radius: var(--radius-md) !important;
+  transition: all var(--motion-fast) !important;
+}
+
+.header-btn:hover:not(:disabled) {
+  background: var(--header-button-hover-bg) !important;
+  border-color: var(--color-header-accent) !important;
+  transform: scale(1.05);
+}
+
+.header-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.header-btn--md {
+  width: var(--header-button-size-md) !important;
+  height: var(--header-button-size-md) !important;
+  min-height: var(--header-button-size-md) !important;
 }
 
 /* ----- 버튼 크기 변형 ----- */
@@ -428,7 +413,7 @@
   opacity: 0.7;
 }
 
-/* ----- 버튼 색상 변형 (기존 유지하되 강화) ----- */
+/* ----- 버튼 색상 변형 ----- */
 
 /* Primary 버튼 */
 .btn-system--primary {
@@ -562,7 +547,57 @@
   box-shadow: var(--shadow-minimal);
 }
 
-/* 나머지 기존 CSS 코드는 그대로 유지... */
+/* ----- 🎨 향상된 버튼 색상 시스템 ----- */
+
+/* 전송 버튼 전용 스타일 */
+.btn-system--send {
+  background: var(--color-send-button) !important;
+  border-color: var(--color-send-button) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: var(--shadow-send);
+}
+
+.btn-system--send:hover:not(:disabled) {
+  background: #047857 !important;
+  border-color: #047857 !important;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-system--send:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+  box-shadow: var(--shadow-send);
+}
+
+/* 연속 채팅 활성 상태 */
+.btn-system--continuous-active {
+  background: var(--color-continuous-active) !important;
+  border-color: var(--color-continuous-active) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: var(--shadow-continuous);
+}
+
+.btn-system--continuous-active:hover:not(:disabled) {
+  background: #047857 !important;
+  border-color: #047857 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+/* 빠른 액션 버튼 */
+.btn-system--quick-action {
+  background: var(--color-quick-action) !important;
+  border-color: var(--color-quick-action) !important;
+  color: var(--color-text-light) !important;
+  box-shadow: 0 2px 6px var(--color-quick-subtle);
+}
+
+.btn-system--quick-action:hover:not(:disabled) {
+  background: #0284c7 !important;
+  border-color: #0284c7 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+}
 
 /* ----- 액션 버튼 (경량화된 기본 버튼) ----- */
 .action-btn {
@@ -610,12 +645,44 @@
     height: 40px;
     min-height: 40px;
   }
+
+  .header-btn {
+    width: 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+  }
+
+  .header-btn--md {
+    width: 28px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+  }
 }
 
 /* ----- 스크롤바 (크로스 브라우저) ----- */
 html {
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-medium) var(--color-surface-light);
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-surface-light);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-medium);
+  border-radius: 3px;
+  transition: background var(--motion-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 /* ----- WCAG 2.1 AA 접근성 개선 ----- */
@@ -657,26 +724,6 @@ html {
   }
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-surface-light);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-border-medium);
-  border-radius: 3px;
-  transition: background var(--motion-fast);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-primary);
-}
-
 /* ----- 테마 시스템 (기존 유지) ----- */
 .theme-ai-chatops,
 .ai-chatops-chat {
@@ -700,4 +747,22 @@ html {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ----- 카드 시스템 추가 ----- */
+.card-system {
+  background: var(--color-surface-white);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-minimal);
+  transition: all var(--motion-fast);
+}
+
+.card-system--interactive {
+  cursor: pointer;
+}
+
+.card-system--interactive:hover {
+  border-color: var(--color-border-accent);
+  box-shadow: var(--shadow-soft);
 }
