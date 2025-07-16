@@ -10,9 +10,8 @@
   --ai-chatops-neutral: #64748B;
   --ai-chatops-background: #F8FAFC;
   
-  /* 🎨 새로운 AI ChatOps 보조 색상 */
-  --ai-chatops-highlight: #27aae7;     /* 스카이 블루 - 강조용 */
-  --ai-chatops-success: #10B981;       /* 에메랄드 그린 - 성공 상태 */
+  --ai-chatops-highlight: #27aae7;
+  --ai-chatops-success: #10B981;
   
   --heritage-primary: #7C2D12;
   --heritage-secondary: #991B1B;
@@ -23,9 +22,9 @@
   --heritage-text-light: #FFFFFF;
   --heritage-border: #E7E5E4;
   
-  /* 🎨 새로운 Heritage 보조 색상 */
-  --heritage-highlight: #EF4444;   /* 선명한 빨간색 - 강조용 */
-  --heritage-warm: #F59E0B;        /* 따뜻한 황금색 - 보조 액센트 */
+
+  --heritage-highlight: #EF4444;
+  --heritage-warm: #F59E0B;
   
   --heritage-gray-50: #FAFAF9;
   --heritage-gray-100: #F5F5F4;
@@ -42,7 +41,7 @@
   --nyf-secondary: #3995d8; 
   --nyf-accent: #071a76; 
   --nyf-neutral: #786868; 
-  --nyf-background: #d2dce5; 
+  --nyf-background: #e5e9ee; 
   --nyf-text: #2E2E2E; 
   --nyf-text-light: #FFFFFF;
   --nyf-border: #D7CCC8;
@@ -60,6 +59,30 @@
   --nyf-gray-700: #616161;
   --nyf-gray-800: #424242;
   --nyf-gray-900: #212121;
+
+  /* 🎨 Retro 팔레트 추가 (레트로 감성 강조) */
+  --retro-primary: #666547;
+  --retro-secondary: #fb2e01;
+  --retro-accent: #6fcb9f;
+  --retro-neutral: #78716C;
+  --retro-background: #ebebe3;
+  --retro-text: #270f02;
+  --retro-text-light: #FFFFFF;
+  --retro-border: #ffe28a;
+  
+  --retro-highlight: #fb2e01;
+  --retro-warm: #ffe28a;
+  
+  --retro-gray-50: #FAFAF9;
+  --retro-gray-100: #F5F5F4;
+  --retro-gray-200: #E7E5E4;
+  --retro-gray-300: #D6D3D1;
+  --retro-gray-400: #A8A29E;
+  --retro-gray-500: #78716C;
+  --retro-gray-600: #57534E;
+  --retro-gray-700: #44403C;
+  --retro-gray-800: #292524;
+  --retro-gray-900: #1C1917;
 
   --color-primary: var(--ai-chatops-primary);
   --color-primary-dark: var(--ai-chatops-secondary);
@@ -333,6 +356,47 @@
   --markdown-quote-border: var(--nyf-accent);
 }
 
+.theme-retro {
+  --color-primary: var(--retro-primary);
+  --color-primary-dark: var(--retro-secondary);
+  --color-accent: var(--retro-accent);
+  --color-accent-secondary: var(--retro-neutral);
+  --color-text-primary: var(--retro-text);
+  --color-text-secondary: var(--retro-gray-600);
+  --color-text-muted: var(--retro-gray-500);
+  --color-text-tertiary: var(--retro-gray-400);
+  --color-text-light: var(--retro-text-light);
+  
+  /* 🎨 Retro 깊이별 배경 색상 */
+  --color-surface-white: var(--retro-gray-50);
+  --color-surface-light: var(--retro-gray-100);
+  --color-surface-medium: var(--retro-gray-200);
+  --color-surface-elevated: var(--retro-background);
+  
+  /* 🎨 Retro 뉴트럴 보더 색상 */
+  --color-border-light: var(--retro-gray-300);
+  --color-border-medium: var(--retro-gray-400);
+  --color-border-accent: var(--retro-accent);
+  
+  --color-header-bg: var(--retro-primary);
+  --color-header-accent: var(--retro-accent);
+  
+  /* 🎨 Retro 테마 기능별 색상 */
+  --color-highlight: var(--retro-highlight);
+  --color-interactive: var(--retro-warm);
+  --color-send-button: var(--retro-highlight);
+  --color-continuous-active: var(--retro-warm);
+  --color-quick-action: var(--retro-accent);
+  
+  --color-accent-subtle: rgba(111, 203, 159, var(--opacity-light));
+  --color-accent-medium: rgba(111, 203, 159, var(--opacity-medium));
+  --color-accent-strong: rgba(111, 203, 159, var(--opacity-accent));
+  --color-primary-subtle: rgba(102, 101, 71, var(--opacity-light));
+  --markdown-code-bg: rgba(111, 203, 159, 0.08);
+  --markdown-code-border: rgba(111, 203, 159, 0.2);
+  --markdown-quote-border: var(--retro-accent);
+}
+
 .theme-heritage .card-system,
 .theme-heritage .input-container,
 .theme-heritage .persona-card,
@@ -379,6 +443,30 @@
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border-light);
   box-shadow: 0 4px 12px rgba(66, 66, 66, 0.15);
+}
+
+.theme-retro .card-system,
+.theme-retro .input-container,
+.theme-retro .persona-card,
+.theme-retro .category-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px rgba(68, 64, 60, 0.1);
+}
+
+.theme-retro .messages-container {
+  background: var(--color-surface-white);
+}
+
+.theme-retro .message-bubble--user .message-bubble__content {
+  background: var(--color-surface-medium);
+  border: 1px solid var(--color-border-light);
+}
+
+.theme-retro .quick-questions-list {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 12px rgba(68, 64, 60, 0.15);
 }
 
 /* ----- 통일된 버튼 시스템 ----- */
