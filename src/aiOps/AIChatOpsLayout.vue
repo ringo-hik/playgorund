@@ -319,11 +319,47 @@ export default {
     },
     
     filteredPersonas() {
-      if (!this.selectedCategory || !this.personas) return [];
-      return this.personas.filter(persona => 
-        persona.category === this.selectedCategory ||
-        (persona.tags && persona.tags.includes(this.selectedCategory))
-      );
+      if (!this.selectedCategory) {
+        console.log('🔍 [AIChatOpsLayout] filteredPersonas: No category selected, returning empty array');
+        return [];
+      }
+      
+      if (!this.personas) {
+        console.log('🔍 [AIChatOpsLayout] filteredPersonas: No personas data, returning empty array');
+        return [];
+      }
+      
+      if (!Array.isArray(this.personas)) {
+        console.error('❌ [AIChatOpsLayout] filteredPersonas: personas is not an array:', {
+          type: typeof this.personas,
+          value: this.personas
+        });
+        return [];
+      }
+      
+      const filtered = this.personas.filter(persona => {
+        if (!persona) {
+          console.warn('⚠️ [AIChatOpsLayout] filteredPersonas: Found null/undefined persona');
+          return false;
+        }
+        
+        const matchesCategory = persona.category === this.selectedCategory;
+        const matchesTags = persona.tags && Array.isArray(persona.tags) && persona.tags.includes(this.selectedCategory);
+        
+        return matchesCategory || matchesTags;
+      });
+      
+      console.log('🔍 [AIChatOpsLayout] filteredPersonas: Filtering result:', {
+        selectedCategory: this.selectedCategory,
+        totalPersonas: this.personas.length,
+        filteredCount: filtered.length,
+        filterCriteria: {
+          categoryMatch: this.personas.filter(p => p?.category === this.selectedCategory).length,
+          tagsMatch: this.personas.filter(p => p?.tags && Array.isArray(p.tags) && p.tags.includes(this.selectedCategory)).length
+        }
+      });
+      
+      return filtered;
     }
   },
   
@@ -531,9 +567,34 @@ export default {
     },
     
     selectCategory(category) {
+      console.log('🎯 [AIChatOpsLayout] selectCategory:', {
+        category,
+        totalPersonas: this.personas.length,
+        willFilter: true
+      });
+      
       Object.assign(this, {
         selectedCategory: category,
         currentView: 'personaList'
+      });
+      
+      // 필터링 결과 즉시 확인
+      this.$nextTick(() => {
+        const filtered = this.filteredPersonas;
+        console.log('🔍 [AIChatOpsLayout] selectCategory: Filtered personas:', {
+          category,
+          filteredCount: filtered.length,
+          filteredPersonas: filtered.map(p => ({
+            code: p.personaCode,
+            title: p.title,
+            category: p.category,
+            tags: p.tags
+          }))
+        });
+        
+        if (filtered.length === 0) {
+          console.warn('⚠️ [AIChatOpsLayout] selectCategory: No personas found for category:', category);
+        }
       });
     },
     
@@ -630,21 +691,60 @@ export default {
     },
     
     loadPersonas() {
-      if (this.loadingPersonas) return Promise.resolve();
+      if (this.loadingPersonas) {
+        console.log('🔄 [AIChatOpsLayout] loadPersonas: Already loading, skipping');
+        return Promise.resolve();
+      }
       
+      console.log('🚀 [AIChatOpsLayout] loadPersonas: Starting to load personas');
       this.loadingPersonas = true;
       
       return aiChatOpsService.getPersonas()
         .then(response => {
+          console.log('📡 [AIChatOpsLayout] loadPersonas: API response received:', {
+            success: response.success,
+            hasData: !!response.data,
+            dataType: typeof response.data,
+            dataLength: Array.isArray(response.data) ? response.data.length : 'not array',
+            fullResponse: response
+          });
+          
           if (response.success) {
-            this.personas = response.data || [];
+            const personas = response.data || [];
+            this.personas = personas;
+            
+            console.log('✅ [AIChatOpsLayout] loadPersonas: Personas loaded successfully:', {
+              count: personas.length,
+              personas: personas.map(p => ({
+                code: p.personaCode,
+                title: p.title,
+                category: p.category,
+                tags: p.tags
+              }))
+            });
+            
+            // 데이터 검증 로그
+            if (personas.length === 0) {
+              console.warn('⚠️ [AIChatOpsLayout] loadPersonas: No personas found in response');
+            }
+          } else {
+            console.error('❌ [AIChatOpsLayout] loadPersonas: API returned unsuccessful response:', {
+              errorMessage: response.errorMessage,
+              error: response.error
+            });
           }
         })
         .catch(error => {
-          console.log('Error loading personas:', error);
+          console.error('❌ [AIChatOpsLayout] loadPersonas: Error loading personas:', {
+            error: error,
+            message: error.message,
+            stack: error.stack,
+            response: error.response?.data
+          });
         })
         .finally(() => {
           this.loadingPersonas = false;
+          console.log('🔚 [AIChatOpsLayout] loadPersonas: Loading completed, personas count:', this.personas.length);
         });
     },
     
@@ -680,27 +780,50 @@ export default {
     },
     
     handleSuccessResponse(data, response) {
+      console.log('✅ [AIChatOpsLayout] handleSuccessResponse:', {
+        hasSessionId: !!response.sessionId,
+        sessionId: response.sessionId,
+        personaCode: data.personaCode,
+        hasData: !!response.data,
+        responseKeys: Object.keys(response),
+        hasChatTab: !!this.$refs.chatTab
+      });
+      
       if (response.sessionId) {
         this.personaSessionMap[data.personaCode] = response.sessionId;
         try {
           localStorage.setItem('ai-chatops-chat-sessions', JSON.stringify(this.personaSessionMap));
+          console.log('💾 [AIChatOpsLayout] handleSuccessResponse: Session saved for persona:', data.personaCode);
         } catch (error) {
-          console.log('Could not save session data');
+          console.error('❌ [AIChatOpsLayout] handleSuccessResponse: Could not save session data:', error);
         }
       }
       
       if (this.$refs.chatTab) {
         this.$refs.chatTab.addAiResponse(response);
+        console.log('📤 [AIChatOpsLayout] handleSuccessResponse: Response sent to chatTab');
+      } else {
+        console.error('❌ [AIChatOpsLayout] handleSuccessResponse: No chatTab ref found');
       }
+      
       this.isConnected = true;
     },
     
     handleErrorResponse(errorMessage) {
+      console.error('❌ [AIChatOpsLayout] handleErrorResponse:', {
+        errorMessage,
+        hasChatTab: !!this.$refs.chatTab,
+        isConnected: this.isConnected
+      });
+      
       if (this.$refs.chatTab) {
         this.$refs.chatTab.addAiResponse({ 
           success: false,
           message: errorMessage
         });
+        console.log('📤 [AIChatOpsLayout] handleErrorResponse: Error sent to chatTab');
+      } else {
+        console.error('❌ [AIChatOpsLayout] handleErrorResponse: No chatTab ref found, cannot display error');
       }
     },
     

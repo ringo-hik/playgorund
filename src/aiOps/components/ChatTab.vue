@@ -23,18 +23,26 @@
         <div class="header-actions">
           <button
             @click="$emit('go-persona-list')"
-            class="icon-btn clear-btn"
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
             title="페르소나 목록으로"
           >
-            <LucideIcon name="arrow-left" fill="currentColor" :width="14" :height="14" />
+            <LucideIcon name="users" :width="14" :height="14" />
           </button>
           
           <button
             @click="$emit('go-home')"
-            class="icon-btn home-btn"
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
             title="홈으로"
           >
-            <LucideIcon name="home" fill="currentColor" :width="14" :height="14" />
+            <LucideIcon name="home" :width="14" :height="14" />
+          </button>
+          
+          <button
+            @click="clearChatHistory"
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
+            title="메시지 내역 삭제"
+          >
+            <LucideIcon name="trash-2" :width="14" :height="14" />
           </button>
         </div>
       </div>
@@ -233,6 +241,9 @@ export default {
       memoryMonitorInterval: null,
       isDevelopment: process.env.NODE_ENV === 'development',
       showDevInfo: false,
+      debugMode: true, // 강제 디버깅 모드
+      renderingStates: [],
+      lastApiCall: null,
       
       pendingMessages: [],
       renderingScheduled: false,
@@ -286,24 +297,36 @@ export default {
   
   watch: {
     currentLanguage() {
+      console.log('🌐 [ChatTab] currentLanguage changed:', this.currentLanguage);
       this.$nextTick(() => {
         this.trackInputChanges();
       });
     },
     
-    isProcessing(newVal) {
+    isProcessing(newVal, oldVal) {
+      console.log('⚙️ [ChatTab] isProcessing changed:', { from: oldVal, to: newVal });
       if (!newVal) {
         this.stopLoadingMessages();
       }
       if (newVal) {
         this.showQuickQuestions = false;
+        console.log('🔄 [ChatTab] isProcessing: Hidden quick questions due to processing');
       }
     },
     
     selectedPersona: {
-      handler(newPersona) {
+      handler(newPersona, oldPersona) {
+        console.log('👤 [ChatTab] selectedPersona changed:', {
+          from: oldPersona?.personaCode || 'none',
+          to: newPersona?.personaCode || 'none',
+          hasPersona: !!newPersona
+        });
+        
         if (newPersona) {
           this.loadPersonaHistory();
+        } else {
+          console.log('📄 [ChatTab] selectedPersona: No persona selected, clearing messages');
+          this.messages = [];
         }
       },
       immediate: true
@@ -343,13 +366,20 @@ export default {
     },
 
     async loadPersonaHistory() {
-      if (!this.selectedPersona?.personaCode) return;
+      if (!this.selectedPersona?.personaCode) {
+        console.warn('🚫 [ChatTab] loadPersonaHistory: No persona code');
+        return;
+      }
+      
+      console.log('🚀 [ChatTab] Loading persona history:', this.selectedPersona.personaCode);
       
       this.loadingHistory = true;
       this.isInitialLoad = true;
       
       try {
         const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
+        
+        console.log('📜 [ChatTab] History API response:', response);
         
         if (response.success && response.data && Array.isArray(response.data)) {
           this.messages = [];
@@ -361,17 +391,26 @@ export default {
             conversationId: conv.conversationId || conv.id || Date.now()
           }));
           
+          console.log('📝 [ChatTab] Normalized conversations:', normalizedConversations);
+          
           const historyMessages = aiChatOpsService.convertConversationsToMessages(normalizedConversations);
+          
+          console.log('💬 [ChatTab] History messages:', historyMessages);
           
           if (historyMessages.length > 0) {
             this.messages = historyMessages;
             this.$nextTick(() => {
               this.setInitialScrollPosition();
             });
+          } else {
+            console.log('💭 [ChatTab] No history messages to display');
           }
+        } else {
+          console.warn('🚫 [ChatTab] Invalid history response:', response);
         }
       } catch (error) {
-        console.error('페르소나 히스토리 로드 실패:', error);
+        console.error('❌ [ChatTab] 페르소나 히스토리 로드 실패:', error);
+        this.addErrorMessage('히스토리를 불러오는 중 오류가 발생했습니다.');
       } finally {
         this.loadingHistory = false;
         this.isInitialLoad = false;
@@ -495,10 +534,27 @@ export default {
     },
 
     async sendMessage() {
-      if (!this.canSendMessage || !this.selectedPersona) return;
+      console.log('🚀 [ChatTab] sendMessage called:', {
+        canSend: this.canSendMessage,
+        hasPersona: !!this.selectedPersona,
+        currentMessage: this.currentMessage
+      });
+      
+      if (!this.canSendMessage || !this.selectedPersona) {
+        console.warn('🚫 [ChatTab] Cannot send message:', {
+          canSend: this.canSendMessage,
+          hasPersona: !!this.selectedPersona
+        });
+        return;
+      }
       
       const messageContent = this.currentMessage.trim();
       const plainTextContent = aiChatOpsService.htmlToPlainText(messageContent);
+      
+      console.log('📝 [ChatTab] Processing message:', {
+        original: messageContent,
+        plainText: plainTextContent
+      });
       
       const userMessage = {
         id: `user-${this.generateUniqueId()}`,
@@ -507,6 +563,8 @@ export default {
         timestamp: new Date(),
         isLoading: false
       };
+      
+      console.log('💬 [ChatTab] Created user message:', userMessage);
       
       this.addMessageWithLimit(userMessage);
       this.currentMessage = '';
@@ -544,10 +602,23 @@ export default {
           messageData.queryHistory = queryHistory;
         }
         
+        console.log('🚀 [ChatTab] Emitting message-sent:', messageData);
+        this.lastApiCall = {
+          timestamp: new Date(),
+          data: messageData,
+          status: 'sent'
+        };
+        
         this.$emit('message-sent', messageData);
         
       } catch (error) {
-        console.error('메시지 전송 오류:', error);
+        console.error('❌ [ChatTab] 메시지 전송 오류:', error);
+        this.lastApiCall = {
+          timestamp: new Date(),
+          error: error,
+          status: 'failed'
+        };
+        
         this.addAiResponse({
           success: false,
           message: '메시지 전송 중 오류가 발생했습니다.'
@@ -568,9 +639,12 @@ export default {
     },
 
     addAiResponse(response) {
+      console.log('🚀 [ChatTab] addAiResponse called:', response);
+      
       if (this.loadingMessageId) {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
         if (loadingIndex !== -1) {
+          console.log('🗑️ [ChatTab] Removing loading message:', this.loadingMessageId);
           this.messages.splice(loadingIndex, 1);
         }
         this.loadingMessageId = null;
@@ -586,7 +660,17 @@ export default {
                                  response.data?.aiQuery || 
                                  response.aiResponse || 
                                  response.aiQuery ||
+                                 response.message ||
                                  '응답을 받았습니다.';
+        
+        console.log('💬 [ChatTab] AI Response content extraction:', {
+          'response.data?.aiResponse': response.data?.aiResponse,
+          'response.data?.aiQuery': response.data?.aiQuery,
+          'response.aiResponse': response.aiResponse,
+          'response.aiQuery': response.aiQuery,
+          'response.message': response.message,
+          'finalContent': aiResponseContent
+        });
         
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
@@ -597,17 +681,47 @@ export default {
           conversationId: response.data?.conversationId || response.conversationId || response.id || Date.now()
         };
       } else {
+        const errorContent = response.message || response.errorMessage || this.getText('aiError');
+        console.warn('🚫 [ChatTab] Error response:', {
+          'response.message': response.message,
+          'response.errorMessage': response.errorMessage,
+          'getText(aiError)': this.getText('aiError'),
+          'finalContent': errorContent
+        });
+        
         responseMessage = {
           id: `error-${this.generateUniqueId()}`,
           type: 'ai',
-          content: response.message || response.errorMessage || this.getText('aiError'),
+          content: errorContent,
           timestamp: new Date(),
           isError: true,
           isLoading: false
         };
       }
       
+      console.log('💬 [ChatTab] Created response message:', responseMessage);
+      
       this.addMessageWithLimit(responseMessage);
+      
+      // API 호출 상태 업데이트
+      if (this.lastApiCall) {
+        this.lastApiCall.status = 'completed';
+        this.lastApiCall.response = response;
+      }
+    },
+    
+    addErrorMessage(errorText) {
+      const errorMessage = {
+        id: `error-${this.generateUniqueId()}`,
+        type: 'ai',
+        content: errorText,
+        timestamp: new Date(),
+        isError: true,
+        isLoading: false
+      };
+      
+      console.log('❌ [ChatTab] Adding error message:', errorMessage);
+      this.addMessageWithLimit(errorMessage);
     },
 
     async generateQuickQuestions() {
@@ -746,6 +860,12 @@ export default {
     },
 
     addMessageWithLimit(newMessage) {
+      console.log('📝 [ChatTab] addMessageWithLimit:', {
+        message: newMessage,
+        currentMessagesCount: this.messages.length,
+        pendingCount: this.pendingMessages.length
+      });
+      
       this.pendingMessages.push(newMessage);
       this.scheduleBatchUpdate();
     },
@@ -866,6 +986,15 @@ export default {
       }
     },
 
+    clearChatHistory() {
+      this.messages = [];
+      this.pendingMessages = [];
+      this.currentMessage = '';
+      this.showQuickQuestions = false;
+      this.quickQuestions = [];
+      this.stopLoadingMessages();
+    },
+    
     resetToInitialState() {
       this.stopLoadingMessages();
       this.stopMemoryMonitoring();
@@ -985,9 +1114,10 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  border: 2px solid var(--color-primary);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  background: var(--color-surface-white);
 }
 
 .messages-container {
@@ -995,6 +1125,7 @@ export default {
   overflow-y: auto;
   padding: var(--space-lg) var(--space-xl) var(--space-md);
   scroll-behavior: smooth;
+  background: var(--color-surface-light);
 }
 
 .messages-container.smooth-scroll {
@@ -1385,16 +1516,38 @@ export default {
   }
 }
 
-/* 테마별 채팅박스 보더 색상 */
-.theme-ai-chatops .chat-interface {
-  border-color: var(--ai-chatops-primary);
+/* 채팅 헤더 스타일 */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--color-surface-white);
+  border-bottom: 1px solid var(--color-border-light);
+  min-height: 56px;
 }
 
-.theme-heritage .chat-interface {
-  border-color: var(--heritage-primary);
+.persona-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
-.theme-hermes .chat-interface {
-  border-color: var(--hermes-primary);
+.persona-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 </style>

@@ -26,6 +26,8 @@ const aiChatOpsService = {
   },
 
   async getPersonas() {
+    console.log('🚀 [aiChatOpsService] getPersonas: Starting API call');
+    
     try {
       const response = await axios.get(`${API_BASE_URL}/personas`, {
         headers: {
@@ -34,13 +36,40 @@ const aiChatOpsService = {
         timeout: 15000
       });
 
+      console.log('📡 [aiChatOpsService] getPersonas: Raw API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        hasData: !!response.data,
+        dataType: typeof response.data,
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        fullData: response.data
+      });
+
+      const personas = response.data.data || response.data;
+      
+      console.log('📄 [aiChatOpsService] getPersonas: Processed personas data:', {
+        personasType: typeof personas,
+        isArray: Array.isArray(personas),
+        length: Array.isArray(personas) ? personas.length : 'not array',
+        firstItem: Array.isArray(personas) && personas.length > 0 ? personas[0] : null
+      });
+
       return {
         success: true,
-        data: response.data.data || response.data,
+        data: personas,
         message: response.data.message || 'Personas loaded successfully'
       };
 
     } catch (error) {
+      console.error('❌ [aiChatOpsService] getPersonas: API call failed:', {
+        error: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        responseData: error.response?.data,
+        requestURL: error.config?.url,
+        timeout: error.code === 'ECONNABORTED'
+      });
+      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -124,6 +153,14 @@ const aiChatOpsService = {
   },
 
   async sendMessage(messageData) {
+    console.log('🚀 [aiChatOpsService] sendMessage: Starting API call:', {
+      personaCode: messageData.personaCode,
+      userQueryLength: messageData.userQuery?.length || 0,
+      hasSessionId: !!messageData.sessionId,
+      hasQueryHistory: !!(messageData.queryHistory && messageData.queryHistory.length > 0),
+      queryHistoryCount: messageData.queryHistory?.length || 0
+    });
+    
     try {
       const requestBody = {
         personaCode: messageData.personaCode,
@@ -133,7 +170,15 @@ const aiChatOpsService = {
 
       if (messageData.queryHistory && messageData.queryHistory.length > 0) {
         requestBody.queryHistory = JSON.stringify(messageData.queryHistory);
+        console.log('📄 [aiChatOpsService] sendMessage: Including query history:', messageData.queryHistory.length, 'items');
       }
+
+      console.log('📤 [aiChatOpsService] sendMessage: Request body prepared:', {
+        personaCode: requestBody.personaCode,
+        userQueryLength: requestBody.userQuery?.length,
+        sessionId: requestBody.sessionId,
+        hasQueryHistory: !!requestBody.queryHistory
+      });
 
       const response = await axios.post(`${API_BASE_URL}/message/async`, requestBody, {
         headers: {
@@ -142,18 +187,57 @@ const aiChatOpsService = {
         timeout: 60000
       });
 
+      console.log('📡 [aiChatOpsService] sendMessage: Raw API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        hasData: !!response.data,
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        success: response.data?.success,
+        hasAiQuery: !!response.data?.aiQuery,
+        hasAiResponse: !!response.data?.data?.aiResponse,
+        hasSessionId: !!response.data?.sessionId,
+        fullResponse: response.data
+      });
+
       // API 응답 구조 통일: response.data.success와 response.data.aiQuery 사용
-      return {
+      const aiResponse = response.data.aiQuery || response.data.data?.aiResponse || response.data.data;
+      
+      console.log('🤖 [aiChatOpsService] sendMessage: AI response extracted:', {
+        aiResponseType: typeof aiResponse,
+        aiResponseLength: typeof aiResponse === 'string' ? aiResponse.length : 'not string',
+        aiResponsePreview: typeof aiResponse === 'string' ? aiResponse.substring(0, 100) + '...' : aiResponse
+      });
+      
+      const result = {
         success: response.data.success || true,
         data: {
-          aiResponse: response.data.aiQuery || response.data.data?.aiResponse || response.data.data,
+          aiResponse: aiResponse,
           success: response.data.success
         },
         sessionId: response.data.sessionId || messageData.sessionId,
         message: response.data.message || 'Message sent successfully'
       };
+      
+      console.log('✅ [aiChatOpsService] sendMessage: Final result prepared:', {
+        success: result.success,
+        hasAiResponse: !!result.data.aiResponse,
+        sessionId: result.sessionId,
+        message: result.message
+      });
+      
+      return result;
 
     } catch (error) {
+      console.error('❌ [aiChatOpsService] sendMessage: API call failed:', {
+        error: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        responseData: error.response?.data,
+        requestURL: error.config?.url,
+        timeout: error.code === 'ECONNABORTED',
+        personaCode: messageData.personaCode
+      });
+      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -163,6 +247,12 @@ const aiChatOpsService = {
   },
 
   async generateQuickQuestions(questionData) {
+    console.log('🚀 [aiChatOpsService] generateQuickQuestions: Starting API call:', {
+      personaCode: questionData.personaCode,
+      hasConversationContext: !!questionData.conversationContext,
+      currentLanguage: questionData.currentLanguage
+    });
+    
     try {
       const response = await axios.post(`${API_BASE_URL}/quick-questions`, {
         personaCode: questionData.personaCode,
@@ -175,19 +265,53 @@ const aiChatOpsService = {
         timeout: 30000
       });
 
+      console.log('📡 [aiChatOpsService] generateQuickQuestions: Raw API response:', {
+        status: response.status,
+        statusText: response.statusText,
+        hasData: !!response.data,
+        dataKeys: response.data ? Object.keys(response.data) : [],
+        success: response.data?.success,
+        hasAiQuery: !!response.data?.aiQuery,
+        fullResponse: response.data
+      });
+
       // API 응답 구조 통일: response.data.success와 response.data.aiQuery 사용
       const questionsData = response.data.aiQuery || response.data.data || response.data;
+      
+      console.log('❓ [aiChatOpsService] generateQuickQuestions: Raw questions data:', {
+        type: typeof questionsData,
+        isArray: Array.isArray(questionsData),
+        length: typeof questionsData === 'string' ? questionsData.length : 'not string',
+        preview: typeof questionsData === 'string' ? questionsData.substring(0, 200) + '...' : questionsData
+      });
+      
+      const parsedQuestions = this.parseQuickQuestions(questionsData);
+      
+      console.log('📄 [aiChatOpsService] generateQuickQuestions: Parsed questions:', {
+        count: parsedQuestions.length,
+        questions: parsedQuestions
+      });
       
       return {
         success: response.data.success || true,
         data: {
-          questions: this.parseQuickQuestions(questionsData),
+          questions: parsedQuestions,
           success: response.data.success
         },
         message: response.data.message || 'Quick questions generated successfully'
       };
 
     } catch (error) {
+      console.error('❌ [aiChatOpsService] generateQuickQuestions: API call failed:', {
+        error: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        responseData: error.response?.data,
+        requestURL: error.config?.url,
+        timeout: error.code === 'ECONNABORTED',
+        personaCode: questionData.personaCode
+      });
+      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -197,20 +321,38 @@ const aiChatOpsService = {
   },
 
   parseQuickQuestions(rawData) {
-    if (!rawData) return [];
+    console.log('🔄 [aiChatOpsService] parseQuickQuestions: Starting parsing:', {
+      hasRawData: !!rawData,
+      rawDataType: typeof rawData,
+      isArray: Array.isArray(rawData),
+      rawDataPreview: typeof rawData === 'string' ? rawData.substring(0, 200) + '...' : rawData
+    });
+    
+    if (!rawData) {
+      console.warn('⚠️ [aiChatOpsService] parseQuickQuestions: No raw data provided');
+      return [];
+    }
     
     try {
       let cleanData = rawData;
       
       if (typeof rawData === 'string') {
         cleanData = rawData.trim();
+        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing string data:', {
+          length: cleanData.length,
+          hasJsonMatch: /\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]/.test(cleanData)
+        });
         
         const jsonMatch = cleanData.match(/\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]/);
         if (jsonMatch) {
+          console.log('🔮 [aiChatOpsService] parseQuickQuestions: JSON match found:', jsonMatch[0]);
           const questions = JSON.parse(jsonMatch[0]);
-          return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
+          const filtered = Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
+          console.log('✅ [aiChatOpsService] parseQuickQuestions: JSON parsing successful:', filtered);
+          return filtered;
         }
         
+        console.log('📄 [aiChatOpsService] parseQuickQuestions: No JSON match, processing lines');
         const lines = cleanData.split(/\r?\n/)
           .map(line => line.trim())
           .filter(line => line && !line.match(/^[\[\]\r\n\s\-\*]*$/))
@@ -218,21 +360,41 @@ const aiChatOpsService = {
           .filter(line => line.length > 5)
           .slice(0, 5);
         
+        console.log('✅ [aiChatOpsService] parseQuickQuestions: Line processing result:', lines);
         return lines;
       }
       
       if (Array.isArray(rawData)) {
-        return rawData.filter(q => q && q.trim() && q.trim().length > 5).slice(0, 5);
+        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing array data:', {
+          length: rawData.length,
+          items: rawData
+        });
+        const filtered = rawData.filter(q => q && q.trim() && q.trim().length > 5).slice(0, 5);
+        console.log('✅ [aiChatOpsService] parseQuickQuestions: Array processing result:', filtered);
+        return filtered;
       }
       
       if (rawData && typeof rawData === 'object') {
+        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing object data:', {
+          keys: Object.keys(rawData),
+          hasQuestions: !!rawData.questions,
+          hasQueries: !!rawData.queries,
+          hasData: !!rawData.data
+        });
         const questions = rawData.questions || rawData.queries || rawData.data || [];
-        return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
+        const filtered = Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
+        console.log('✅ [aiChatOpsService] parseQuickQuestions: Object processing result:', filtered);
+        return filtered;
       }
       
+      console.warn('⚠️ [aiChatOpsService] parseQuickQuestions: Unknown data type, returning empty array');
       return [];
     } catch (error) {
-      console.warn('빠른 질문 파싱 실패:', error);
+      console.error('❌ [aiChatOpsService] parseQuickQuestions: 빠른 질문 파싱 실패:', {
+        error: error.message,
+        stack: error.stack,
+        rawData: rawData
+      });
       return [];
     }
   },

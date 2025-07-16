@@ -65,7 +65,7 @@
       </div>
     </div>
 
-    <div v-if="componentType === 'message'" :class="['message', `message--${messageType}`]">
+    <div v-if="componentType === 'message'" :class="['message', `message--${actualMessageType}`]">
       <div :class="messageClasses">
         <template v-if="loading">
           <div class="message-bubble__loading">
@@ -77,8 +77,13 @@
         </template>
         
         <template v-else>
+          <!-- 디버깅 정보 -->
+          <div v-if="debugMode && !hasValidData" class="debug-warning">
+            ⚠️ No valid data: {{ debugInfo }}
+          </div>
+          
           <!-- USER 메시지 브랜딩 - 미니먀 -->
-          <div v-if="messageType === 'user'" class="user-message-brand">
+          <div v-if="actualMessageType === 'user'" class="user-message-brand">
             <div class="user-badge-minimal">
               <span>👤</span>
               <span>USER</span>
@@ -86,16 +91,25 @@
           </div>
           
           <!-- BOT 메시지 브랜딩 - 미니먀 -->
-          <div v-if="messageType === 'ai'" class="bot-message-brand">
-            <div class="bot-badge-minimal" :class="{ 'bot-badge--error': isError }">
+          <div v-if="actualMessageType === 'ai'" class="bot-message-brand">
+            <div class="bot-badge-minimal" :class="{ 'bot-badge--error': actualIsError }">
               <span class="bot-emoji">🤖</span>
               <span>{{ getPersonaBotName() }}</span>
             </div>
           </div>
           
-          <div class="message-bubble__content" v-html="formattedContent"></div>
+          <!-- 데이터 없음 상태 -->
+          <div v-if="!hasValidData" class="message-bubble__empty">
+            <div class="empty-message">
+              <span class="empty-icon">💭</span>
+              <span class="empty-text">메시지를 불러오는 중...</span>
+            </div>
+          </div>
           
-          <div v-if="messageType === 'ai' && !isError" class="message-bubble__actions">
+          <!-- 정상 데이터 -->
+          <div v-else class="message-bubble__content" v-html="formattedContent"></div>
+          
+          <div v-if="actualMessageType === 'ai' && !actualIsError" class="message-bubble__actions">
             <button
               v-if="showCopy"
               :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': copyStatus === 'copied' }]"
@@ -143,6 +157,7 @@ export default {
     
     messageType: { type: String, default: 'user' },
     content: { type: [String, Number], default: '' },
+    message: { type: Object, default: null },
     loadingMessage: { type: String, default: '응답을 생성하고 있습니다...' },
     isError: { type: Boolean, default: false },
     showCopy: { type: Boolean, default: true },
@@ -153,7 +168,9 @@ export default {
   
   data() {
     return {
-      hoverRating: 0
+      hoverRating: 0,
+      debugMode: process.env.NODE_ENV === 'development',
+      renderingErrors: []
     };
   },
   
@@ -181,12 +198,16 @@ export default {
     },
     
     messageClasses() {
+      const type = this.message?.type || this.messageType;
+      const isLoading = this.message?.isLoading || this.loading;
+      const isError = this.message?.isError || this.isError;
+      
       return [
         'message-bubble',
-        `message-bubble--${this.messageType}`,
+        `message-bubble--${type}`,
         {
-          'message-bubble--loading': this.loading,
-          'message-bubble--error': this.isError
+          'message-bubble--loading': isLoading,
+          'message-bubble--error': isError
         }
       ];
     },
@@ -204,13 +225,95 @@ export default {
     },
     
     formattedContent() {
-      return String(this.content || '');
+      const content = this.message?.content || this.content;
+      const formatted = String(content || '');
+      
+      if (this.debugMode) {
+        console.log('🔍 [Elements] formattedContent:', {
+          messageContent: this.message?.content,
+          propsContent: this.content,
+          finalContent: formatted,
+          messageType: this.actualMessageType,
+          isError: this.actualIsError
+        });
+      }
+      
+      return formatted;
+    },
+    
+    actualMessageType() {
+      const type = this.message?.type || this.messageType;
+      
+      if (this.debugMode) {
+        console.log('🔍 [Elements] actualMessageType:', {
+          messageType: this.message?.type,
+          propsType: this.messageType,
+          finalType: type,
+          message: this.message
+        });
+      }
+      
+      return type;
+    },
+    
+    actualIsError() {
+      const isError = this.message?.isError || this.isError;
+      
+      if (this.debugMode) {
+        console.log('🔍 [Elements] actualIsError:', {
+          messageIsError: this.message?.isError,
+          propsIsError: this.isError,
+          finalIsError: isError
+        });
+      }
+      
+      return isError;
+    },
+    
+    hasValidData() {
+      return !!(this.message || this.content);
+    },
+    
+    debugInfo() {
+      return {
+        componentType: this.componentType,
+        hasMessage: !!this.message,
+        hasContent: !!this.content,
+        messageType: this.actualMessageType,
+        isError: this.actualIsError,
+        persona: this.persona,
+        timestamp: new Date().toISOString()
+      };
+    }
+  },
+  
+  mounted() {
+    if (this.debugMode) {
+      console.log('🚀 [Elements] Component mounted:', this.debugInfo);
+    }
+  },
+  
+  watch: {
+    message: {
+      handler(newMessage, oldMessage) {
+        if (this.debugMode) {
+          console.log('🔄 [Elements] Message changed:', {
+            old: oldMessage,
+            new: newMessage,
+            debugInfo: this.debugInfo
+          });
+        }
+      },
+      deep: true
     }
   },
   
   methods: {
     handleClick(event) {
       if (!this.disabled && !this.loading) {
+        if (this.debugMode) {
+          console.log('💆 [Elements] Button clicked:', { event, debugInfo: this.debugInfo });
+        }
         this.$emit('click', event);
       }
     },
@@ -236,7 +339,7 @@ export default {
     },
     
     getStarFill(star) {
-      return star <= this.currentRating ? 'var(--accent-primary)' : 'var(--border-medium)';
+      return star <= this.currentRating ? 'var(--color-accent)' : 'transparent';
     },
     
     getRatingText() {
@@ -249,10 +352,24 @@ export default {
     },
     
     getPersonaBotName() {
-      if (this.isError) {
-        return this.persona?.title ? `${this.persona.title} Error` : 'Bot Error';
+      const isError = this.actualIsError;
+      const personaTitle = this.persona?.title || this.persona?.name || this.persona?.personaName;
+      
+      if (this.debugMode) {
+        console.log('🔍 [Elements] getPersonaBotName:', {
+          isError,
+          persona: this.persona,
+          personaTitle,
+          result: isError 
+            ? (personaTitle ? `${personaTitle} Error` : 'Bot Error')
+            : (personaTitle ? `${personaTitle} BOT` : 'BOT')
+        });
       }
-      return this.persona?.title ? `${this.persona.title} BOT` : 'BOT';
+      
+      if (isError) {
+        return personaTitle ? `${personaTitle} Error` : 'Bot Error';
+      }
+      return personaTitle ? `${personaTitle} BOT` : 'BOT';
     },
     
     formatTimestamp(timestamp) {
@@ -732,5 +849,44 @@ export default {
 
 .bot-emoji {
   font-size: 12px;
+}
+
+/* 디버깅 및 빈 상태 스타일 */
+.debug-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  margin: var(--space-sm) 0;
+  font-size: var(--font-size-xs);
+  color: #856404;
+  font-family: monospace;
+}
+
+.message-bubble__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  opacity: 0.6;
+}
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 24px;
+  opacity: 0.5;
+}
+
+.empty-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-style: italic;
 }
 </style>
