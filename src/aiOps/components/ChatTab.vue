@@ -78,7 +78,7 @@
           </div>
         </div>
 
-        <div class="input-container card-system">
+        <div class="input-container">
           <div class="input-box">
             <textarea v-model="currentMessage" ref="messageInput" :placeholder="getText('inputPlaceholder')"
               @keydown="handleKeyDown" @input="handleInput" @focus="handleFocus" :disabled="isProcessing"
@@ -797,7 +797,7 @@ export default {
         if (loadingIndex !== -1) {
           this.messages[loadingIndex].content = this.getLoadingMessage();
         }
-      }, 1000);
+      }, 1500);
     },
 
     stopLoadingMessages() {
