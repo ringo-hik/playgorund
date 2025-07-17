@@ -18,8 +18,9 @@
             <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="white" :width="16" :height="16" />
             <span>{{ getPersonaDisplayName(selectedPersona) }}</span>
           </div>
-          
-          <div v-if="showDevInfo" class="dev-info-tooltip-avatar" @mouseenter="showDevInfo = true" @mouseleave="showDevInfo = false">
+
+          <div v-if="showDevInfo" class="dev-info-tooltip-avatar" @mouseenter="showDevInfo = true"
+            @mouseleave="showDevInfo = false">
             <div class="dev-info-header">🔧 Dev Info</div>
             <div class="dev-info-content">
               <div class="dev-info-item">
@@ -37,7 +38,8 @@
               </div>
               <div class="dev-info-item">
                 <span class="dev-label">Rendering:</span>
-                <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ? 'Yes'
+                <span class="dev-value" :class="{ 'dev-value--active': renderingScheduled }">{{ renderingScheduled ?
+                  'Yes'
                   : 'No' }}</span>
               </div>
             </div>
@@ -872,12 +874,33 @@ export default {
     },
 
     clearChatHistory() {
-      this.messages = [];
-      this.pendingMessages = [];
-      this.currentMessage = '';
-      this.showQuickQuestions = false;
-      this.quickQuestions = [];
-      this.stopLoadingMessages();
+      if (!this.selectedPersona) return;
+
+      aiChatOpsService.deleteConversations(this.selectedPersona.personaCode)
+        .then(response => {
+          if (response.success) {
+            Object.assign(this, {
+              messages: [],
+              currentMessage: '',
+              showQuickQuestions: false,
+              continuousChatEnabled: false,
+              pendingMessages: [],
+              renderingScheduled: false
+            });
+
+            this.stopLoadingMessages();
+            this.$nextTick(() => {
+              const textarea = this.$refs.messageInput;
+              if (textarea) {
+                textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
+                this.applyInputVisualFeedback();
+              }
+            });
+          }
+        })
+        .catch(error => {
+          console.log('Error clearing messages:', error);
+        });
     },
 
     resetToInitialState() {

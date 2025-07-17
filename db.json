@@ -1,100 +1,108 @@
 {
   "api": {
-    "v1": {
-      "devportal": {
-        "ai-chatops": {
-          "personas": [
+    "success": true,
+    "data": {
+      "data": [
+        {
+          "personaCode": "personal_assistant",
+          "title": "개인 업무 어시스턴트",
+          "description": "개인 업무 및 일정 관리를 도와드립니다.",
+          "category": "personal",
+          "tags": ["개인", "업무", "일정"]
+        },
+        {
+          "personaCode": "project_manager",
+          "title": "프로젝트 매니저",
+          "description": "프로젝트 관리 및 팀 협업을 지원합니다.",
+          "category": "personal",
+          "tags": ["프로젝트", "관리", "팀"]
+        },
+        {
+          "personaCode": "hr_specialist",
+          "title": "HR 전문가",
+          "description": "인사 업무 및 직원 관리를 지원합니다.",
+          "category": "general",
+          "tags": ["인사", "HR", "직원"]
+        },
+        {
+          "personaCode": "customer_service",
+          "title": "고객 서비스",
+          "description": "고객 문의 및 서비스 관련 업무를 처리합니다.",
+          "category": "general",
+          "tags": ["고객", "서비스", "문의"]
+        },
+        {
+          "personaCode": "system_admin",
+          "title": "시스템 관리자",
+          "description": "시스템 운영 및 관리 업무를 담당합니다.",
+          "category": "operation",
+          "tags": ["시스템", "관리", "운영"]
+        },
+        {
+          "personaCode": "security_expert",
+          "title": "보안 전문가",
+          "description": "보안 관련 업무 및 위험 관리를 담당합니다.",
+          "category": "operation",
+          "tags": ["보안", "위험", "관리"]
+        }
+      ]
+    },
+    "timestamp": "2025-01-17T12:00:00Z"
+  },
+  "chat": {
+    "success": true,
+    "data": {
+      "data": [
+        {
+          "id": "response_1",
+          "personaCode": "personal_assistant",
+          "query": "오늘 일정 알려주세요",
+          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>"
+        },
+        {
+          "id": "response_2",
+          "personaCode": "hr_specialist",
+          "query": "휴가 신청 방법",
+          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>"
+        },
+        {
+          "id": "response_3",
+          "personaCode": "system_admin",
+          "query": "서버 상태 확인",
+          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>"
+        }
+      ]
+    },
+    "timestamp": "2025-01-17T12:00:00Z"
+  },
+  "chat/sessions": {
+    "success": true,
+    "data": {
+      "data": [
+        {
+          "personaCode": "hr_specialist",
+          "sessionId": "session_hr_001",
+          "conversations": [
             {
-              "personaCode": "personal_assistant",
-              "title": "개인 업무 어시스턴트",
-              "description": "개인 업무 및 일정 관리를 도와드립니다.",
-              "category": "personal",
-              "tags": ["개인", "업무", "일정"]
-            },
+              "userQuery": "휴가 신청 방법을 알려주세요",
+              "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
+              "timestamp": "2024-01-15T10:30:00Z"
+            }
+          ]
+        },
+        {
+          "personaCode": "personal_assistant",
+          "sessionId": "session_personal_001",
+          "conversations": [
             {
-              "personaCode": "project_manager",
-              "title": "프로젝트 매니저",
-              "description": "프로젝트 관리 및 팀 협업을 지원합니다.",
-              "category": "personal",
-              "tags": ["프로젝트", "관리", "팀"]
-            },
-            {
-              "personaCode": "hr_specialist",
-              "title": "HR 전문가",
-              "description": "인사 업무 및 직원 관리를 지원합니다.",
-              "category": "general",
-              "tags": ["인사", "HR", "직원"]
-            },
-            {
-              "personaCode": "customer_service",
-              "title": "고객 서비스",
-              "description": "고객 문의 및 서비스 관련 업무를 처리합니다.",
-              "category": "general",
-              "tags": ["고객", "서비스", "문의"]
-            },
-            {
-              "personaCode": "system_admin",
-              "title": "시스템 관리자",
-              "description": "시스템 운영 및 관리 업무를 담당합니다.",
-              "category": "operation",
-              "tags": ["시스템", "관리", "운영"]
-            },
-            {
-              "personaCode": "security_expert",
-              "title": "보안 전문가",
-              "description": "보안 관련 업무 및 위험 관리를 담당합니다.",
-              "category": "operation",
-              "tags": ["보안", "위험", "관리"]
+              "userQuery": "오늘 일정 알려주세요",
+              "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>",
+              "timestamp": "2024-01-15T09:00:00Z"
             }
           ]
         }
-      }
-    }
-  },
-  "chat": {
-    "sessions": [
-      {
-        "personaCode": "hr_specialist",
-        "sessionId": "session_hr_001",
-        "conversations": [
-          {
-            "userQuery": "휴가 신청 방법을 알려주세요",
-            "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
-            "timestamp": "2024-01-15T10:30:00Z"
-          }
-        ]
-      },
-      {
-        "personaCode": "personal_assistant",
-        "sessionId": "session_personal_001",
-        "conversations": [
-          {
-            "userQuery": "오늘 일정 알려주세요",
-            "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>",
-            "timestamp": "2024-01-15T09:00:00Z"
-          }
-        ]
-      }
-    ],
-    "responses": [
-      {
-        "id": "response_1",
-        "personaCode": "personal_assistant",
-        "query": "오늘 일정 알려주세요",
-        "response": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>"
-      },
-      {
-        "id": "response_2",
-        "personaCode": "hr_specialist",
-        "query": "휴가 신청 방법",
-        "response": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>"
-      },
-      {
-        "id": "response_3",
-        "personaCode": "system_admin",
-        "query": "서버 상태 확인",
-        "response": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>"
-      }
-    ]
+      ]
+    },
+    "timestamp": "2025-01-17T12:00:00Z"
   }
 }
