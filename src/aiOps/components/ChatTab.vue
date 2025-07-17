@@ -588,9 +588,7 @@ export default {
       let responseMessage;
 
       if (response.success) {
-        // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
         const aiResponseContent = aiChatOpsService.extractAIResponse(response);
-
 
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
@@ -650,7 +648,6 @@ export default {
         const response = await aiChatOpsService.generateQuickQuestions(questionData);
 
         if (response.success) {
-          // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
           const quickQuestionsData = aiChatOpsService.extractQuickQuestions(response);
           this.displayQuickQuestionsResponse(quickQuestionsData);
         } else {
@@ -697,7 +694,7 @@ export default {
         } else if (Array.isArray(responseData)) {
           questionsList = responseData.slice(0, 5);
         } else if (responseData && typeof responseData === 'object') {
-          questionsList = responseData.questions || responseData.queries || responseData.data || [];
+          questionsList = responseData.questions || responseData.data || [];
           if (typeof questionsList === 'string') {
             questionsList = [questionsList];
           }

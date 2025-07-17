@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = '/api/v1/devportal/ai-chatops';
+const API_BASE_URL = 'http://localhost:3004';
 
 const aiChatOpsService = {
 
@@ -104,7 +104,7 @@ const aiChatOpsService = {
         hasQueryHistory: !!requestBody.queryHistory
       });
 
-      const response = await axios.post(`${API_BASE_URL}/message/async`, requestBody, {
+      const response = await axios.get(`${API_BASE_URL}/message-async`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -177,11 +177,7 @@ const aiChatOpsService = {
     });
     
     try {
-      const response = await axios.post(`${API_BASE_URL}/quick-questions`, {
-        personaCode: questionData.personaCode,
-        conversationContext: questionData.conversationContext,
-        currentLanguage: questionData.currentLanguage
-      }, {
+      const response = await axios.get(`${API_BASE_URL}/quick-questions`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -323,7 +319,7 @@ const aiChatOpsService = {
 
   async getConversations(personaCode) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/conversations/${personaCode}`, {
+      const response = await axios.get(`${API_BASE_URL}/conversations-${personaCode}`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -347,7 +343,7 @@ const aiChatOpsService = {
 
   async deleteConversations(personaCode) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/conversations/${personaCode}`, {
+      const response = await axios.delete(`${API_BASE_URL}/conversations-${personaCode}`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -447,11 +443,7 @@ const aiChatOpsService = {
 
   async sendFeedback(feedbackData) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/feedback`, {
-        rating: feedbackData.rating,
-        feedbackPersona: feedbackData.feedbackPersona,
-        comment: feedbackData.comment
-      }, {
+      const response = await axios.get(`${API_BASE_URL}/feedback`, {
         headers: {
           'Content-Type': 'application/json'
         },

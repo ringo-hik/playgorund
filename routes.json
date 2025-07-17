@@ -1,3 +1,8 @@
 {
-  "/api/v1/devportal/ai-chatops/*": "/$1"
+  "/api/v1/devportal/ai-chatops/health": "/health",
+  "/api/v1/devportal/ai-chatops/personas": "/personas",
+  "/api/v1/devportal/ai-chatops/message/async": "/message-async",
+  "/api/v1/devportal/ai-chatops/quick-questions": "/quick-questions",
+  "/api/v1/devportal/ai-chatops/conversations/:personaCode": "/conversations-:personaCode",
+  "/api/v1/devportal/ai-chatops/feedback": "/feedback"
 }
