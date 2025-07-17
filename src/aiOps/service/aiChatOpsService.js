@@ -11,8 +11,8 @@ const aiChatOpsService = {
       });
 
       return {
-        success: true,
-        data: response.data,
+        success: response.data.success || true,
+        data: response.data.data || response.data,
         message: response.data.message || 'Health check successful'
       };
 
@@ -45,18 +45,16 @@ const aiChatOpsService = {
         fullData: response.data
       });
 
-      const personas = response.data.data || response.data;
-      
       console.log('📄 [aiChatOpsService] getPersonas: Processed personas data:', {
-        personasType: typeof personas,
-        isArray: Array.isArray(personas),
-        length: Array.isArray(personas) ? personas.length : 'not array',
-        firstItem: Array.isArray(personas) && personas.length > 0 ? personas[0] : null
+        personasType: typeof response.data,
+        isArray: Array.isArray(response.data),
+        length: Array.isArray(response.data) ? response.data.length : 'not array',
+        firstItem: Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null
       });
 
       return {
-        success: true,
-        data: personas,
+        success: response.data.success || true,
+        data: response.data.data || response.data,
         message: response.data.message || 'Personas loaded successfully'
       };
 
@@ -125,8 +123,7 @@ const aiChatOpsService = {
         fullResponse: response.data
       });
 
-      // API 응답 구조 통일: response.data.success와 response.data.aiQuery 사용
-      const aiResponse = response.data.aiQuery || response.data.data?.aiResponse || response.data.data;
+      const aiResponse = response.data.data || response.data;
       
       console.log('🤖 [aiChatOpsService] sendMessage: AI response extracted:', {
         aiResponseType: typeof aiResponse,
@@ -201,8 +198,7 @@ const aiChatOpsService = {
         fullResponse: response.data
       });
 
-      // API 응답 구조 통일: response.data.success와 response.data.aiQuery 사용
-      const questionsData = response.data.aiQuery || response.data.data || response.data;
+      const questionsData = response.data.data || response.data;
       
       console.log('❓ [aiChatOpsService] generateQuickQuestions: Raw questions data:', {
         type: typeof questionsData,
@@ -335,7 +331,7 @@ const aiChatOpsService = {
       });
 
       return {
-        success: true,
+        success: response.data.success || true,
         data: response.data.data || response.data,
         message: response.data.message || 'Conversations loaded successfully'
       };
@@ -359,7 +355,7 @@ const aiChatOpsService = {
       });
 
       return {
-        success: true,
+        success: response.data.success || true,
         data: response.data.data || response.data,
         message: response.data.message || 'Conversations deleted successfully'
       };
@@ -463,7 +459,7 @@ const aiChatOpsService = {
       });
 
       return {
-        success: true,
+        success: response.data.success || true,
         data: response.data.data || response.data,
         message: response.data.message || 'Feedback sent successfully'
       };
@@ -698,24 +694,17 @@ const aiChatOpsService = {
     return html.replace(/<[^>]*>/g, '');
   },
 
-  // 통합된 응답 추출 유틸리티
+  // 단순화된 응답 추출 유틸리티
   extractAIResponse(response) {
-    return response.data?.aiResponse ||
-           response.data?.aiQuery ||
-           response.aiResponse ||
-           response.aiQuery;
+    return response.data?.aiResponse || response.data?.data || response.data;
   },
 
   extractConversationId(response) {
-    return response.data?.conversationId ||
-           response.conversationId ||
-           Date.now();
+    return response.data?.conversationId || response.sessionId || Date.now();
   },
 
   extractQuickQuestions(response) {
-    return response.data?.questions ||
-           response.questions ||
-           [];
+    return response.data?.questions || response.data?.data || [];
   },
 
   getErrorMessage(error) {
