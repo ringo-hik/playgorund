@@ -222,7 +222,7 @@ export default {
 
   computed: {
     canSendMessage() {
-      return this.currentMessage.trim().length > 0 && !this.isProcessing && this.selectedPersona;
+      return this.currentMessage.length > 0 && !this.isProcessing && this.selectedPersona;
     },
 
     recentConversations() {
@@ -255,35 +255,26 @@ export default {
 
   watch: {
     currentLanguage() {
-      console.log('🌐 [ChatTab] currentLanguage changed:', this.currentLanguage);
       this.$nextTick(() => {
         this.trackInputChanges();
       });
     },
 
     isProcessing(newVal, oldVal) {
-      console.log('⚙️ [ChatTab] isProcessing changed:', { from: oldVal, to: newVal });
       if (!newVal) {
         this.stopLoadingMessages();
       }
       if (newVal) {
         this.showQuickQuestions = false;
-        console.log('🔄 [ChatTab] isProcessing: Hidden quick questions due to processing');
       }
     },
 
     selectedPersona: {
       handler(newPersona, oldPersona) {
-        console.log('👤 [ChatTab] selectedPersona changed:', {
-          from: oldPersona?.personaCode || 'none',
-          to: newPersona?.personaCode || 'none',
-          hasPersona: !!newPersona
-        });
 
         if (newPersona) {
           this.loadPersonaHistory();
         } else {
-          console.log('📄 [ChatTab] selectedPersona: No persona selected, clearing messages');
           this.messages = [];
         }
       },
@@ -325,11 +316,9 @@ export default {
 
     async loadPersonaHistory() {
       if (!this.selectedPersona?.personaCode) {
-        console.warn('🚫 [ChatTab] loadPersonaHistory: No persona code');
         return;
       }
 
-      console.log('🚀 [ChatTab] Loading persona history:', this.selectedPersona.personaCode);
 
       this.loadingHistory = true;
       this.isInitialLoad = true;
@@ -337,7 +326,6 @@ export default {
       try {
         const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
 
-        console.log('📜 [ChatTab] History API response:', response);
 
         if (response.success && response.data && Array.isArray(response.data)) {
           this.messages = [];
@@ -349,11 +337,9 @@ export default {
             conversationId: conv.conversationId || conv.id || Date.now()
           }));
 
-          console.log('📝 [ChatTab] Normalized conversations:', normalizedConversations);
 
           const historyMessages = aiChatOpsService.convertConversationsToMessages(normalizedConversations);
 
-          console.log('💬 [ChatTab] History messages:', historyMessages);
 
           if (historyMessages.length > 0) {
             this.messages = historyMessages;
@@ -361,12 +347,10 @@ export default {
               this.setInitialScrollPosition();
             });
           } else {
-            console.log('💭 [ChatTab] No history messages to display');
             // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
             this.checkManualPersonaAutoQuery();
           }
         } else {
-          console.warn('🚫 [ChatTab] Invalid history response:', response);
           // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
           this.checkManualPersonaAutoQuery();
         }
@@ -498,27 +482,14 @@ export default {
     },
 
     async sendMessage() {
-      console.log('🚀 [ChatTab] sendMessage called:', {
-        canSend: this.canSendMessage,
-        hasPersona: !!this.selectedPersona,
-        currentMessage: this.currentMessage
-      });
 
       if (!this.canSendMessage || !this.selectedPersona) {
-        console.warn('🚫 [ChatTab] Cannot send message:', {
-          canSend: this.canSendMessage,
-          hasPersona: !!this.selectedPersona
-        });
         return;
       }
 
-      const messageContent = this.currentMessage.trim();
+      const messageContent = this.currentMessage;
       const plainTextContent = aiChatOpsService.htmlToPlainText(messageContent);
 
-      console.log('📝 [ChatTab] Processing message:', {
-        original: messageContent,
-        plainText: plainTextContent
-      });
 
       const userMessage = {
         id: `user-${this.generateUniqueId()}`,
@@ -528,7 +499,6 @@ export default {
         isLoading: false
       };
 
-      console.log('💬 [ChatTab] Created user message:', userMessage);
 
       this.addMessageWithLimit(userMessage);
       this.currentMessage = '';
@@ -566,7 +536,6 @@ export default {
           messageData.queryHistory = queryHistory;
         }
 
-        console.log('🚀 [ChatTab] Emitting message-sent:', messageData);
         this.lastApiCall = {
           timestamp: new Date(),
           data: messageData,
@@ -603,12 +572,10 @@ export default {
     },
 
     addAiResponse(response) {
-      console.log('🚀 [ChatTab] addAiResponse called:', response);
 
       if (this.loadingMessageId) {
         const loadingIndex = this.messages.findIndex(msg => msg.id === this.loadingMessageId);
         if (loadingIndex !== -1) {
-          console.log('🗑️ [ChatTab] Removing loading message:', this.loadingMessageId);
           this.messages.splice(loadingIndex, 1);
         }
         this.loadingMessageId = null;
@@ -620,21 +587,8 @@ export default {
 
       if (response.success) {
         // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
-        const aiResponseContent = response.data?.aiResponse ||
-          response.data?.aiQuery ||
-          response.aiResponse ||
-          response.aiQuery ||
-          response.message ||
-          '응답을 받았습니다.';
+        const aiResponseContent = aiChatOpsService.extractAIResponse(response);
 
-        console.log('💬 [ChatTab] AI Response content extraction:', {
-          'response.data?.aiResponse': response.data?.aiResponse,
-          'response.data?.aiQuery': response.data?.aiQuery,
-          'response.aiResponse': response.aiResponse,
-          'response.aiQuery': response.aiQuery,
-          'response.message': response.message,
-          'finalContent': aiResponseContent
-        });
 
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
@@ -642,16 +596,10 @@ export default {
           content: aiResponseContent,
           timestamp: new Date(),
           isLoading: false,
-          conversationId: response.data?.conversationId || response.conversationId || response.id || Date.now()
+          conversationId: aiChatOpsService.extractConversationId(response)
         };
       } else {
         const errorContent = response.message || response.errorMessage || this.getText('aiError');
-        console.warn('🚫 [ChatTab] Error response:', {
-          'response.message': response.message,
-          'response.errorMessage': response.errorMessage,
-          'getText(aiError)': this.getText('aiError'),
-          'finalContent': errorContent
-        });
 
         responseMessage = {
           id: `error-${this.generateUniqueId()}`,
@@ -663,7 +611,6 @@ export default {
         };
       }
 
-      console.log('💬 [ChatTab] Created response message:', responseMessage);
 
       this.addMessageWithLimit(responseMessage);
 
@@ -684,7 +631,6 @@ export default {
         isLoading: false
       };
 
-      console.log('❌ [ChatTab] Adding error message:', errorMessage);
       this.addMessageWithLimit(errorMessage);
     },
 
@@ -703,12 +649,7 @@ export default {
 
         if (response.success) {
           // API 응답 구조 통일: response.data.success와 response.data.aiQuery 우선 처리
-          const quickQuestionsData = response.data?.questions ||
-            response.data?.aiQuery ||
-            response.questions ||
-            response.data ||
-            response.aiQuery ||
-            response.aiResponse;
+          const quickQuestionsData = aiChatOpsService.extractQuickQuestions(response);
           this.displayQuickQuestionsResponse(quickQuestionsData);
         } else {
           throw new Error(response.message || response.errorMessage);
@@ -804,11 +745,6 @@ export default {
     },
 
     addMessageWithLimit(newMessage) {
-      console.log('📝 [ChatTab] addMessageWithLimit:', {
-        message: newMessage,
-        currentMessagesCount: this.messages.length,
-        pendingCount: this.pendingMessages.length
-      });
 
       this.pendingMessages.push(newMessage);
       this.scheduleBatchUpdate();
@@ -892,7 +828,6 @@ export default {
       try {
         const textToCopy = aiChatOpsService.htmlToPlainText(message.content);
         await navigator.clipboard.writeText(textToCopy);
-        console.log('메시지가 클립보드에 복사되었습니다.');
       } catch (error) {
         console.error('클립보드 복사 실패:', error);
       }
@@ -973,7 +908,6 @@ export default {
     // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
     checkManualPersonaAutoQuery() {
       if (this.selectedPersona?.personaCode === 'chatbot_manual' && this.messages.length === 0) {
-        console.log('📚 [ChatTab] Auto-executing manual query for chatbot_manual persona');
         this.$nextTick(() => {
           this.currentMessage = '전체 메뉴얼';
           this.sendMessage();

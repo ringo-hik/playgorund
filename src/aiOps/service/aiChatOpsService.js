@@ -734,9 +734,33 @@ const aiChatOpsService = {
 
   stripHtml(html) {
     if (!html) return '';
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    // HTML 태그만 제거하고 줄바꿈 문자 보존
+    return html.replace(/<[^>]*>/g, '');
+  },
+
+  // 통합된 응답 추출 유틸리티
+  extractAIResponse(response) {
+    return response.data?.aiResponse ||
+           response.data?.aiQuery ||
+           response.aiResponse ||
+           response.aiQuery ||
+           response.message ||
+           '응답을 받았습니다.';
+  },
+
+  extractConversationId(response) {
+    return response.data?.conversationId ||
+           response.conversationId ||
+           response.id ||
+           Date.now();
+  },
+
+  extractQuickQuestions(response) {
+    return response.data?.questions ||
+           response.data?.aiQuery ||
+           response.questions ||
+           response.aiQuery ||
+           [];
   },
 
   getErrorMessage(error) {

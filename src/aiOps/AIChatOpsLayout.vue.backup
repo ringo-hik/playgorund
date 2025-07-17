@@ -447,12 +447,13 @@ export default {
         setTimeout(() => {
           this.isInitialized = false;
           this.isClosing = false;
-        }, 150);
+        }, 300);
       }
     },
 
     closeChat() {
-      // 즉시 UI 응답
+      this.saveCurrentMessages();
+
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -461,18 +462,12 @@ export default {
         windowState: 'normal'
       });
 
-      // 필수 작업은 즉시 처리
-      this.cancelAllPendingRequests();
+      setTimeout(() => {
+        this.isInitialized = false;
+      }, 300);
 
-      // 나머지 작업은 비동기로 처리 (성능 최적화)
-      this.$nextTick(() => {
-        this.saveCurrentMessages();
-        if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
-        
-        setTimeout(() => {
-          this.isInitialized = false;
-        }, 150);
-      });
+      this.cancelAllPendingRequests();
+      if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
     },
 
     minimizeWindow() {

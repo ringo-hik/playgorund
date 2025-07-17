@@ -43,7 +43,8 @@
       "Bash(node:*)",
       "Bash(md5sum:*)",
       "Bash(type:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(wc:*)"
     ],
     "deny": []
   }

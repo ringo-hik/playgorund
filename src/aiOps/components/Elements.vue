@@ -522,7 +522,7 @@ export default {
   word-wrap: break-word;
   box-shadow: var(--shadow-minimal);
   margin-bottom: var(--space-md);
-  text-align: right;
+  text-align: left;
   display: inline-block;
   max-width: 100%;
 }
