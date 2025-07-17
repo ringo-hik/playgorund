@@ -38,7 +38,10 @@ export default {
         'compass', 'briefcase', 'target', 'lightbulb', 'award', 'gem',
         'users', 'user', 'settings', 'home', 'star', 'heart',
         'rocket', 'code', 'message-circle', 'check', 'copy', 'info',
-        'palette', 'camera', 'music', 'book', 'gamepad-2', 'wrench'
+        'palette', 'camera', 'music', 'book', 'gamepad-2', 'wrench',
+        'mail', 'phone', 'edit', 'trash', 'send', 'layers',
+        'refresh-cw', 'sparkles', 'zap', 'check-circle', 'alert-triangle',
+        'wand-sparkles', 'grid', 'arrow-up-right'
       ]
     };
   },

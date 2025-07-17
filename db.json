@@ -1,108 +1,206 @@
 {
-  "api": {
+  "health": {
     "success": true,
     "data": {
-      "data": [
-        {
-          "personaCode": "personal_assistant",
-          "title": "개인 업무 어시스턴트",
-          "description": "개인 업무 및 일정 관리를 도와드립니다.",
-          "category": "personal",
-          "tags": ["개인", "업무", "일정"]
-        },
-        {
-          "personaCode": "project_manager",
-          "title": "프로젝트 매니저",
-          "description": "프로젝트 관리 및 팀 협업을 지원합니다.",
-          "category": "personal",
-          "tags": ["프로젝트", "관리", "팀"]
-        },
-        {
-          "personaCode": "hr_specialist",
-          "title": "HR 전문가",
-          "description": "인사 업무 및 직원 관리를 지원합니다.",
-          "category": "general",
-          "tags": ["인사", "HR", "직원"]
-        },
-        {
-          "personaCode": "customer_service",
-          "title": "고객 서비스",
-          "description": "고객 문의 및 서비스 관련 업무를 처리합니다.",
-          "category": "general",
-          "tags": ["고객", "서비스", "문의"]
-        },
-        {
-          "personaCode": "system_admin",
-          "title": "시스템 관리자",
-          "description": "시스템 운영 및 관리 업무를 담당합니다.",
-          "category": "operation",
-          "tags": ["시스템", "관리", "운영"]
-        },
-        {
-          "personaCode": "security_expert",
-          "title": "보안 전문가",
-          "description": "보안 관련 업무 및 위험 관리를 담당합니다.",
-          "category": "operation",
-          "tags": ["보안", "위험", "관리"]
-        }
-      ]
+      "status": "healthy",
+      "uptime": "24h 30m",
+      "version": "1.0.0",
+      "timestamp": "2025-01-17T12:00:00Z"
     },
+    "message": "Health check successful"
+  },
+  "personas": {
+    "success": true,
+    "data": [
+      {
+        "personaCode": "personal_assistant",
+        "title": "개인 업무 어시스턴트",
+        "description": "개인 업무 및 일정 관리를 도와드립니다.",
+        "category": "personal",
+        "tags": ["개인", "업무", "일정"],
+        "icon": "user",
+        "color": "#3B82F6"
+      },
+      {
+        "personaCode": "project_manager",
+        "title": "프로젝트 매니저",
+        "description": "프로젝트 관리 및 팀 협업을 지원합니다.",
+        "category": "personal",
+        "tags": ["프로젝트", "관리", "팀"],
+        "icon": "target",
+        "color": "#10B981"
+      },
+      {
+        "personaCode": "hr_specialist",
+        "title": "HR 전문가",
+        "description": "인사 업무 및 직원 관리를 지원합니다.",
+        "category": "general",
+        "tags": ["인사", "HR", "직원"],
+        "icon": "users",
+        "color": "#8B5CF6"
+      },
+      {
+        "personaCode": "customer_service",
+        "title": "고객 서비스",
+        "description": "고객 문의 및 서비스 관련 업무를 처리합니다.",
+        "category": "general",
+        "tags": ["고객", "서비스", "문의"],
+        "icon": "message-circle",
+        "color": "#F59E0B"
+      },
+      {
+        "personaCode": "system_admin",
+        "title": "시스템 관리자",
+        "description": "시스템 운영 및 관리 업무를 담당합니다.",
+        "category": "operation",
+        "tags": ["시스템", "관리", "운영"],
+        "icon": "settings",
+        "color": "#EF4444"
+      },
+      {
+        "personaCode": "security_expert",
+        "title": "보안 전문가",
+        "description": "보안 관련 업무 및 위험 관리를 담당합니다.",
+        "category": "operation",
+        "tags": ["보안", "위험", "관리"],
+        "icon": "shield",
+        "color": "#DC2626"
+      },
+      {
+        "personaCode": "data_analyst",
+        "title": "데이터 분석가",
+        "description": "데이터 분석 및 인사이트 제공을 담당합니다.",
+        "category": "operation",
+        "tags": ["데이터", "분석", "인사이트"],
+        "icon": "database",
+        "color": "#06B6D4"
+      },
+      {
+        "personaCode": "developer",
+        "title": "개발자",
+        "description": "소프트웨어 개발 및 기술 지원을 제공합니다.",
+        "category": "operation",
+        "tags": ["개발", "기술", "코딩"],
+        "icon": "code",
+        "color": "#84CC16"
+      },
+      {
+        "personaCode": "business_analyst",
+        "title": "비즈니스 분석가",
+        "description": "비즈니스 요구사항 분석 및 솔루션 제안을 담당합니다.",
+        "category": "general",
+        "tags": ["비즈니스", "분석", "솔루션"],
+        "icon": "briefcase",
+        "color": "#6366F1"
+      },
+      {
+        "personaCode": "marketing_specialist",
+        "title": "마케팅 전문가",
+        "description": "마케팅 전략 수립 및 캠페인 관리를 지원합니다.",
+        "category": "general",
+        "tags": ["마케팅", "전략", "캠페인"],
+        "icon": "rocket",
+        "color": "#EC4899"
+      }
+    ],
+    "message": "Personas loaded successfully",
     "timestamp": "2025-01-17T12:00:00Z"
   },
-  "chat": {
+  "message": {
+    "async": {
+      "success": true,
+      "data": {
+        "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">AI 응답 예시</h2><p class=\"markdown-paragraph\">사용자의 질문에 대한 AI 응답입니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>응답 시간</td><td>2025-01-17 12:00:00</td></tr><tr><td>처리 상태</td><td><strong class=\"markdown-strong\">성공</strong></td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>응답이 성공적으로 처리되었습니다.</div></div></div>",
+        "success": true
+      },
+      "sessionId": "session_" + Date.now(),
+      "message": "Message sent successfully",
+      "timestamp": "2025-01-17T12:00:00Z"
+    }
+  },
+  "quick-questions": {
     "success": true,
     "data": {
-      "data": [
-        {
-          "id": "response_1",
-          "personaCode": "personal_assistant",
-          "query": "오늘 일정 알려주세요",
-          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>"
-        },
-        {
-          "id": "response_2",
-          "personaCode": "hr_specialist",
-          "query": "휴가 신청 방법",
-          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>"
-        },
-        {
-          "id": "response_3",
-          "personaCode": "system_admin",
-          "query": "서버 상태 확인",
-          "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>"
-        }
-      ]
+      "aiQuery": "[\"오늘 일정을 확인해주세요\", \"프로젝트 진행 상황은 어떻게 되나요?\", \"다음 회의 준비사항을 알려주세요\", \"이번 주 중요한 업무는 무엇인가요?\", \"팀원들과 공유할 내용이 있나요?\"]",
+      "questions": [
+        "오늘 일정을 확인해주세요",
+        "프로젝트 진행 상황은 어떻게 되나요?",
+        "다음 회의 준비사항을 알려주세요",
+        "이번 주 중요한 업무는 무엇인가요?",
+        "팀원들과 공유할 내용이 있나요?"
+      ],
+      "success": true
     },
+    "message": "Quick questions generated successfully",
     "timestamp": "2025-01-17T12:00:00Z"
   },
-  "chat/sessions": {
-    "success": true,
-    "data": {
+  "conversations": {
+    "personal_assistant": {
+      "success": true,
       "data": [
         {
-          "personaCode": "hr_specialist",
-          "sessionId": "session_hr_001",
-          "conversations": [
-            {
-              "userQuery": "휴가 신청 방법을 알려주세요",
-              "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
-              "timestamp": "2024-01-15T10:30:00Z"
-            }
-          ]
-        },
-        {
-          "personaCode": "personal_assistant",
+          "conversationId": "conv_001",
           "sessionId": "session_personal_001",
-          "conversations": [
-            {
-              "userQuery": "오늘 일정 알려주세요",
-              "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>",
-              "timestamp": "2024-01-15T09:00:00Z"
-            }
-          ]
+          "userQuery": "오늘 일정 알려주세요",
+          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>",
+          "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">오늘 일정 안내</h2><p class=\"markdown-paragraph\">오늘 하루 일정을 정리해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>시간</th><th>일정</th><th>장소</th></tr></thead><tbody><tr><td>09:00</td><td><strong class=\"markdown-strong\">팀 회의</strong></td><td>회의실 A</td></tr><tr><td>11:00</td><td>프로젝트 검토</td><td>사무실</td></tr><tr><td>14:00</td><td>고객 미팅</td><td>외부</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-info\"><span class=\"markdown-alert-icon\">💡</span><div>중요한 미팅이 오후 2시에 예정되어 있습니다.</div></div></div>",
+          "createdDate": "2024-01-15T09:00:00Z",
+          "timestamp": "2024-01-15T09:00:00Z"
+        },
+        {
+          "conversationId": "conv_002",
+          "sessionId": "session_personal_001",
+          "userQuery": "내일 회의 준비사항 알려주세요",
+          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">내일 회의 준비사항</h2><p class=\"markdown-paragraph\">내일 회의를 위한 준비사항을 안내드립니다.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">프로젝트 진행 현황 보고서</li><li class=\"markdown-list-item\">예산 현황 및 계획서</li><li class=\"markdown-list-item\">팀별 성과 분석 자료</li><li class=\"markdown-list-item\">다음 분기 로드맵</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>모든 자료는 회의 1시간 전까지 공유 폴더에 업로드해주세요.</div></div></div>",
+          "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">내일 회의 준비사항</h2><p class=\"markdown-paragraph\">내일 회의를 위한 준비사항을 안내드립니다.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">프로젝트 진행 현황 보고서</li><li class=\"markdown-list-item\">예산 현황 및 계획서</li><li class=\"markdown-list-item\">팀별 성과 분석 자료</li><li class=\"markdown-list-item\">다음 분기 로드맵</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>모든 자료는 회의 1시간 전까지 공유 폴더에 업로드해주세요.</div></div></div>",
+          "createdDate": "2024-01-15T10:15:00Z",
+          "timestamp": "2024-01-15T10:15:00Z"
         }
-      ]
+      ],
+      "message": "Conversations loaded successfully",
+      "timestamp": "2025-01-17T12:00:00Z"
     },
-    "timestamp": "2025-01-17T12:00:00Z"
+    "hr_specialist": {
+      "success": true,
+      "data": [
+        {
+          "conversationId": "conv_003",
+          "sessionId": "session_hr_001",
+          "userQuery": "휴가 신청 방법을 알려주세요",
+          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
+          "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
+          "createdDate": "2024-01-15T10:30:00Z",
+          "timestamp": "2024-01-15T10:30:00Z"
+        }
+      ],
+      "message": "Conversations loaded successfully",
+      "timestamp": "2025-01-17T12:00:00Z"
+    },
+    "system_admin": {
+      "success": true,
+      "data": [
+        {
+          "conversationId": "conv_004",
+          "sessionId": "session_system_001",
+          "userQuery": "서버 상태 확인해주세요",
+          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>",
+          "aiQuery": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>",
+          "createdDate": "2024-01-15T11:00:00Z",
+          "timestamp": "2024-01-15T11:00:00Z"
+        }
+      ],
+      "message": "Conversations loaded successfully",
+      "timestamp": "2025-01-17T12:00:00Z"
+    }
+  },
+  "feedback": {
+    "success": true,
+    "data": {
+      "feedbackId": "feedback_" + Date.now(),
+      "status": "received",
+      "message": "피드백이 성공적으로 접수되었습니다.",
+      "timestamp": "2025-01-17T12:00:00Z"
+    },
+    "message": "Feedback sent successfully"
   }
 }
