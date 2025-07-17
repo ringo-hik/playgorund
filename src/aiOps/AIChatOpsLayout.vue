@@ -387,7 +387,7 @@ export default {
 
     getPersonaIconName(persona) {
       if (!persona) return 'message-square-heart';
-      return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
+      return aiChatOpsService.getPersonaIcon(persona.personaCode);
     },
 
     getPersonaDescription(persona) {
@@ -468,7 +468,7 @@ export default {
       this.$nextTick(() => {
         this.saveCurrentMessages();
         if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
-        
+
         setTimeout(() => {
           this.isInitialized = false;
         }, 150);

@@ -352,7 +352,6 @@ export default {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-md);
-  width: 100%;
 }
 
 .result-actions-separate .premium-button {
