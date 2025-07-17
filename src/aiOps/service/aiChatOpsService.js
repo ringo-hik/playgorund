@@ -319,7 +319,7 @@ const aiChatOpsService = {
 
   async getConversations(personaCode) {
     try {
-      const response = await axios.get(`${API_BASE_URL}/conversations-${personaCode}`, {
+      const response = await axios.get(`${API_BASE_URL}/conversations/${personaCode}`, {
         headers: {
           'Content-Type': 'application/json'
         },
@@ -343,7 +343,7 @@ const aiChatOpsService = {
 
   async deleteConversations(personaCode) {
     try {
-      const response = await axios.delete(`${API_BASE_URL}/conversations-${personaCode}`, {
+      const response = await axios.delete(`${API_BASE_URL}/conversations/${personaCode}`, {
         headers: {
           'Content-Type': 'application/json'
         },
