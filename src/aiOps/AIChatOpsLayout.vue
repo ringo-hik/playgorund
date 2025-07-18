@@ -126,7 +126,7 @@
             <div v-show="!loadingPersonas && filteredPersonas.length > 0" class="persona-grid">
               <div v-for="(persona, index) in filteredPersonas" :key="persona.personaCode"
                 @click="selectPersona(persona)" class="persona-card card-system card-system--interactive"
-                :class="{ disabled: loadingPersonas }">
+                :class="{ disabled: loadingPersonas }" data-testid="persona-card">
                 <div class="persona-card-content">
                   <div class="persona-icon"
                     :style="{ backgroundColor: getPersonaColor(index, getPersonaDescription(persona)) }">

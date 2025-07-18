@@ -63,9 +63,9 @@
 
           <div v-if="effectiveMessageType === 'ai' && !isError && !isCurrentlyLoading" class="message-bubble__actions">
             <button v-if="showCopy"
-              :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': copyStatus === 'copied' }]"
+              :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': effectiveCopyStatus === 'copied' }]"
               @click="handleCopy">
-              <LucideIcon :name="copyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12"
+              <LucideIcon :name="effectiveCopyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12"
                 :height="12" />
             </button>
           </div>
@@ -78,6 +78,7 @@
 <script>
 import LucideIcon from './LucideIcon.vue';
 import { getTextArray } from '../utils/i18n.js';
+import aiChatOpsService from '../service/aiChatOpsService.js';
 
 export default {
   name: 'Elements',
@@ -179,10 +180,11 @@ export default {
     },
 
     formattedContent() {
-      if (this.message?.content) {
-        return String(this.message.content);
-      }
-      return String(this.content || '');
+      const content = this.message?.content || this.content || '';
+      const contentStr = String(content);
+      
+      // 콘텐츠 타입에 따라 적절히 포맷팅
+      return aiChatOpsService.formatContentForDisplay(contentStr);
     },
 
     effectiveTimestamp() {
@@ -705,6 +707,7 @@ export default {
   word-wrap: break-word;
   line-height: 1.6;
   color: var(--color-text-primary);
+  white-space: pre-wrap;
 }
 
 .message-bubble__actions {

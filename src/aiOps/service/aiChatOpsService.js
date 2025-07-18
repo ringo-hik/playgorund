@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { marked } from 'marked';
 
 const API_BASE_URL = 'http://localhost:3004';
 
@@ -723,6 +724,100 @@ const aiChatOpsService = {
     }
 
     return error?.message || 'UNKNOWN_ERROR';
+  },
+
+  // 마크다운 감지 및 렌더링 유틸리티
+  isMarkdown(content) {
+    if (!content || typeof content !== 'string') return false;
+    
+    // 이미 HTML인 경우 마크다운이 아님
+    if (content.includes('<') && content.includes('>')) {
+      return false;
+    }
+    
+    // 마크다운 패턴 확인
+    const markdownPatterns = [
+      /^#{1,6}\s+.+$/m,           // 헤딩 (# ## ### 등)
+      /^\*\s+.+$/m,              // 리스트 (* 항목)
+      /^-\s+.+$/m,               // 리스트 (- 항목)
+      /^\d+\.\s+.+$/m,           // 번호 리스트 (1. 항목)
+      /\*\*.+?\*\*/,             // 굵은 글씨 (**text**)
+      /\*.+?\*/,                 // 기울임 글씨 (*text*)
+      /`.+?`/,                   // 인라인 코드 (`code`)
+      /```[\s\S]*?```/,          // 코드 블록 (```code```)
+      /^\>.+$/m,                 // 인용 (> 텍스트)
+      /\[.+?\]\(.+?\)/,          // 링크 ([text](url))
+      /!\[.*?\]\(.+?\)/          // 이미지 (![alt](url))
+    ];
+    
+    return markdownPatterns.some(pattern => pattern.test(content));
+  },
+
+  markdownToHtml(markdown) {
+    if (!markdown || typeof markdown !== 'string') return markdown;
+    
+    try {
+      // marked 설정
+      marked.setOptions({
+        breaks: true,
+        gfm: true,
+        sanitize: false,
+        smartLists: true,
+        smartypants: false
+      });
+      
+      const html = marked(markdown);
+      
+      // 기존 customMarkdown.css 클래스를 사용하도록 HTML 래핑
+      return `<div class="markdown-content">${html}</div>`;
+    } catch (error) {
+      console.error('마크다운 변환 실패:', error);
+      return markdown;
+    }
+  },
+
+  detectContentType(content) {
+    if (!content || typeof content !== 'string') return 'plain';
+    
+    // HTML 태그가 있는 경우
+    if (content.includes('<') && content.includes('>')) {
+      return 'html';
+    }
+    
+    // 마크다운 패턴이 있는 경우
+    if (this.isMarkdown(content)) {
+      return 'markdown';
+    }
+    
+    return 'plain';
+  },
+
+  formatContentForDisplay(content) {
+    const contentType = this.detectContentType(content);
+    
+    switch (contentType) {
+      case 'markdown':
+        return this.markdownToHtml(content);
+      case 'html':
+        return content;
+      case 'plain':
+      default:
+        return content;
+    }
+  },
+
+  getContentForCopy(content) {
+    const contentType = this.detectContentType(content);
+    
+    switch (contentType) {
+      case 'html':
+        return this.htmlToMarkdown(content);
+      case 'markdown':
+        return content;
+      case 'plain':
+      default:
+        return content;
+    }
   }
 };
 

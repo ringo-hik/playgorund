@@ -77,11 +77,12 @@
                 <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="currentColor" :width="24" :height="24" />
               </div>
               <h2 class="welcome-title">
-                {{ (getText('welcomeChat') || '').replace('{persona}', selectedPersona ?
-                  getPersonaDisplayName(selectedPersona) : '') }}
+                {{ selectedPersona ? getPersonaDisplayName(selectedPersona) : '' }}
               </h2>
             </div>
-            <p class="welcome-description">{{ getText('welcomeTip') || '' }}</p>
+            <div class="welcome-message" v-if="getPersonaWelcomeMessage(selectedPersona)" 
+                 v-html="formatWelcomeMessage(getPersonaWelcomeMessage(selectedPersona))"></div>
+            <p class="welcome-description" v-else>{{ getText('welcomeTip') || '' }}</p>
           </div>
         </div>
 
@@ -290,6 +291,16 @@ export default {
     getPersonaIconName(persona) {
       if (!persona) return 'message-square-heart';
       return aiChatOpsService.getPersonaIcon(persona.personaCode, persona.iconPath);
+    },
+
+    getPersonaWelcomeMessage(persona) {
+      if (!persona || !persona.welcomeMsg) return null;
+      return persona.welcomeMsg;
+    },
+
+    formatWelcomeMessage(message) {
+      if (!message) return '';
+      return aiChatOpsService.formatContentForDisplay(message);
     },
 
     getPersonaDescription(persona) {
@@ -825,7 +836,8 @@ export default {
 
     async handleCopyMessage(message) {
       try {
-        const textToCopy = aiChatOpsService.htmlToPlainText(message.content);
+        // 스마트 복사: 콘텐츠 타입에 따라 적절한 포맷으로 복사
+        const textToCopy = aiChatOpsService.getContentForCopy(message.content);
         await navigator.clipboard.writeText(textToCopy);
       } catch (error) {
         console.error('클립보드 복사 실패:', error);
@@ -1100,6 +1112,17 @@ export default {
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin: 0;
+}
+
+.welcome-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin: 0;
+  padding: var(--space-lg);
+  background: var(--color-chat-bubble-bot);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
 }
 
 .input-area {

@@ -44,7 +44,9 @@
       "Bash(md5sum:*)",
       "Bash(type:*)",
       "Bash(cat:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(cmd /c start http://localhost:3001)",
+      "Bash(npm test)"
     ],
     "deny": []
   }
