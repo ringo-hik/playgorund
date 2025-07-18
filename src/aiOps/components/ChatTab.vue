@@ -48,8 +48,8 @@
 
         <div class="header-actions">
           <button @click="$emit('go-persona-list')"
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="페르소나 목록으로">
-            <LucideIcon name="users" :width="14" :height="14" />
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="페르소나 변경">
+            <LucideIcon name="refresh-cw" :width="14" :height="14" />
           </button>
 
           <button @click="$emit('go-home')" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
@@ -884,6 +884,11 @@ export default {
 
     clearChatHistory() {
       if (!this.selectedPersona) return;
+
+      // 확인 다이얼로그 표시
+      const confirmed = confirm(`${this.selectedPersona.title}의 모든 대화 내역을 삭제하시겠습니까?\n\n삭제된 대화는 복구할 수 없습니다.`);
+      
+      if (!confirmed) return;
 
       aiChatOpsService.deleteConversations(this.selectedPersona.personaCode)
         .then(response => {
