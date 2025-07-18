@@ -182,7 +182,7 @@ export default {
     formattedContent() {
       const content = this.message?.content || this.content || '';
       const contentStr = String(content);
-      
+
       // 콘텐츠 타입에 따라 적절히 포맷팅
       return aiChatOpsService.formatContentForDisplay(contentStr);
     },
@@ -269,7 +269,7 @@ export default {
       const now = new Date();
       const diff = now - date;
 
-      if (diff < 60000) {
+      if (diff < 6000) {
         return '방금 전';
       }
 
@@ -338,7 +338,7 @@ export default {
         this.stopDotAnimation();
       }
     },
-    
+
     value(newVal) {
       // prop으로 전달된 값이 변경되면 내부 상태도 업데이트
       this.selectedRating = newVal;
@@ -349,7 +349,7 @@ export default {
     if (this.isCurrentlyLoading) {
       this.startDotAnimation();
     }
-    
+
     // 초기 선택된 별점 설정
     this.selectedRating = this.value;
   },
@@ -504,28 +504,29 @@ export default {
 }
 
 .message-bubble--user {
-  max-width: 70%;
-  min-width: 50px;
+  max-width: 85%;
+  min-width: 0px;
   width: fit-content;
-  background: transparent;
   padding: 0;
   border-radius: 0;
-  box-shadow: none;
   margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 
 .message-bubble--user .message-bubble__content {
-  background: var(--color-chat-bubble-user);
+  background: var(--color-chat-bubble-user) !important;
   color: var(--color-text-primary);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
   font-size: var(--font-size-base);
   line-height: 1.6;
   word-wrap: break-word;
-  box-shadow: var(--shadow-minimal);
-  margin-bottom: var(--space-md);
+  box-shadow: var(--shadow-soft);
   text-align: left;
   display: inline-block;
+  width: fit-content;
   max-width: 100%;
 }
 
@@ -537,7 +538,6 @@ export default {
   word-wrap: break-word;
   position: relative;
   overflow: visible;
-  background: transparent;
   border: none;
   box-shadow: none;
   padding: 0;
@@ -580,8 +580,9 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  width: 100%;
   gap: var(--space-sm);
+  width: fit-content;
+  margin-left: auto;
 }
 
 .user-badge {
@@ -589,7 +590,7 @@ export default {
   align-items: center;
   gap: 6px;
   padding: 2px 8px;
-  background: linear-gradient(135deg, var(--color-accent));
+  background: linear-gradient(135deg, var(--color-primary));
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
@@ -695,7 +696,6 @@ export default {
 
 .loading-text {
   font-size: 17px;
-  /* 2px larger than normal 15px */
   color: var(--color-text-muted);
   font-weight: 500;
   text-align: center;
@@ -796,16 +796,6 @@ export default {
 
 /* ----- 반응형 ----- */
 @media (max-width: 640px) {
-  .message {
-    padding: var(--space-md) var(--space-lg);
-  }
-
-  .message-bubble--user .message-bubble__content,
-  .message-bubble--error .message-bubble__content {
-    padding: var(--space-sm) var(--space-md) !important;
-    font-size: var(--font-size-sm) !important;
-  }
-
   .message-bubble--ai .message-bubble__content {
     font-size: var(--font-size-sm);
     padding: var(--space-sm) 0 var(--space-md);

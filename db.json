@@ -21,7 +21,7 @@
           "업무",
           "일정"
         ],
-        "welcomeMsg": "안녕하세요! 😊 개인 업무 어시스턴트입니다.\n\n일정 관리, 업무 정리, 생산성 향상을 위한 다양한 도구와 팁을 제공해드릴 수 있습니다. 어떤 도움이 필요하신가요?"
+        "welcomeMsg": "안녕하세요! 😊 개인 업무 어시스턴트입니다.\n\n**일정 관리, 업무 정리, 생산성 향상을 위한 다양한 도구와 팁을 제공해드릴 수 있습니다.**\n어떤 도움이 필요하신가요?"
       },
       {
         "personaCode": "project_manager",
@@ -136,7 +136,7 @@
   },
   "message-async": {
     "success": true,
-    "data": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">AI 응답 예시</h2><p class=\"markdown-paragraph\">사용자의 질문에 대한 AI 응답입니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>항목</th><th>내용</th></tr></thead><tbody><tr><td>응답 시간</td><td>2025-01-17 12:00:00</td></tr><tr><td>처리 상태</td><td><strong class=\"markdown-strong\">성공</strong></td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>응답이 성공적으로 처리되었습니다.</div></div></div>",
+    "data": "## AI 응답 예시\n\n사용자의 질문에 대한 AI 응답입니다.\n\n| 항목 | 내용 |\n|------|------|\n| 응답 시간 | 2025-01-17 12:00:00 |\n| 처리 상태 | **성공** |\n\n> ✅ 응답이 성공적으로 처리되었습니다.\n\n### 마크다운 테스트 요소들\n\n**굵은 텍스트**와 *기울임 텍스트*가 잘 렌더링됩니다.\n\n- 첫 번째 항목\n- 두 번째 항목\n- 세 번째 항목\n\n1. 번호 있는 리스트\n2. 두 번째 항목\n3. 세 번째 항목\n\n```javascript\nconst test = 'code block test';\nconsole.log(test);\n```\n\n`인라인 코드`도 잘 작동합니다.",
     "sessionId": "session_1705489200000",
     "timestamp": "2025-01-17T12:00:00Z"
   },
@@ -154,7 +154,7 @@
           "conversationId": "conv_003",
           "sessionId": "session_hr_001",
           "userQuery": "휴가 신청 방법을 알려주세요",
-          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">휴가 신청 절차</h2><p class=\"markdown-paragraph\">휴가 신청은 다음 절차에 따라 진행해주세요.</p><ul class=\"markdown-list\"><li class=\"markdown-list-item\">HR 시스템에 로그인</li><li class=\"markdown-list-item\">휴가 신청 메뉴 선택</li><li class=\"markdown-list-item\">휴가 종류 및 기간 입력</li><li class=\"markdown-list-item\">상급자 승인 요청</li></ul><div class=\"markdown-alert markdown-alert-warning\"><span class=\"markdown-alert-icon\">⚠️</span><div>휴가는 최소 3일 전에 신청해주세요.</div></div></div>",
+          "aiResponse": "## 휴가 신청 절차\n\n휴가 신청은 다음 절차에 따라 진행해주세요.\n\n- HR 시스템에 로그인\n- 휴가 신청 메뉴 선택\n- 휴가 종류 및 기간 입력\n- 상급자 승인 요청\n\n> ⚠️ 휴가는 최소 3일 전에 신청해주세요.",
           "createdDate": "2024-01-15T10:30:00Z"
         }
       ],
@@ -168,7 +168,7 @@
           "conversationId": "conv_004",
           "sessionId": "session_system_001",
           "userQuery": "서버 상태 확인해주세요",
-          "aiResponse": "<div class=\"markdown-content\"><h2 class=\"markdown-heading markdown-h2\">서버 상태 현황</h2><p class=\"markdown-paragraph\">현재 시스템 상태를 확인해드렸습니다.</p><div class=\"markdown-table-container\"><table class=\"markdown-table\"><thead><tr><th>서버</th><th>상태</th><th>CPU</th><th>메모리</th></tr></thead><tbody><tr><td>Web Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>45%</td><td>62%</td></tr><tr><td>DB Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>32%</td><td>58%</td></tr><tr><td>API Server</td><td><strong class=\"markdown-strong\">정상</strong></td><td>28%</td><td>41%</td></tr></tbody></table></div><div class=\"markdown-alert markdown-alert-success\"><span class=\"markdown-alert-icon\">✅</span><div>모든 서버가 정상 작동 중입니다.</div></div></div>",
+          "aiResponse": "## 서버 상태 현황\n\n현재 시스템 상태를 확인해드렸습니다.\n\n| 서버 | 상태 | CPU | 메모리 |\n|------|------|-----|--------|\n| Web Server | **정상** | 45% | 62% |\n| DB Server | **정상** | 32% | 58% |\n| API Server | **정상** | 28% | 41% |\n\n> ✅ 모든 서버가 정상 작동 중입니다.",
           "createdDate": "2024-01-15T11:00:00Z"
         }
       ],

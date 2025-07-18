@@ -4,425 +4,461 @@
    =========================================================================== */
 
 .markdown-content {
-  font-family: var(--font-family) !important;
-  font-size: clamp(12px, 2.5vw, 14px) !important;
-  line-height: 1.5 !important;
-  color: var(--color-text-primary) !important;
-  background: transparent !important;
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
+  font-family: var(--font-family);
+  font-size: clamp(12px, 2.5vw, 14px);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: transparent;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ----- 헤딩 스타일 ----- */
 .markdown-content .markdown-heading {
-  color: var(--markdown-heading-color) !important;
-  font-weight: 700 !important;
-  line-height: 1.3 !important;
-  margin: var(--space-lg) 0 var(--space-sm) 0 !important;
-  position: relative !important;
+  color: var(--markdown-heading-color);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: var(--space-lg) 0 var(--space-sm) 0;
+  position: relative;
 }
 
 .markdown-content .markdown-h1 {
-  font-size: max(16px, var(--font-size-xl)) !important;
-  margin-top: 0 !important;
-  border-bottom: 2px solid var(--color-border-accent) !important;
-  padding-bottom: var(--space-xs) !important;
+  font-size: max(16px, var(--font-size-xl));
+  margin-top: 0;
+  border-bottom: 2px solid var(--color-border-accent);
+  padding-bottom: var(--space-xs);
 }
 
 .markdown-content .markdown-h2 {
-  font-size: max(15px, var(--font-size-lg)) !important;
-  border-bottom: 1px solid var(--color-border-light) !important;
-  padding-bottom: 4px !important;
-  position: relative !important;
+  font-size: max(15px, var(--font-size-lg));
+  border-bottom: 1px solid var(--color-border-light);
+  padding-bottom: 4px;
+  position: relative;
 }
 
 .markdown-content .markdown-h2::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  bottom: -1px !important;
-  width: 30px !important;
-  height: 2px !important;
-  background: var(--color-text-accent) !important;
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 30px;
+  height: 2px;
+  background: var(--color-text-accent);
 }
 
 .markdown-content .markdown-h3 {
-  font-size: max(14px, var(--font-size-base)) !important;
-  color: var(--color-text-accent) !important;
+  font-size: max(14px, var(--font-size-base));
+  color: var(--color-text-accent);
 }
 
 .markdown-content .markdown-h4 {
-  font-size: var(--font-size-base) !important;
-  color: var(--color-text-secondary) !important;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
 }
 
 .markdown-content .markdown-h5,
 .markdown-content .markdown-h6 {
-  font-size: var(--font-size-base) !important;
-  color: var(--color-text-muted) !important;
-  font-weight: 500 !important;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  font-weight: 500;
 }
 
 /* ----- 텍스트 요소 ----- */
 .markdown-content .markdown-paragraph {
-  margin: var(--space-sm) 0 !important;
-  color: var(--color-text-secondary) !important;
-  line-height: 1.7 !important;
-  font-size: var(--font-size-base) !important;
+  margin: var(--space-sm) 0;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  font-size: var(--font-size-base);
 }
 
 .markdown-content .markdown-strong {
-  font-weight: 700 !important;
-  color: var(--color-text-primary) !important;
-  background: var(--color-primary-subtle) !important;
-  padding: 1px 3px !important;
-  border-radius: 3px !important;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  padding: 1px 3px;
+  border-radius: 3px;
 }
 
 .markdown-content .markdown-em {
-  font-style: italic !important;
-  color: var(--color-text-accent) !important;
+  font-style: italic;
+  color: var(--color-text-accent);
 }
 
 .markdown-content .markdown-link {
-  color: var(--color-text-accent) !important;
-  text-decoration: none !important;
-  border-bottom: 1px solid var(--color-text-accent) !important;  /* 항상 보이는 밑줄 */
-  transition: all var(--motion-fast) !important;
-  padding: 1px 2px !important;  /* 미니멀 패딩 */
-  border-radius: 2px !important;  /* 부드러운 모서리 */
-  font-weight: 500 !important;  /* 약간 두꺼운 글꾴 */
+  color: var(--color-text-accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-text-accent);  /* 항상 보이는 밑줄 */
+  transition: all var(--motion-fast);
+  padding: 1px 2px;  /* 미니멀 패딩 */
+  border-radius: 2px;  /* 부드러운 모서리 */
+  font-weight: 500;  /* 약간 두꺼운 글꾴 */
 }
 
 .markdown-content .markdown-link:hover {
-  border-bottom-color: var(--color-text-accent) !important;
-  background: var(--color-accent-medium) !important;
-  padding: 1px 3px !important;
-  border-radius: 3px !important;
-  transform: translateY(-1px) !important;  /* 은은한 상승 효과 */
-  box-shadow: 0 2px 4px rgba(6, 182, 212, 0.2) !important;  /* 강조 그림자 */
+  border-bottom-color: var(--color-primary);
+  background: var(--color-accent-medium);
+  padding: 1px 3px;
+  border-radius: 3px;
+  transform: translateY(-1px);  /* 은은한 상승 효과 */
+  box-shadow: var(--shadow-gentle);
 }
 
 /* ----- 리스트 ----- */
 .markdown-content .markdown-list {
-  margin: var(--space-sm) 0 !important;
-  padding-left: var(--space-lg) !important;
+  margin: var(--space-sm) 0;
+  padding-left: var(--space-lg);
 }
 
 .markdown-content .markdown-list-item {
-  margin: 4px 0 !important;
-  color: var(--color-text-secondary) !important;
-  position: relative !important;
+  margin: 4px 0;
+  color: var(--color-text-secondary);
+  position: relative;
 }
 
 .markdown-content .markdown-list-item::marker {
-  color: var(--color-text-accent) !important;
+  color: var(--color-primary);
 }
 
 /* ----- 코드 ----- */
 .markdown-content .markdown-inline-code {
-  background: var(--color-surface-medium) !important;
-  color: var(--color-text-accent) !important;
-  border: 1px solid var(--color-border-medium) !important;  /* 더 선명한 경계선 */
-  border-radius: 4px !important;  /* 더 둘근 모서리 */
-  padding: 3px 6px !important;  /* 더 넓은 패딩 */
-  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace !important;
-  font-size: clamp(11px, 2vw, 12px) !important;
-  font-weight: 600 !important;  /* 더 두꺼운 글꾴 */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1) !important;  /* 은은한 그림자 추가 */
+  background: var(--color-surface-accent);
+  color: var(--color-text-accent);
+  border: 1px solid var(--color-border-medium);  /* 더 선명한 경계선 */
+  border-radius: 4px;  /* 더 둘근 모서리 */
+  padding: 3px 6px;  /* 더 넓은 패딩 */
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+  font-size: clamp(11px, 2vw, 12px);
+  font-weight: 600;  /* 더 두꺼운 글꾴 */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);  /* 은은한 그림자 추가 */
 }
 
 .markdown-content .markdown-inline-code:hover {
-  background: rgba(6, 182, 212, 0.05) !important;
-  border-color: var(--color-text-accent) !important;
-  box-shadow: var(--shadow-minimal) !important;
+  background: var(--color-surface-accent);
+  border-color: var(--color-text-accent);
+  box-shadow: var(--shadow-minimal);
 }
 
 .markdown-content .markdown-code-block {
-  margin: var(--space-lg) 0 !important;  /* 더 넓은 여백 */
-  border: 1px solid var(--color-border-medium) !important;
-  border-radius: var(--radius-lg) !important;  /* 더 둘근 모서리 */
-  overflow: hidden !important;
-  box-shadow: var(--shadow-soft) !important;  /* 더 진한 그림자 */
-  border-left: 4px solid var(--color-text-accent) !important;  /* 왼쪽 강조 바 */
+  background: linear-gradient(200deg, var(--color-surface-elevated) 50%, var(--color-surface-medium) 100%);
+  position: relative;
+  margin: var(--space-lg) 0;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-gentle);
 }
 
 .markdown-content .markdown-code-block .code-header {
-  background: var(--color-surface-light) !important;
-  color: var(--color-text-muted) !important;
-  padding: var(--space-xs) var(--space-sm) !important;
-  border-bottom: 1px solid var(--color-border-light) !important;
-  font-size: 10px !important;
-  font-weight: 500 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--color-surface-accent);
+  color: var(--color-text-muted);
+  padding: var(--space-xs) var(--space-sm);
+  padding-right: 70px; /* 버튼 공간 확보 */
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.markdown-content .markdown-code-block:hover .copy-code-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.markdown-content .copy-code-btn {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  background: var(--color-surface-medium);
+  box-shadow: var(--shadow-gentle);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-md);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--motion-fast);
+}
+
+.markdown-content .copy-code-btn:hover {
+  background: var(--color-surface-light);
+  color: var(--color-text-primary);
+}
+
+.markdown-content .copy-code-btn.copied {
+  background: var(--color-success);
+  color: var(--color-text-light);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .markdown-content .markdown-code-block pre {
-  margin: 0 !important;
-  padding: var(--space-sm) !important;
-  overflow-x: auto !important;
-  background: #2D3748 !important;
-  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace !important;
-  font-size: clamp(11px, 2vw, 12px) !important;
-  line-height: 1.4 !important;
-  color: var(--color-surface-white) !important;
+  margin: 0;
+  padding: var(--space-sm);
+  overflow-x: auto;
+  background: #2D3748;
+  font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+  font-size: clamp(11px, 2vw, 12px);
+  line-height: 1.4;
+  color: var(--color-surface-white);
 }
 
 /* ----- 테이블 ----- */
 .markdown-content .markdown-table-container {
-  margin: var(--space-md) 0 !important;
-  overflow-x: auto !important;
-  border: 1px solid var(--color-border-light) !important;
-  border-radius: var(--radius-md) !important;
-  box-shadow: var(--shadow-soft) !important;
-  background: var(--color-surface-white) !important;
+  margin: var(--space-md) 0;
+  overflow-x: auto;
+  border: 1px solid var(--color-border-medium);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-gentle);
+  background: var(--color-surface-white);
 }
 
 .markdown-content .markdown-table {
-  width: 100% !important;
-  border-collapse: collapse !important;
-  font-size: var(--font-size-xs) !important;
-  background: transparent !important;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-xs);
+  background: transparent;
 }
 
 .markdown-content .markdown-table thead th {
-  background: linear-gradient(135deg, var(--color-surface-light) 0%, var(--color-surface-medium) 100%) !important;
-  color: var(--color-text-primary) !important;
-  padding: var(--space-xs) var(--space-sm) !important;
-  text-align: left !important;
-  font-weight: 600 !important;
-  font-size: 10px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.3px !important;
-  border-bottom: 2px solid var(--color-border-accent) !important;
-  border-right: 1px solid var(--color-border-light) !important;
-  position: relative !important;
+  background: linear-gradient(200deg, var(--color-surface-elevated) 5%, var(--color-surface-medium) 100%);
+  color: var(--color-text-primary);
+  padding: var(--space-xs) var(--space-sm);
+  text-align: left;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 2px solid var(--color-border-accent);
+  border-right: 1px solid var(--color-border-light);
+  position: relative;
 }
 
 .markdown-content .markdown-table thead th:last-child {
-  border-right: none !important;
+  border-right: none;
 }
 
 .markdown-content .markdown-table thead th::after {
-  content: '' !important;
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 1px !important;
-  background: var(--color-text-accent) !important;
-  opacity: 0.3 !important;
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-text-accent);
+  opacity: 0.3;
 }
 
 .markdown-content .markdown-table tbody td {
-  padding: var(--space-xs) var(--space-sm) !important;
-  border-bottom: 1px solid var(--color-border-light) !important;
-  border-right: 1px solid var(--color-border-light) !important;
-  color: var(--color-text-secondary) !important;
-  font-size: var(--font-size-xs) !important;
-  line-height: 1.4 !important;
+  padding: var(--space-xs) var(--space-sm);
+  border-bottom: 1px solid var(--color-border-light);
+  border-right: 1px solid var(--color-border-light);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
 }
 
 .markdown-content .markdown-table tbody td:last-child {
-  border-right: none !important;
+  border-right: none;
 }
 
 .markdown-content .markdown-table tbody tr:last-child td {
-  border-bottom: none !important;
+  border-bottom: none;
 }
 
 .markdown-content .markdown-table tbody tr:hover td {
-  background: rgba(6, 182, 212, 0.03) !important;
-  transition: background var(--motion-fast) !important;
+  background: rgba(6, 182, 212, 0.03);
+  transition: background var(--motion-fast);
 }
 
 .markdown-content .markdown-table tbody tr:nth-child(even) {
-  background: rgba(248, 250, 252, 0.5) !important;
+  background: rgba(248, 250, 252, 0.5);
 }
 
 /* ----- 알림 박스 ----- */
 .markdown-content .markdown-alert {
-  margin: var(--space-md) 0 !important;
-  padding: var(--space-sm) !important;
-  border: 1px solid !important;
-  border-radius: var(--radius-md) !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  gap: var(--space-sm) !important;
-  font-size: var(--font-size-xs) !important;
-  position: relative !important;
-  overflow: hidden !important;
+  margin: var(--space-md) 0;
+  padding: var(--space-sm);
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: var(--font-size-xs);
+  position: relative;
+  overflow: hidden;
 }
 
 .markdown-content .markdown-alert::before {
-  content: '' !important;
-  position: absolute !important;
-  left: 0 !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  width: 3px !important;
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
 }
 
 .markdown-content .markdown-alert-icon {
-  font-size: 14px !important;
-  flex-shrink: 0 !important;
-  margin-top: 1px !important;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .markdown-content .markdown-alert-info {
-  background: #EFF6FF !important;
-  border-color: #BFDBFE !important;
-  color: var(--color-text-primary) !important;
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+  color: var(--color-text-primary);
 }
 
 .markdown-content .markdown-alert-info::before {
-  background: var(--color-info) !important;
+  background: var(--color-info);
 }
 
 .markdown-content .markdown-alert-info .markdown-alert-icon {
-  color: var(--color-info) !important;
+  color: var(--color-info);
 }
 
 .markdown-content .markdown-alert-success {
-  background: #ECFDF5 !important;
-  border-color: #A7F3D0 !important;
-  color: var(--color-text-primary) !important;
+  background: #ECFDF5;
+  border-color: #A7F3D0;
+  color: var(--color-text-primary);
 }
 
 .markdown-content .markdown-alert-success::before {
-  background: var(--color-success) !important;
+  background: var(--color-success);
 }
 
 .markdown-content .markdown-alert-success .markdown-alert-icon {
-  color: var(--color-success) !important;
+  color: var(--color-success);
 }
 
 .markdown-content .markdown-alert-warning {
-  background: #FFFBEB !important;
-  border-color: #FDE68A !important;
-  color: var(--color-text-primary) !important;
+  background: #FFFBEB;
+  border-color: #FDE68A;
+  color: var(--color-text-primary);
 }
 
 .markdown-content .markdown-alert-warning::before {
-  background: var(--color-warning) !important;
+  background: var(--color-warning);
 }
 
 .markdown-content .markdown-alert-warning .markdown-alert-icon {
-  color: var(--color-warning) !important;
+  color: var(--color-warning);
 }
 
 .markdown-content .markdown-alert-error {
-  background: #FEF2F2 !important;
-  border-color: #FECACA !important;
-  color: var(--color-text-primary) !important;
+  background: #FEF2F2;
+  border-color: #FECACA;
+  color: var(--color-text-primary);
 }
 
 .markdown-content .markdown-alert-error::before {
-  background: var(--color-error) !important;
+  background: var(--color-error);
 }
 
 .markdown-content .markdown-alert-error .markdown-alert-icon {
-  color: var(--color-error) !important;
+  color: var(--color-error);
 }
 
 /* ----- 인용구 ----- */
 .markdown-content .markdown-blockquote {
-  margin: var(--space-md) 0 !important;
-  padding: var(--space-sm) var(--space-md) !important;
-  background: var(--color-surface-light) !important;
-  border: 1px solid var(--color-border-light) !important;
-  /* border-left: 4px solid var(--color-text-accent) !important; */ /* 왼쪽 보더 제거 */
-  border-radius: 0 var(--radius-md) var(--radius-md) 0 !important;
-  position: relative !important;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--color-surface-light);
+  border: 1px solid var(--color-border-medium);
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-sm);
+  position: relative;
 }
 
 .markdown-content .markdown-blockquote::before {
-  content: '"' !important;
-  position: absolute !important;
-  top: var(--space-xs) !important;
-  left: var(--space-xs) !important;
-  font-size: 20px !important;
-  color: var(--color-text-accent) !important;
-  opacity: 0.3 !important;
-  font-weight: bold !important;
+  position: absolute;
+  top: var(--space-xs);
+  left: var(--space-xs);
+  font-size: 20px;
+  color: var(--color-text-accent);
+  opacity: 0.3;
+  font-weight: bold;
 }
 
 .markdown-content .markdown-blockquote p {
-  margin: 0 !important;
-  color: var(--color-text-secondary) !important;
-  font-style: italic !important;
-  padding-left: var(--space-sm) !important;
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding-left: var(--space-sm);
 }
 
 /* ----- 구분선 ----- */
 .markdown-content .markdown-hr {
-  border: none !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, transparent 0%, var(--color-border-medium) 50%, transparent 100%) !important;
-  margin: var(--space-lg) 0 !important;
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--color-border-medium) 50%, transparent 100%);
+  margin: var(--space-lg) 0;
 }
 
 /* ----- 스크롤바 스타일링 ----- */
 .markdown-content *::-webkit-scrollbar {
-  width: 4px !important;
-  height: 4px !important;
+  width: 4px;
+  height: 4px;
 }
 
 .markdown-content *::-webkit-scrollbar-track {
-  background: var(--color-surface-medium) !important;
-  border-radius: 2px !important;
+  background: var(--color-surface-medium);
+  border-radius: 2px;
 }
 
 .markdown-content *::-webkit-scrollbar-thumb {
-  background: var(--color-border-medium) !important;
-  border-radius: 2px !important;
-  transition: background var(--motion-fast) !important;
+  background: var(--color-border-medium);
+  border-radius: 2px;
+  transition: background var(--motion-fast);
 }
 
 .markdown-content *::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-accent) !important;
+  background: var(--color-text-accent);
 }
 
 /* ----- 반응형 조정 ----- */
 @media (max-width: 640px) {
   .markdown-content .markdown-h1 {
-    font-size: 15px !important;
+    font-size: 15px;
   }
   
   .markdown-content .markdown-h2 {
-    font-size: 14px !important;
+    font-size: 14px;
   }
   
   .markdown-content .markdown-h3 {
-    font-size: 13px !important;
+    font-size: 13px;
   }
   
   .markdown-content .markdown-table thead th,
   .markdown-content .markdown-table tbody td {
-    padding: 3px 5px !important;
-    font-size: 9px !important;
+    padding: 3px 5px;
+    font-size: 9px;
   }
   
   .markdown-content .markdown-alert {
-    padding: var(--space-xs) !important;
-    gap: var(--space-xs) !important;
+    padding: var(--space-xs);
+    gap: var(--space-xs);
   }
   
   .markdown-content .markdown-code-block pre {
-    padding: var(--space-xs) !important;
-    font-size: 8px !important;
+    padding: var(--space-xs);
+    font-size: 8px;
   }
 }
 
 /* ----- 간소화된 애니메이션 ----- */
 @media (prefers-reduced-motion: no-preference) {
   .markdown-content .markdown-table tbody tr {
-    transition: background var(--motion-fast) !important;
+    transition: background var(--motion-fast);
   }
   
   .markdown-content .markdown-link,
   .markdown-content .markdown-inline-code {
-    transition: all var(--motion-fast) !important;
+    transition: all var(--motion-fast);
   }
 }

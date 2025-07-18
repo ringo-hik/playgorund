@@ -8,7 +8,7 @@
   --ai-chatops-secondary: #1E40AF;
   --ai-chatops-accent: #06B6D4;
   --ai-chatops-neutral: #64748B;
-  --ai-chatops-background: #fdfcfc;
+  --ai-chatops-background: #fffbfb;
   
   --ai-chatops-highlight: #27aae7;
   --ai-chatops-success: #10B981;
@@ -18,7 +18,7 @@
   --heritage-accent: #c22222;
   --heritage-neutral: #78716C;
   --heritage-background: #f5eeeb;
-  --heritage-text: #270f02;
+  --heritage-text: #1b0a01;
   --heritage-text-light: #FFFFFF;
   --heritage-border: #E7E5E4;
   
@@ -42,7 +42,7 @@
   --nyf-accent: #071a76; 
   --nyf-neutral: #786868; 
   --nyf-background: #edf0f3; 
-  --nyf-text: #2E2E2E; 
+  --nyf-text: #1b1b1b; 
   --nyf-text-light: #FFFFFF;
   --nyf-border: #D7CCC8;
   
@@ -61,12 +61,12 @@
   --nyf-gray-900: #212121;
 
   /* 🎨 Retro 팔레트 추가 (레트로 감성 강조) */
-  --retro-primary: #666547;
+  --retro-primary: #807e50;
   --retro-secondary: #fb2e01;
   --retro-accent: #6fcb9f;
   --retro-neutral: #78716C;
   --retro-background: #f3f3e9;
-  --retro-text: #270f02;
+  --retro-text: #240e03;
   --retro-text-light: #FFFFFF;
   --retro-border: #ffe28a;
   
@@ -95,7 +95,7 @@
   --color-continuous-active: #059669;
   --color-quick-action: #0EA5E9;
 
-  --color-text-primary: #1F2937;
+  --color-text-primary: #0f141b;
   --color-text-secondary: #4B5563;
   --color-text-muted: #6B7280;
   --color-text-tertiary: #9CA3AF;
@@ -177,7 +177,7 @@
   --radius-full: 50%;
 
   /* ----- 누락된 변수 추가 ----- */
-  --color-text-accent: var(--color-accent);
+  --color-text-accent: var(--color-text-primary);
   --success-color: var(--color-success);
   --error-color: var(--color-error);
   --border-medium: var(--color-border-medium);
@@ -235,12 +235,12 @@
   --color-quick-subtle: rgba(14, 165, 233, var(--opacity-light));
 
   /* ----- 채팅 버블 색상 ----- */
-  --color-chat-bubble-bot: rgba(0, 0, 0, 0.01); /* 4% darker than background */
-  --color-chat-bubble-user: rgba(0, 0, 0, 0.02); /* 8% darker than background */
+  --color-chat-bubble-bot: rgba(0, 0, 0, 0.04); /* 4% darker than background */
+  --color-chat-bubble-user: rgba(0, 0, 0, 0.05); /* 8% darker than background */
 
   /* ----- 카드 시스템 색상 ----- */
-  --color-card-bg: rgba(0, 0, 0, 0.06); /* 6% darker than background */
-  --shadow-card-enhanced: 0 3px 9px rgba(0, 0, 0, 0.08); /* 10% more shadow */
+  --color-card-bg: rgba(0, 0, 0, 0.04); /* 6% darker than background */
+  --shadow-card-enhanced: 0 3px 9px rgba(0, 0, 0, 0.15); /* 15% more shadow */
 
   /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
   --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));
@@ -405,6 +405,48 @@
   --markdown-quote-border: var(--retro-accent);
 }
 
+/* ----- 새로운 ai-chatops 테마 오버라이드 (추가) ----- */
+.theme-ai-chatops {
+  --color-primary: var(--ai-chatops-primary);
+  --color-primary-dark: var(--ai-chatops-secondary);
+  --color-accent: var(--ai-chatops-accent);
+  --color-accent-secondary: var(--ai-chatops-neutral);
+  --color-text-primary: #0f141b;
+  --color-text-secondary: #4B5563;
+  --color-text-muted: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+  --color-text-light: #FFFFFF;
+  
+  /* 🎨 AIChatOps 깊이별 배경 색상 */
+  --color-surface-white: #FFFFFF;
+  --color-surface-light: #F9FAFB;
+  --color-surface-medium: #F3F4F6;
+  --color-surface-elevated: #FFFFFF;
+  
+  /* 🎨 AIChatOps 뉴트럴 보더 색상 */
+  --color-border-light: #E2E8F0;
+  --color-border-medium: #CBD5E1;
+  --color-border-accent: var(--ai-chatops-accent);
+  
+  --color-header-bg: var(--ai-chatops-primary);
+  --color-header-accent: var(--ai-chatops-accent);
+  
+  /* 🎨 AIChatOps 테마 기능별 색상 */
+  --color-highlight: var(--ai-chatops-highlight);
+  --color-interactive: var(--ai-chatops-success);
+  --color-send-button: #10B981;
+  --color-continuous-active: #059669;
+  --color-quick-action: #0EA5E9;
+  
+  --color-accent-subtle: rgba(6, 182, 212, var(--opacity-light));
+  --color-accent-medium: rgba(6, 182, 212, var(--opacity-medium));
+  --color-accent-strong: rgba(6, 182, 212, var(--opacity-accent));
+  --color-primary-subtle: rgba(37, 99, 235, var(--opacity-light));
+  --markdown-code-bg: rgba(6, 182, 212, 0.08);
+  --markdown-code-border: rgba(6, 182, 212, 0.2);
+  --markdown-quote-border: var(--ai-chatops-accent);
+}
+
 .theme-heritage .card-system,
 .theme-heritage .input-container,
 .theme-heritage .persona-card,
@@ -477,6 +519,31 @@
   box-shadow: 0 4px 12px rgba(68, 64, 60, 0.15);
 }
 
+/* ----- 새로운 ai-chatops 테마 스타일 추가 ----- */
+.theme-ai-chatops .card-system,
+.theme-ai-chatops .input-container,
+.theme-ai-chatops .persona-card,
+.theme-ai-chatops .category-card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.theme-ai-chatops .messages-container {
+  background: var(--color-surface-white);
+}
+
+.theme-ai-chatops .message-bubble--user .message-bubble__content {
+  background: var(--color-surface-medium);
+  border: 1px solid var(--color-border-light);
+}
+
+.theme-ai-chatops .quick-questions-list {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 /* ----- 통일된 버튼 시스템 ----- */
 .btn-system {
   display: inline-flex;
@@ -486,7 +553,7 @@
   padding: var(--space-sm) var(--space-lg);
   min-height: 36px;
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--color-surface-white);
   color: var(--color-text-primary);
   font-family: var(--font-family);
@@ -501,9 +568,7 @@
 }
 
 .btn-system:focus {
-  outline: 1px solid var(--color-primary) !important;
-  outline-offset: 1px !important;
-  box-shadow: 0 0 0 1px var(--color-surface-white), 0 0 0 2px var(--color-primary) !important;
+  box-shadow: 0 0 0 0 var(--color-surface-white), 0 0 0 1px var(--color-primary) !important;
 }
 
 .btn-system:disabled {
@@ -512,7 +577,6 @@
   pointer-events: none;
 }
 
-/* ----- 헤더 버튼 전용 스타일 (CSS 정합성 개선) ----- */
 .header-btn {
   width: var(--header-button-size-sm) !important;
   height: var(--header-button-size-sm) !important;
@@ -679,14 +743,11 @@
 
 /* Ghost 버튼 */
 .btn-system--ghost {
-  background: transparent;
   color: var(--color-text-primary);
-  border-color: transparent;
 }
 
 .btn-system--ghost:hover:not(:disabled) {
   background: var(--color-surface-light);
-  border-color: var(--color-border-light);
   transform: translateY(-1px);
 }
 
@@ -870,13 +931,6 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
-
-/* ----- WCAG 2.1 AA 접근성 개선 ----- */
-*:focus {
-  outline: 1px solid var(--color-primary) !important;
-  outline-offset: 1px !important;
-}
-
 /* 색상에 의존하지 않는 정보 전달 */
 .visually-hidden {
   position: absolute !important;

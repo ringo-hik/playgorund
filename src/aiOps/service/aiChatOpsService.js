@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { marked } from 'marked';
+import { convertMarkdownToHtml } from './convertMarkdownToHtml.js';
 
 const API_BASE_URL = 'http://localhost:3004';
 
@@ -757,19 +757,7 @@ const aiChatOpsService = {
     if (!markdown || typeof markdown !== 'string') return markdown;
     
     try {
-      // marked 설정
-      marked.setOptions({
-        breaks: true,
-        gfm: true,
-        sanitize: false,
-        smartLists: true,
-        smartypants: false
-      });
-      
-      const html = marked(markdown);
-      
-      // 기존 customMarkdown.css 클래스를 사용하도록 HTML 래핑
-      return `<div class="markdown-content">${html}</div>`;
+      return convertMarkdownToHtml(markdown);
     } catch (error) {
       console.error('마크다운 변환 실패:', error);
       return markdown;

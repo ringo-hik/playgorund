@@ -14,7 +14,7 @@ const i18nResources = {
     goHome: '홈으로 가기',
     
     aiChatOpsTitle: 'AIChatOps',
-    welcomeTitle: '안녕하세요. 학습형 AIChatOps 입니다.',
+    welcomeTitle: '안녕하세요. 학습형 챗봇 입니다.',
     welcomeMessage: '다양한 서비스를 이용해보세요. 많이 사용하고, 피드백 주실 수록 향상된 결과를 얻을 수 있습니다.',
     
     personalCategory: '개인 특화',

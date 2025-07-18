@@ -73,23 +73,21 @@
         <div v-else-if="messages.length === 0" class="welcome-section">
           <div class="welcome-content">
             <div class="welcome-header">
-              <div class="persona-avatar">
-                <LucideIcon :name="getPersonaIconName(selectedPersona)" fill="currentColor" :width="24" :height="24" />
-              </div>
               <h2 class="welcome-title">
                 {{ selectedPersona ? getPersonaDisplayName(selectedPersona) : '' }}
               </h2>
             </div>
-            <div class="welcome-message" v-if="getPersonaWelcomeMessage(selectedPersona)" 
-                 v-html="formatWelcomeMessage(getPersonaWelcomeMessage(selectedPersona))"></div>
+            <div class="welcome-message" v-if="getPersonaWelcomeMessage(selectedPersona)"
+              v-html="formatWelcomeMessage(getPersonaWelcomeMessage(selectedPersona))"></div>
             <p class="welcome-description" v-else>{{ getText('welcomeTip') || '' }}</p>
           </div>
         </div>
 
         <div class="messages-list">
           <Elements v-for="message in messages" :key="message.id" component-type="message" :message="message"
-            :persona="selectedPersona" :current-language="currentLanguage" @copy-message="handleCopyMessage"
-            @regenerate-message="handleRegenerateMessage" @feedback-message="handleFeedbackMessage" />
+            :title="'복사'" :persona="selectedPersona" :current-language="currentLanguage" :timestamp="message.timestamp"
+            @copy-message="handleCopyMessage" @regenerate-message="handleRegenerateMessage"
+            @feedback-message="handleFeedbackMessage" />
         </div>
       </div>
 
@@ -699,7 +697,7 @@ export default {
           } else {
             questionsList = responseData.split('\n')
               .filter(q => q.trim())
-              .map(q => q.replace(/^[-\*•]\s*/, '').trim())
+              .map(q => q.replace(/^[-\*\xE2\x80\xA2]\s*/, '').trim())
               .slice(0, 5);
           }
         } else if (Array.isArray(responseData)) {
@@ -887,7 +885,7 @@ export default {
 
       // 확인 다이얼로그 표시
       const confirmed = confirm(`${this.selectedPersona.title}의 모든 대화 내역을 삭제하시겠습니까?\n\n삭제된 대화는 복구할 수 없습니다.`);
-      
+
       if (!confirmed) return;
 
       aiChatOpsService.deleteConversations(this.selectedPersona.personaCode)
@@ -950,6 +948,23 @@ export default {
           this.sendMessage();
         });
       }
+    },
+
+    handleMessageContainerClick(event) {
+      const button = event.target.closest('.copy-code-btn');
+      if (button) {
+        const pre = button.closest('.markdown-code-block').querySelector('pre');
+        if (pre) {
+          navigator.clipboard.writeText(pre.innerText).then(() => {
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+            setTimeout(() => {
+              button.textContent = 'Copy';
+              button.classList.remove('copied');
+            }, 2000);
+          });
+        }
+      }
     }
   },
 
@@ -960,6 +975,10 @@ export default {
         textarea.style.height = `${this.enhancedInputManager.minHeight}px`;
         this.applyInputVisualFeedback();
       }
+      const messagesContainer = this.$refs.messagesContainer;
+      if (messagesContainer) {
+        messagesContainer.addEventListener('click', this.handleMessageContainerClick);
+      }
     });
 
     this.startMemoryMonitoring();
@@ -969,6 +988,10 @@ export default {
   },
 
   beforeDestroy() {
+    const messagesContainer = this.$refs.messagesContainer;
+    if (messagesContainer) {
+      messagesContainer.removeEventListener('click', this.handleMessageContainerClick);
+    }
     this.stopLoadingMessages();
     this.stopMemoryMonitoring();
 
@@ -1112,22 +1135,18 @@ export default {
   margin: 0;
 }
 
-.welcome-description {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-  margin: 0;
+.welcome-section {
+  text-align: center;
+  padding: var(--space-lg) var(--space-xl) var(--space-md);
+  flex-shrink: 0;
 }
 
 .welcome-message {
   font-size: var(--font-size-base);
-  color: var(--color-text-primary);
-  line-height: 1.6;
+  color: var(--color-text-secondary);
   margin: 0;
-  padding: var(--space-lg);
-  background: var(--color-chat-bubble-bot);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
+  line-height: 1.5;
+  padding: 0 var(--space-md);
 }
 
 .input-area {
