@@ -1,7 +1,13 @@
 function convertMarkdownToHtml(mdString) {
     let html = '';
-    // 연속된 빈 줄을 하나로 축소
-    const normalizedMd = mdString.replace(/\n\s*\n\s*\n+/g, '\n\n');
+    // 모든 종류의 빈 줄들을 정규화
+    // 1. 공백만 있는 줄들을 완전히 빈 줄로 변환
+    // 2. 연속된 빈 줄들을 하나로 축소
+    // 3. 문자열 앞뒤 불필요한 공백 제거
+    const normalizedMd = mdString
+        .replace(/^[ \t]+$/gm, '')  // 공백만 있는 줄을 빈 줄로
+        .replace(/\n{3,}/g, '\n\n')  // 3개 이상의 연속 줄바꿈을 2개로
+        .trim();  // 앞뒤 공백 제거
     const lines = normalizedMd.split('\n');
     let inCodeBlock = false;
     let codeLang = '';
@@ -158,7 +164,7 @@ function convertMarkdownToHtml(mdString) {
                 paragraphBuffer = [parseInline(line)];
             }
         } else if (paragraphBuffer.length > 0) {
-            // 빈 줄을 만나면 현재 단락 완료
+            // 빈 줄이나 공백만 있는 줄을 만나면 현재 단락 완료
             html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
             paragraphBuffer = [];
         }

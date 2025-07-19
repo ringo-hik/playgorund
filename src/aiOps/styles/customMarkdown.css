@@ -65,9 +65,9 @@
 
 /* ----- 텍스트 요소 ----- */
 .markdown-content .markdown-paragraph {
-  margin: var(--space-sm) 0;
+  margin: 0 0 var(--space-xs) 0;
   color: var(--color-text-secondary);
-  line-height: 1.7;
+  line-height: 1.6;
   font-size: var(--font-size-base);
 }
 
