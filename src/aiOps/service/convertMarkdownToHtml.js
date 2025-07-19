@@ -1,6 +1,8 @@
 function convertMarkdownToHtml(mdString) {
     let html = '';
-    const lines = mdString.split('\n');
+    // 연속된 빈 줄을 하나로 축소
+    const normalizedMd = mdString.replace(/\n\s*\n\s*\n+/g, '\n\n');
+    const lines = normalizedMd.split('\n');
     let inCodeBlock = false;
     let codeLang = '';
     let inTable = false;
@@ -10,6 +12,7 @@ function convertMarkdownToHtml(mdString) {
     let alertType = '';
     let inList = false;
     let listStack = []; // 중첩 리스트 지원을 위한 스택
+    let paragraphBuffer = []; // 단락 버퍼
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim();
@@ -142,9 +145,22 @@ function convertMarkdownToHtml(mdString) {
         // 단락 처리
         if (line) {
             closeLists();
-            html += `<p class="markdown-paragraph">${parseInline(line)}</p>`;
-        } else {
-            html += '<br>';
+            // 이전 줄이 두 개 공백으로 끝나는지 확인 (마크다운 강제 줄바꿈)
+            const prevLineEndsWithTwoSpaces = i > 0 && lines[i-1].endsWith('  ');
+            if (paragraphBuffer.length > 0 && prevLineEndsWithTwoSpaces) {
+                // 강제 줄바꿈: 같은 단락 내에서 <br> 추가
+                paragraphBuffer.push('<br>' + parseInline(line));
+            } else if (paragraphBuffer.length > 0) {
+                // 일반적인 줄바꿈: 공백으로 연결 (마크다운에서 단일 줄바꿈은 공백으로 처리)
+                paragraphBuffer.push(' ' + parseInline(line));
+            } else {
+                // 새 단락 시작
+                paragraphBuffer = [parseInline(line)];
+            }
+        } else if (paragraphBuffer.length > 0) {
+            // 빈 줄을 만나면 현재 단락 완료
+            html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
+            paragraphBuffer = [];
         }
     }
 
@@ -177,6 +193,11 @@ function convertMarkdownToHtml(mdString) {
     }
 
     function closeAll() {
+        // 마지막에 남은 단락 처리
+        if (paragraphBuffer.length > 0) {
+            html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
+            paragraphBuffer = [];
+        }
         if (inCodeBlock) html += '</pre></div>';
         if (inAlert) html += '</div>';
         closeLists();
