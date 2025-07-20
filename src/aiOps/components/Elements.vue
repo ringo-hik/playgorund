@@ -21,7 +21,8 @@
         <button v-for="star in maxRating" :key="star" :class="getStarClasses(star)" @click="selectRating(star)"
           @mouseenter="hoverRating = star" @mouseleave="hoverRating = 0" @focus="hoverRating = star"
           @blur="hoverRating = 0" :disabled="disabled" type="button">
-          <LucideIcon name="star" :fill="getStarFill(star)" :width="starIconSize" :height="starIconSize" :interactive="true" />
+          <LucideIcon name="star" :fill="getStarFill(star)" :width="starIconSize" :height="starIconSize"
+            :interactive="true" />
         </button>
       </div>
     </div>
@@ -204,7 +205,7 @@ export default {
     async formatContent() {
       const content = this.message?.content || this.content || '';
       const contentStr = String(content);
-      
+
       try {
         this.formattedContent = await aiChatOpsService.formatContentForDisplay(contentStr);
       } catch (error) {
@@ -753,18 +754,6 @@ export default {
 .message-action--copied:hover {
   background: #047857 !important;
   border-color: #047857 !important;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 /* Animations */

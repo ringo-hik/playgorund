@@ -231,7 +231,6 @@ export default {
   text-rendering: optimizeLegibility !important;
   font-family: inherit !important;
   overflow: visible !important;
-  vertical-align: middle !important;
   stroke-width: 2 !important;
   fill: none !important;
   stroke: currentColor !important;

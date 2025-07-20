@@ -2,9 +2,10 @@
   <div class="ai-chatops-chat">
     <button :class="['ai-chatops-chat-button', { 'is-active': isOpen }]" @click="toggleChat">
       <Elements v-if="isLoading" component-type="spinner" size="md" />
-      <LucideIcon v-if="!isLoading && isOpen" name="x" fill="currentColor" :width="28" :height="28" :interactive="true" key="close-icon" />
-      <LucideIcon v-if="!isLoading && !isOpen" name="robot" fill="currentColor" :width="28" :height="28" :interactive="true"
-        key="chat-icon" />
+      <LucideIcon v-if="!isLoading && isOpen" name="x" fill="currentColor" :width="28" :height="28" :interactive="true"
+        key="close-icon" />
+      <LucideIcon v-if="!isLoading && !isOpen" name="robot" fill="currentColor" :width="28" :height="28"
+        :interactive="true" key="chat-icon" />
     </button>
 
     <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" :class="[windowClasses, currentTheme]"
@@ -205,7 +206,7 @@ export default {
       pendingRequests: new Map(),
       healthCheckInterval: null,
       cacheCleanupInterval: null,
-      
+
       activeTimers: new Set(),
       activeIntervals: new Set(),
       availableThemes: [
@@ -263,9 +264,8 @@ export default {
         return this._personaFilterCache.data;
       }
 
-      const filtered = this.personas.filter(persona => 
-        persona?.category === this.selectedCategory ||
-        persona?.tags?.includes?.(this.selectedCategory)
+      const filtered = this.personas.filter(persona =>
+        persona?.category === this.selectedCategory
       );
 
       this._personaFilterCache = { key: cacheKey, data: filtered };
@@ -402,7 +402,7 @@ export default {
           Promise.all([
             this.loadPersonas(),
             this.preloadPopularPersonas()
-          ]).catch(() => {});
+          ]).catch(() => { });
         });
 
         this.isInitializing = false;
@@ -573,7 +573,7 @@ export default {
 
     setCache(personaCode, messages) {
       const maxCacheSize = this.maxMessagesPerPersona || 10;
-      
+
       if (this.personaMessageCache.size >= maxCacheSize && !this.personaMessageCache.has(personaCode)) {
         const oldestKey = this.cacheAccessOrder?.[0];
         if (oldestKey) {
@@ -581,7 +581,7 @@ export default {
           this.cacheAccessOrder.shift();
         }
       }
-      
+
       this.personaMessageCache.set(personaCode, messages);
       this.accessCache(personaCode);
     },
@@ -599,7 +599,7 @@ export default {
       if (this.personaMessageCache.size > maxSize) {
         const excessCount = this.personaMessageCache.size - maxSize;
         const keysToRemove = this.cacheAccessOrder?.slice(0, excessCount) || [];
-        
+
         keysToRemove.forEach(key => {
           this.personaMessageCache.delete(key);
           const index = this.cacheAccessOrder.indexOf(key);

@@ -136,7 +136,7 @@
   },
   "message-async": {
     "success": true,
-    "data": "## AI 응답 예시\n\n사용자의 질문에 대한 AI 응답입니다.\n\n| 항목 | 내용 |\n|------|------|\n| 응답 시간 | 2025-01-17 12:00:00 |\n| 처리 상태 | **성공** |\n\n> ✅ 응답이 성공적으로 처리되었습니다.\n\n### 마크다운 테스트 요소들\n\n**굵은 텍스트**와 *기울임 텍스트*가 잘 렌더링됩니다.\n\n- 첫 번째 항목\n- 두 번째 항목\n- 세 번째 항목\n\n1. 번호 있는 리스트\n2. 두 번째 항목\n3. 세 번째 항목\n\n```javascript\nconst test = 'code block test';\nconsole.log(test);\n```\n\n`인라인 코드`도 잘 작동합니다.",
+    "data": "## 간단한 마크다운 테스트\n\n이것은 **굵은 텍스트**입니다.\n\n이것은 *기울임 텍스트*입니다.\n\n이것은 `인라인 코드`입니다.\n\n- 첫 번째 항목\n- 두 번째 항목\n\n1. 번호 항목\n2. 두 번째 번호\n\n```javascript\nconst test = 'simple test';\nconsole.log(test);\n```\n\n> [!NOTE]\n> 간단한 알림 박스 테스트입니다.",
     "sessionId": "session_1705489200000",
     "timestamp": "2025-01-17T12:00:00Z"
   },

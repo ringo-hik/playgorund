@@ -497,9 +497,13 @@ const aiChatOpsService = {
   isMarkdown(content) {
     if (!content || typeof content !== 'string') return false;
     
-    if (content.includes('<') && content.includes('>')) {
-      return false;
-    }
+    console.log('isMarkdown check:', {
+      content: content.substring(0, 100),
+      hasHeaders: /^#{1,6}\s+.+$/m.test(content),
+      hasBold: /\*\*.+?\*\*/.test(content),
+      hasItalic: /\*.+?\*/.test(content),
+      hasCode: /`.+?`/.test(content)
+    });
     
     const markdownPatterns = [
       /^#{1,6}\s+.+$/m,
@@ -515,7 +519,9 @@ const aiChatOpsService = {
       /!\[.*?\]\(.+?\)/
     ];
     
-    return markdownPatterns.some(pattern => pattern.test(content));
+    const result = markdownPatterns.some(pattern => pattern.test(content));
+    console.log('isMarkdown result:', result);
+    return result;
   },
 
   // Convert markdown to HTML
@@ -534,12 +540,15 @@ const aiChatOpsService = {
   detectContentType(content) {
     if (!content || typeof content !== 'string') return 'plain';
     
-    if (content.includes('<') && content.includes('>')) {
-      return 'html';
-    }
-    
+    // Check for markdown first (more specific)
     if (this.isMarkdown(content)) {
       return 'markdown';
+    }
+    
+    // Then check for actual HTML tags (more restrictive)
+    if (/<[a-zA-Z][^>]*>.*<\/[a-zA-Z][^>]*>/.test(content) || 
+        /<[a-zA-Z][^>]*\/?>/.test(content)) {
+      return 'html';
     }
     
     return 'plain';
@@ -547,16 +556,28 @@ const aiChatOpsService = {
 
   // Format content for display based on type
   async formatContentForDisplay(content) {
-    const contentType = this.detectContentType(content);
+    // Convert escaped newlines to actual newlines for proper markdown detection
+    const normalizedContent = content.replace(/\\n/g, '\n');
+    const contentType = this.detectContentType(normalizedContent);
+    
+    // Debug logging
+    console.log('formatContentForDisplay:', {
+      originalContent: content.substring(0, 100) + '...',
+      normalizedContent: normalizedContent.substring(0, 100) + '...',
+      contentType: contentType,
+      isMarkdownCheck: this.isMarkdown(normalizedContent)
+    });
     
     switch (contentType) {
       case 'markdown':
-        return await this.markdownToHtml(content);
+        const htmlResult = await this.markdownToHtml(normalizedContent);
+        console.log('Markdown conversion result:', htmlResult.substring(0, 200) + '...');
+        return htmlResult;
       case 'html':
-        return content;
+        return normalizedContent;
       case 'plain':
       default:
-        return content;
+        return normalizedContent;
     }
   },
 

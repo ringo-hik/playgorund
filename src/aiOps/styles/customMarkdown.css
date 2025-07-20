@@ -105,6 +105,7 @@
 .markdown-content .markdown-list {
   margin: var(--space-xs) 0;
   padding-left: var(--space-lg);
+  counter-reset: list-counter;
 }
 
 .markdown-content .markdown-list-item {
@@ -117,17 +118,52 @@
   color: var(--color-primary);
 }
 
+/* Unordered lists - bullet points */
+.markdown-content ul > li {
+  list-style: none;
+  margin: 4px 0;
+  position: relative;
+  line-height: 1.6;
+}
+
+.markdown-content ul > li::before {
+  content: "• ";
+  font-weight: 600;
+  color: var(--color-primary);
+  position: absolute;
+  left: -18px;
+  top: 0;
+}
+
+/* Ordered lists - no numbering, same as unordered */
+.markdown-content ol {
+  padding-left: var(--space-lg);
+}
+
+.markdown-content ol > li {
+  display: block;
+  margin: 4px 0;
+  list-style: none;
+  position: relative;
+  padding-left: var(--space-md);
+  line-height: 1.6;
+}
+
+.markdown-content ol > li::before {
+  content: "";
+  /* No marker for ordered lists */
+}
+
 /* Code styles */
 .markdown-content .markdown-inline-code {
   background: var(--color-surface-accent);
   color: var(--color-text-accent);
-  border: 1px solid var(--color-border-medium);  /* 더 선명한 경계선 */
-  border-radius: 4px;  /* 더 둘근 모서리 */
-  padding: 3px 6px;  /* 더 넓은 패딩 */
+  border-radius: 4px;
+  padding: 3px 6px;
   font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
   font-size: clamp(11px, 2vw, 12px);
-  font-weight: 600;  /* 더 두꺼운 글꾴 */
-  box-shadow: 0 1px 2px rgba(0,0,0,0.1);  /* 은은한 그림자 추가 */
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .markdown-content .markdown-inline-code:hover {
@@ -202,8 +238,9 @@
   background: #2D3748;
   font-family: 'SF Mono', Monaco, Consolas, 'Courier New', monospace;
   font-size: clamp(11px, 2vw, 12px);
-  line-height: 1.4;
+  line-height: 1.6;
   color: var(--color-surface-white);
+  white-space: pre;
 }
 
 /* Tables */
@@ -284,12 +321,32 @@
   padding: var(--space-sm);
   border: 1px solid;
   border-radius: var(--radius-md);
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
+  display: block;
   font-size: var(--font-size-xs);
   position: relative;
   overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.markdown-content .markdown-alert-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-xs);
+  font-weight: 600;
+}
+
+.markdown-content .markdown-alert-content {
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.markdown-content .markdown-alert-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .markdown-content .markdown-alert::before {

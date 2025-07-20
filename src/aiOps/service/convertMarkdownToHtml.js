@@ -2,7 +2,6 @@ function convertMarkdownToHtml(mdString) {
     let html = '';
     const normalizedMd = mdString
         .replace(/^[ \t]+$/gm, '')
-        .replace(/\n{2,}/g, '\n')
         .trim();
     const lines = normalizedMd.split('\n');
     let inCodeBlock = false;
@@ -36,13 +35,16 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
         if (inCodeBlock) {
-            html += escapeHtml(originalLine);
+            html += escapeHtml(originalLine) + '\n';
             continue;
         }
 
         if (line.startsWith('> [!')) {
             const match = line.match(/^> \[!(\w+)\]/);
             if (match) {
+                if (inAlert) {
+                    html += '</div>';
+                }
                 alertType = match[1].toLowerCase();
                 let classType = '';
                 let iconType = '';
@@ -68,20 +70,35 @@ function convertMarkdownToHtml(mdString) {
                         iconType = 'ℹ️';
                 }
                 html += `<div class="markdown-alert markdown-alert-${classType}">`;
-                const text = line.replace(/^> \[!\w+\]\s*/, '').trim();
+                html += `<div class="markdown-alert-header">`;
                 html += `<span class="markdown-alert-icon">${iconType}</span>`;
-                if (text) html += `<div>${parseInline(text)}</div>`;
+                html += `<span class="markdown-alert-title">${alertType.toUpperCase()}</span>`;
+                html += `</div>`;
+                
+                const text = line.replace(/^> \[!\w+\]\s*/, '').trim();
+                if (text) {
+                    html += `<div class="markdown-alert-content">${parseInline(text)}</div>`;
+                } else {
+                    html += `<div class="markdown-alert-content">`;
+                }
                 inAlert = true;
                 continue;
             }
         }
         if (inAlert && line.startsWith('> ')) {
             const text = line.replace(/^>\s*/, '').trim();
-            html += `<p>${parseInline(text)}</p>`;
+            if (text) {
+                html += `${parseInline(text)}<br>`;
+            }
             continue;
-        } else if (inAlert) {
-            html += '</div>';
+        } else if (inAlert && !line.startsWith('> ') && line.trim() !== '') {
+            html += '</div></div>';
             inAlert = false;
+            // Re-process the current line by not continuing
+        } else if (inAlert && line.trim() === '') {
+            html += '</div></div>';
+            inAlert = false;
+            continue;
         }
 
         if (line.startsWith('#')) {
@@ -92,19 +109,21 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
 
-        const indentLevel = originalLine.match(/^\s*/)[0].length / 2;
-        const isUnordered = line.match(/^(\s*)[-*+]\s/);
-        const isOrdered = line.match(/^(\s*)\d+\.\s/);
+        const indentMatch = originalLine.match(/^(\s*)/);
+        const indentLevel = indentMatch ? Math.floor(indentMatch[1].length / 2) : 0;
+        const isUnordered = line.match(/^[-*+]\s+(.+)$/);
+        const isOrdered = line.match(/^\d+\.\s+(.+)$/);
+        
         if (isUnordered || isOrdered) {
             adjustListStack(indentLevel, isUnordered ? 'ul' : 'ol');
-            const item = line.replace(/^(\s*)[-*+]?\s*\d*\.?\s*/, '').trim();
-            html += `<li class="markdown-list-item markdown-list-item-level-${indentLevel}">${parseInline(item)}</li>`;
+            const item = isUnordered ? isUnordered[1] : isOrdered[1];
+            html += `<li class="markdown-list-item">${parseInline(item.trim())}</li>`;
             continue;
         } else {
             closeLists();
         }
 
-        if (line.startsWith('>') && !inAlert) {
+        if (line.match(/^>\s+/) && !inAlert) {
             if (!inBlockquote) {
                 html += '<blockquote class="markdown-blockquote">';
                 inBlockquote = true;
@@ -137,7 +156,7 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
 
-        if (line) {
+        if (line.trim()) {
             closeLists();
             const prevLineEndsWithTwoSpaces = i > 0 && lines[i-1].endsWith('  ');
             if (paragraphBuffer.length > 0 && prevLineEndsWithTwoSpaces) {
@@ -147,9 +166,17 @@ function convertMarkdownToHtml(mdString) {
             } else {
                 paragraphBuffer = [parseInline(line)];
             }
-        } else if (paragraphBuffer.length > 0) {
-            html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
-            paragraphBuffer = [];
+        } else {
+            // Empty line - close all open blocks
+            if (paragraphBuffer.length > 0) {
+                html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
+                paragraphBuffer = [];
+            }
+            closeLists();
+            if (inBlockquote) {
+                html += '</blockquote>';
+                inBlockquote = false;
+            }
         }
     }
 
@@ -168,11 +195,11 @@ function convertMarkdownToHtml(mdString) {
             html += `</${listStack.pop()}>`;
         }
         if (listStack.length < level) {
-            html += `<${type} class="markdown-list markdown-list-level-${level}">`;
+            html += `<${type} class="markdown-list">`;
             listStack.push(type);
         } else if (listStack.length === level && listStack[listStack.length - 1] !== type) {
             html += `</${listStack.pop()}>`;
-            html += `<${type} class="markdown-list markdown-list-level-${level}">`;
+            html += `<${type} class="markdown-list">`;
             listStack.push(type);
         }
         inList = true;
@@ -184,7 +211,7 @@ function convertMarkdownToHtml(mdString) {
             paragraphBuffer = [];
         }
         if (inCodeBlock) html += '</pre></div>';
-        if (inAlert) html += '</div>';
+        if (inAlert) html += '</div></div>';
         closeLists();
         if (inBlockquote) html += '</blockquote>';
         if (inTable) {
@@ -247,14 +274,24 @@ function convertMarkdownToHtml(mdString) {
 
 // Parse inline markdown elements
 function parseInline(text) {
-    function parseRecur(t) {
-        t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="markdown-link" target="_blank" rel="noopener noreferrer">$1</a>');
-        t = t.replace(/\*\*(.*?)\*\*/g, (match, p1) => `<strong class="markdown-strong">${parseRecur(p1)}</strong>`);
-        t = t.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, (match, p1) => `<em class="markdown-em">${parseRecur(p1)}</em>`);
-        t = t.replace(/`(.*?)`/g, '<code class="markdown-inline-code">$1</code>');
-        return t;
-    }
-    return parseRecur(text);
+    if (!text || typeof text !== 'string') return text;
+    
+    let result = text;
+    
+    // Process in order: code (first to prevent interference), then bold, italic, links
+    // 1. Inline code (protect from other formatting)
+    result = result.replace(/`([^`]+)`/g, '<code class="markdown-inline-code">$1</code>');
+    
+    // 2. Bold text (non-greedy, no nested recursion)
+    result = result.replace(/\*\*([^*]+(?:\*(?!\*)[^*]*)*)\*\*/g, '<strong class="markdown-strong">$1</strong>');
+    
+    // 3. Italic text (avoiding bold markers)
+    result = result.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '<em class="markdown-em">$1</em>');
+    
+    // 4. Links
+    result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="markdown-link" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    return result;
 }
 
 // Escape HTML characters
