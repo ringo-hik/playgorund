@@ -1,13 +1,9 @@
 function convertMarkdownToHtml(mdString) {
     let html = '';
-    // 모든 종류의 빈 줄들을 정규화
-    // 1. 공백만 있는 줄들을 완전히 빈 줄로 변환
-    // 2. 연속된 빈 줄들을 하나로 축소
-    // 3. 문자열 앞뒤 불필요한 공백 제거
     const normalizedMd = mdString
-        .replace(/^[ \t]+$/gm, '')  // 공백만 있는 줄을 빈 줄로
-        .replace(/\n{2,}/g, '\n')  // 2개 이상의 연속 줄바꿈을 1개로
-        .trim();  // 앞뒤 공백 제거
+        .replace(/^[ \t]+$/gm, '')
+        .replace(/\n{2,}/g, '\n')
+        .trim();
     const lines = normalizedMd.split('\n');
     let inCodeBlock = false;
     let codeLang = '';
@@ -17,14 +13,14 @@ function convertMarkdownToHtml(mdString) {
     let inAlert = false;
     let alertType = '';
     let inList = false;
-    let listStack = []; // 중첩 리스트 지원을 위한 스택
-    let paragraphBuffer = []; // 단락 버퍼
+    let listStack = [];
+    let paragraphBuffer = [];
 
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim();
-        let originalLine = lines[i]; // 들여쓰기 보존
+        let originalLine = lines[i];
 
-        // 코드 블록 처리
+        // Handle code blocks
         if (line.startsWith('```')) {
             if (inCodeBlock) {
                 html += '</pre></div>';
@@ -40,11 +36,10 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
         if (inCodeBlock) {
-            html += escapeHtml(originalLine); // 원본 라인 사용 (들여쓰기 유지), \n 제거
+            html += escapeHtml(originalLine);
             continue;
         }
 
-        // 알림 박스 처리 (GFM 스타일: > [!NOTE] 등)
         if (line.startsWith('> [!')) {
             const match = line.match(/^> \[!(\w+)\]/);
             if (match) {
@@ -89,17 +84,15 @@ function convertMarkdownToHtml(mdString) {
             inAlert = false;
         }
 
-        // 헤딩 처리
         if (line.startsWith('#')) {
-            closeLists(); // 리스트 종료
+            closeLists();
             const level = line.match(/^#+/)[0].length;
             const text = line.replace(/^#+\s*/, '').trim();
             html += `<h${level} class="markdown-h${level} markdown-heading">${parseInline(text)}</h${level}>`;
             continue;
         }
 
-        // 리스트 처리 (중첩 지원)
-        const indentLevel = originalLine.match(/^\s*/)[0].length / 2; // 2스페이스당 레벨
+        const indentLevel = originalLine.match(/^\s*/)[0].length / 2;
         const isUnordered = line.match(/^(\s*)[-*+]\s/);
         const isOrdered = line.match(/^(\s*)\d+\.\s/);
         if (isUnordered || isOrdered) {
@@ -111,7 +104,6 @@ function convertMarkdownToHtml(mdString) {
             closeLists();
         }
 
-        // 인용구 처리
         if (line.startsWith('>') && !inAlert) {
             if (!inBlockquote) {
                 html += '<blockquote class="markdown-blockquote">';
@@ -125,14 +117,12 @@ function convertMarkdownToHtml(mdString) {
             inBlockquote = false;
         }
 
-        // 테이블 처리
         if (line.startsWith('|')) {
             if (!inTable) {
                 inTable = true;
                 tableRows = [];
             }
             tableRows.push(line);
-            // 테이블이 끝나는지 확인 (다음 줄이 |로 시작하지 않거나 마지막 줄일 경우)
             if (i + 1 >= lines.length || !lines[i + 1].trim().startsWith('|')) {
                 html += processTable(tableRows);
                 inTable = false;
@@ -141,41 +131,31 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
 
-        // 구분선 처리
         if (line.match(/^[-*]{3,}$/)) {
             closeLists();
             html += '<hr class="markdown-hr">';
             continue;
         }
 
-        // 단락 처리
         if (line) {
             closeLists();
-            // 이전 줄이 두 개 공백으로 끝나는지 확인 (마크다운 강제 줄바꿈)
             const prevLineEndsWithTwoSpaces = i > 0 && lines[i-1].endsWith('  ');
             if (paragraphBuffer.length > 0 && prevLineEndsWithTwoSpaces) {
-                // 강제 줄바꿈: 같은 단락 내에서 <br> 추가
                 paragraphBuffer.push('<br>' + parseInline(line));
             } else if (paragraphBuffer.length > 0) {
-                // 일반적인 줄바꿈: 공백으로 연결 (마크다운에서 단일 줄바꿈은 공백으로 처리)
                 paragraphBuffer.push(' ' + parseInline(line));
             } else {
-                // 새 단락 시작
                 paragraphBuffer = [parseInline(line)];
             }
         } else if (paragraphBuffer.length > 0) {
-            // 빈 줄이나 공백만 있는 줄을 만나면 현재 단락 완료
             html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
             paragraphBuffer = [];
         }
     }
 
-    // 열린 태그 닫기
     closeAll();
 
     return `<div class="markdown-content">${html}</div>`;
-
-    // 헬퍼 함수들
     function closeLists() {
         while (listStack.length > 0) {
             html += `</${listStack.pop()}>`;
@@ -199,7 +179,6 @@ function convertMarkdownToHtml(mdString) {
     }
 
     function closeAll() {
-        // 마지막에 남은 단락 처리
         if (paragraphBuffer.length > 0) {
             html += `<p class="markdown-paragraph">${paragraphBuffer.join('')}</p>`;
             paragraphBuffer = [];
@@ -216,17 +195,16 @@ function convertMarkdownToHtml(mdString) {
     }
 
     function processTable(rows) {
-        if (rows.length < 2) return ''; // 헤더와 구분선 최소 2줄 필요
+        if (rows.length < 2) return '';
 
         let tableHtml = '<div class="markdown-table-container"><table class="markdown-table">';
         const headerLine = rows[0];
         const alignmentLine = rows[1];
         const dataLines = rows.slice(2);
 
-        const headers = headerLine.split('|').map(cell => cell.trim()).slice(1, -1); // 양 끝의 빈 문자열 제거
+        const headers = headerLine.split('|').map(cell => cell.trim()).slice(1, -1);
         const alignments = alignmentLine.split('|').map(cell => cell.trim()).slice(1, -1);
 
-        // a. 테이블 헤더 생성
         tableHtml += '<thead><tr>';
         headers.forEach((header, index) => {
             const align = alignments[index] || '';
@@ -242,7 +220,6 @@ function convertMarkdownToHtml(mdString) {
         });
         tableHtml += '</tr></thead>';
 
-        // b. 테이블 본문 생성
         tableHtml += '<tbody>';
         dataLines.forEach(rowLine => {
             const cells = rowLine.split('|').map(cell => cell.trim()).slice(1, -1);
@@ -268,22 +245,19 @@ function convertMarkdownToHtml(mdString) {
     }
 }
 
+// Parse inline markdown elements
 function parseInline(text) {
-    // 재귀적 중첩 인라인 파싱 (중첩 지원)
     function parseRecur(t) {
-        // 링크 먼저 (복잡성 때문) - [text](url) 형태
-        t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="markdown-link">$1</a>');
-        // 볼드
+        t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="markdown-link" target="_blank" rel="noopener noreferrer">$1</a>');
         t = t.replace(/\*\*(.*?)\*\*/g, (match, p1) => `<strong class="markdown-strong">${parseRecur(p1)}</strong>`);
-        // 이탤릭 (볼드와 충돌 방지)
         t = t.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, (match, p1) => `<em class="markdown-em">${parseRecur(p1)}</em>`);
-        // 인라인 코드
         t = t.replace(/`(.*?)`/g, '<code class="markdown-inline-code">$1</code>');
         return t;
     }
     return parseRecur(text);
 }
 
+// Escape HTML characters
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/&/g, "&amp;")

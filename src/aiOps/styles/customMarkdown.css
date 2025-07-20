@@ -1,7 +1,4 @@
-/* ===========================================================================
-   마크다운 콘텐츠 스타일링 - 메인 CSS 변수 사용
-   주요 변경사항: --md-* 변수 제거, 메인 CSS 변수 직접 사용
-   =========================================================================== */
+/* Markdown content styling - using main CSS variables */
 
 .markdown-content {
   font-family: var(--font-family);
@@ -14,7 +11,7 @@
   white-space: normal;
 }
 
-/* ----- 헤딩 스타일 ----- */
+/* Heading styles */
 .markdown-content .markdown-heading {
   color: var(--markdown-heading-color);
   font-weight: 700;
@@ -64,7 +61,7 @@
   font-weight: 500;
 }
 
-/* ----- 텍스트 요소 ----- */
+/* Text elements */
 .markdown-content .markdown-paragraph {
   margin: 0 0 var(--space-xs) 0;
   color: var(--color-text-secondary);
@@ -85,25 +82,26 @@
 }
 
 .markdown-content .markdown-link {
-  color: var(--color-text-accent);
+  color: var(--color-primary);
   text-decoration: none;
-  border-bottom: 1px solid var(--color-text-accent);  /* 항상 보이는 밑줄 */
+  border-bottom: 1px solid var(--color-primary);
   transition: all var(--motion-fast);
-  padding: 1px 2px;  /* 미니멀 패딩 */
-  border-radius: 2px;  /* 부드러운 모서리 */
-  font-weight: 500;  /* 약간 두꺼운 글꾴 */
+  padding: 1px 2px;
+  border-radius: 2px;
+  font-weight: 500;
 }
 
 .markdown-content .markdown-link:hover {
-  border-bottom-color: var(--color-primary);
-  background: var(--color-accent-medium);
+  color: var(--color-primary-dark);
+  border-bottom-color: var(--color-primary-dark);
+  background: rgba(var(--active-theme-accent-rgba), 0.1);
   padding: 1px 3px;
   border-radius: 3px;
-  transform: translateY(-1px);  /* 은은한 상승 효과 */
+  transform: translateY(-1px);
   box-shadow: var(--shadow-gentle);
 }
 
-/* ----- 리스트 ----- */
+/* Lists */
 .markdown-content .markdown-list {
   margin: var(--space-xs) 0;
   padding-left: var(--space-lg);
@@ -119,7 +117,7 @@
   color: var(--color-primary);
 }
 
-/* ----- 코드 ----- */
+/* Code styles */
 .markdown-content .markdown-inline-code {
   background: var(--color-surface-accent);
   color: var(--color-text-accent);
@@ -208,7 +206,7 @@
   color: var(--color-surface-white);
 }
 
-/* ----- 테이블 ----- */
+/* Tables */
 .markdown-content .markdown-table-container {
   margin: var(--space-sm) 0;
   overflow-x: auto;
@@ -280,7 +278,7 @@
   background: rgba(248, 250, 252, 0.5);
 }
 
-/* ----- 알림 박스 ----- */
+/* Alert boxes */
 .markdown-content .markdown-alert {
   margin: var(--space-sm) 0;
   padding: var(--space-sm);
@@ -365,7 +363,7 @@
   color: var(--color-error);
 }
 
-/* ----- 인용구 ----- */
+/* Blockquotes */
 .markdown-content .markdown-blockquote {
   padding: var(--space-sm) var(--space-md);
   background: var(--color-surface-light);
@@ -392,7 +390,7 @@
   padding-left: var(--space-sm);
 }
 
-/* ----- 구분선 ----- */
+/* Horizontal rules */
 .markdown-content .markdown-hr {
   border: none;
   height: 2px;
@@ -400,7 +398,7 @@
   margin: var(--space-sm) 0;
 }
 
-/* ----- 스크롤바 스타일링 ----- */
+/* Scrollbar styling */
 .markdown-content *::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -421,7 +419,7 @@
   background: var(--color-text-accent);
 }
 
-/* ----- 반응형 조정 ----- */
+/* Responsive adjustments */
 @media (max-width: 640px) {
   .markdown-content .markdown-h1 {
     font-size: 15px;
@@ -452,7 +450,7 @@
   }
 }
 
-/* ----- 간소화된 애니메이션 ----- */
+/* Simplified animations */
 @media (prefers-reduced-motion: no-preference) {
   .markdown-content .markdown-table tbody tr {
     transition: background var(--motion-fast);

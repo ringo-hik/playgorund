@@ -2,20 +2,17 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:3004';
 
-// 조건부 임포트를 위한 마크다운 컨버터 캐시
 let markdownConverter = null;
 
 const aiChatOpsService = {
 
-  // 조건부 마크다운 컨버터 로딩 (번들 최적화)
   async loadMarkdownConverter() {
     if (!markdownConverter) {
       try {
         const module = await import('./convertMarkdownToHtml.js');
         markdownConverter = module.convertMarkdownToHtml;
       } catch (error) {
-        console.error('마크다운 컨버터 로딩 실패:', error);
-        markdownConverter = (text) => text; // 폴백 함수
+        throw error;
       }
     }
     return markdownConverter;
@@ -68,13 +65,11 @@ const aiChatOpsService = {
 
   async sendMessage(messageData) {
     try {
-      // sessionId는 프론트엔드에서만 사용하므로 백엔드로 전송하지 않음
       const requestBody = {
         personaCode: messageData.personaCode,
         userQuery: messageData.userQuery
       };
 
-      // 연속 채팅을 위한 대화 기록 포함
       if (messageData.queryHistory && messageData.queryHistory.length > 0) {
         requestBody.queryHistory = JSON.stringify(messageData.queryHistory);
       }
@@ -86,14 +81,13 @@ const aiChatOpsService = {
         timeout: 60000
       });
 
-      // response.data.data 구조에 맞게 처리
       return {
         success: response.data.success || true,
         data: {
           aiResponse: response.data.data,
           success: response.data.success
         },
-        sessionId: messageData.sessionId, // 프론트엔드에서 관리
+        sessionId: messageData.sessionId,
         message: response.data.message || 'Message sent successfully'
       };
 
@@ -115,7 +109,6 @@ const aiChatOpsService = {
         timeout: 30000
       });
 
-      // response.data.data 구조에서 질문 데이터 추출
       const questionsData = response.data.data;
       const parsedQuestions = this.parseQuickQuestions(questionsData);
       
@@ -137,22 +130,22 @@ const aiChatOpsService = {
     }
   },
 
+  // Parse raw data into quick questions array
   parseQuickQuestions(rawData) {
     if (!rawData) return [];
     
     try {
-      // 문자열 데이터 처리
       if (typeof rawData === 'string') {
         const cleanData = rawData.trim();
         
-        // JSON 배열 형태 파싱 시도
+        // Try parsing JSON array format
         const jsonMatch = cleanData.match(/\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]/);
         if (jsonMatch) {
           const questions = JSON.parse(jsonMatch[0]);
           return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
         }
         
-        // 줄 단위 파싱
+        // Parse line by line
         return cleanData.split(/\r?\n/)
           .map(line => line.trim())
           .filter(line => line && !line.match(/^[\[\]\r\n\s\-\*]*$/))
@@ -161,12 +154,12 @@ const aiChatOpsService = {
           .slice(0, 5);
       }
       
-      // 배열 데이터 처리
+      // Handle array data
       if (Array.isArray(rawData)) {
         return rawData.filter(q => q && q.trim() && q.trim().length > 5).slice(0, 5);
       }
       
-      // 객체 데이터 처리
+      // Handle object data
       if (rawData && typeof rawData === 'object') {
         const questions = rawData.questions || rawData.queries || rawData.data || [];
         return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
@@ -174,7 +167,6 @@ const aiChatOpsService = {
       
       return [];
     } catch (error) {
-      console.error('빠른 질문 파싱 실패:', error.message);
       return [];
     }
   },
@@ -315,6 +307,7 @@ const aiChatOpsService = {
     return messages.sort((a, b) => a.timestamp - b.timestamp);
   },
 
+  // Convert HTML content to markdown format
   htmlToMarkdown(htmlContent) {
     if (!htmlContent || typeof htmlContent !== 'string') {
       return htmlContent;
@@ -407,6 +400,7 @@ const aiChatOpsService = {
     return markdown;
   },
 
+  // Convert HTML content to plain text
   htmlToPlainText(htmlContent) {
     if (!htmlContent || typeof htmlContent !== 'string') {
       return htmlContent;
@@ -472,7 +466,7 @@ const aiChatOpsService = {
     return html.replace(/<[^>]*>/g, '');
   },
 
-
+  // Get user-friendly error message from error object
   getErrorMessage(error) {
     if (error?.response?.status) {
       const status = error.response.status;
@@ -499,33 +493,32 @@ const aiChatOpsService = {
     return error?.message || 'UNKNOWN_ERROR';
   },
 
-  // 마크다운 감지 및 렌더링 유틸리티
+  // Check if content is markdown format
   isMarkdown(content) {
     if (!content || typeof content !== 'string') return false;
     
-    // 이미 HTML인 경우 마크다운이 아님
     if (content.includes('<') && content.includes('>')) {
       return false;
     }
     
-    // 마크다운 패턴 확인
     const markdownPatterns = [
-      /^#{1,6}\s+.+$/m,           // 헤딩 (# ## ### 등)
-      /^\*\s+.+$/m,              // 리스트 (* 항목)
-      /^-\s+.+$/m,               // 리스트 (- 항목)
-      /^\d+\.\s+.+$/m,           // 번호 리스트 (1. 항목)
-      /\*\*.+?\*\*/,             // 굵은 글씨 (**text**)
-      /\*.+?\*/,                 // 기울임 글씨 (*text*)
-      /`.+?`/,                   // 인라인 코드 (`code`)
-      /```[\s\S]*?```/,          // 코드 블록 (```code```)
-      /^\>.+$/m,                 // 인용 (> 텍스트)
-      /\[.+?\]\(.+?\)/,          // 링크 ([text](url))
-      /!\[.*?\]\(.+?\)/          // 이미지 (![alt](url))
+      /^#{1,6}\s+.+$/m,
+      /^\*\s+.+$/m,
+      /^-\s+.+$/m,
+      /^\d+\.\s+.+$/m,
+      /\*\*.+?\*\*/,
+      /\*.+?\*/,
+      /`.+?`/,
+      /```[\s\S]*?```/,
+      /^\>.+$/m,
+      /\[.+?\]\(.+?\)/,
+      /!\[.*?\]\(.+?\)/
     ];
     
     return markdownPatterns.some(pattern => pattern.test(content));
   },
 
+  // Convert markdown to HTML
   async markdownToHtml(markdown) {
     if (!markdown || typeof markdown !== 'string') return markdown;
     
@@ -533,20 +526,18 @@ const aiChatOpsService = {
       const converter = await this.loadMarkdownConverter();
       return converter(markdown);
     } catch (error) {
-      console.error('마크다운 변환 실패:', error);
       return markdown;
     }
   },
 
+  // Detect content type (html, markdown, or plain)
   detectContentType(content) {
     if (!content || typeof content !== 'string') return 'plain';
     
-    // HTML 태그가 있는 경우
     if (content.includes('<') && content.includes('>')) {
       return 'html';
     }
     
-    // 마크다운 패턴이 있는 경우
     if (this.isMarkdown(content)) {
       return 'markdown';
     }
@@ -554,6 +545,7 @@ const aiChatOpsService = {
     return 'plain';
   },
 
+  // Format content for display based on type
   async formatContentForDisplay(content) {
     const contentType = this.detectContentType(content);
     
@@ -568,6 +560,7 @@ const aiChatOpsService = {
     }
   },
 
+  // Get content in appropriate format for clipboard
   getContentForCopy(content) {
     const contentType = this.detectContentType(content);
     

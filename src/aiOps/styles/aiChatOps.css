@@ -1,8 +1,6 @@
-/* ===========================================================================
-   AIChatOps - 통일된 CSS 변수 시스템 (미니멀리즘 적용) + 색상 강화
-   =========================================================================== */
+/* AIChatOps - Unified CSS Variable System */
 
-/* ----- 커서 포인터 강제 표시 ----- */
+/* Cursor pointer enforcement */
 
 body, html {
   cursor: auto !important;
@@ -16,7 +14,7 @@ input[type="text"], input[type="password"], input[type="email"], textarea {
   cursor: text !important;
 }
 
-/* 커서 사라짐 방지를 위한 강력한 설정 */
+/* Prevent cursor disappearance */
 
 button:hover, a:hover, [onclick]:hover, [tabindex]:hover {
   cursor: pointer !important;
@@ -26,7 +24,7 @@ input:hover, textarea:hover {
   cursor: text !important;
 }
 
-/* 브라우저별 커서 강제 표시 */
+/* Cross-browser cursor enforcement */
 body {
   -webkit-user-select: auto;
   -moz-user-select: auto;
@@ -35,7 +33,7 @@ body {
 }
 
 :root {
-  /* ----- 브랜드 컬러 팔레트 (기존 유지) --------------------------- */
+  /* Brand color palette */
   --ai-chatops-primary: #2563EB;
   --ai-chatops-secondary: #1E40AF;
   --ai-chatops-accent: #06B6D4;
@@ -92,7 +90,7 @@ body {
   --classic-gray-800: #424242;
   --classic-gray-900: #212121;
 
-  /* 🎨 Retro 팔레트 추가 (레트로 감성 강조) */
+  /* Retro color palette */
   --retro-primary: #807e50;
   --retro-secondary: #fb2e01;
   --retro-accent: #6fcb9f;
@@ -133,30 +131,30 @@ body {
   --color-text-tertiary: #9CA3AF;
   --color-text-light: #FFFFFF;
 
-  /* 배경 컬러 */
+  /* Background colors */
   --color-surface-white: #FFFFFF;
   --color-surface-light: #F9FAFB;
   --color-surface-medium: #F3F4F6;
   --color-surface-elevated: #FFFFFF;
 
-  /* 보더 컬러 */
+  /* Border colors */
   --color-border-light: #E2E8F0;
   --color-border-medium: #CBD5E1;
   --color-border-accent: var(--color-accent);
 
-  /* 헤더 컬러 */
+  /* Header colors */
   --color-header-bg: var(--color-primary);
   --color-header-text: #FFFFFF;
   --color-header-text-secondary: rgba(255, 255, 255, 0.8);
   --color-header-accent: var(--color-accent);
 
-  /* 기능적 컬러 */
+  /* Functional colors */
   --color-success: #059669;
   --color-error: #DC2626;
   --color-warning: #D97706;
   --color-info: var(--color-primary);
 
-  /* ----- 미니멀한 그림자 시스템 ------------------------ */
+  /* Shadow system */
   --shadow-none: none;
   --shadow-minimal: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.06);
@@ -164,7 +162,7 @@ body {
   --shadow-moderate: 0 8px 15px rgba(0, 0, 0, 0.08);
   --shadow-floating: 0 12px 20px rgba(0, 0, 0, 0.10);
 
-  /* ----- 절제된 모션 시스템 --------------------------- */
+  /* Motion system */
   --motion-duration-fast: 0.15s;
   --motion-duration-normal: 0.25s;
   --motion-duration-slow: 0.35s;
@@ -173,18 +171,18 @@ body {
   --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --motion-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* 통합 모션 변수 */
+  /* Motion variables */
   --motion-fast: var(--motion-duration-fast) var(--motion-ease-out);
   --motion-normal: var(--motion-duration-normal) var(--motion-ease-out);
   --motion-slow: var(--motion-duration-slow) var(--motion-ease-in-out);
 
-  /* ----- 레이아웃 --------------------------- */
+  /* Layout */
   --layout-chat-width: 455px;
   --layout-chat-height: 676px;
   --layout-float-size: 60px;
   --layout-header-height: 72px;
 
-  /* ----- 타이포그래피 --------------------------- */
+  /* Typography */
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-size-xs: 11px;
   --font-size-sm: 12px;
@@ -192,7 +190,7 @@ body {
   --font-size-lg: 16px;
   --font-size-xl: 18px;
 
-  /* ----- 스페이싱 --------------------------- */
+  /* Spacing */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
@@ -200,7 +198,7 @@ body {
   --space-xl: 20px;
   --space-2xl: 24px;
 
-  /* ----- 보더 반경 --------------------------- */
+  /* Border radius */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -208,13 +206,13 @@ body {
   --radius-2xl: 20px;
   --radius-full: 50%;
 
-  /* ----- 누락된 변수 추가 ----- */
+  /* Additional variables */
   --color-text-accent: var(--color-text-primary);
   --success-color: var(--color-success);
   --error-color: var(--color-error);
   --border-medium: var(--color-border-medium);
 
-  /* ----- 개발자 도구 시스템 ----- */
+  /* Developer tools */
   --dev-header-bg: #1a202c;
   --dev-tooltip-bg: #2d3748;
   --dev-tooltip-border: #4a5568;
@@ -223,14 +221,14 @@ body {
   --dev-text-success: #68d391;
   --dev-text-active: #4ade80;
 
-  /* ----- 애니메이션 시스템 ----- */
+  /* Animation system */
   --duration-pulse: 2s;
   --duration-loading: 1.5s;
 
-  /* ----- 블러 효과 ----- */
+  /* Blur effects */
   --blur-strong: 16px;
 
-  /* ----- 호환성을 위한 레거시 변수들 (동적 테마 시스템 참조) ----- */
+  /* Legacy variables for compatibility */
   --primary-dark: var(--active-theme-secondary);
   --accent-primary: var(--active-theme-accent);
   --text-primary: var(--active-theme-text);
@@ -252,7 +250,7 @@ body {
   --opacity-accent: 0.15;           /* 강조 투명도 */
   --opacity-strong: 0.2;            /* 강한 투명도 */
 
-  /* ----- 은은한 색상 조합 ----- */
+  /* Subtle color combinations */
   --color-accent-subtle: rgba(6, 182, 212, var(--opacity-light));
   --color-accent-medium: rgba(6, 182, 212, var(--opacity-medium));
   --color-accent-strong: rgba(6, 182, 212, var(--opacity-accent));
@@ -260,40 +258,40 @@ body {
   --color-success-subtle: rgba(5, 150, 105, var(--opacity-accent));
   --color-error-subtle: rgba(239, 68, 68, var(--opacity-subtle));
 
-  /* 🎨 새로운 기능별 색상 조합 */
+  /* Feature-specific colors */
   --color-send-subtle: rgba(16, 185, 129, var(--opacity-light));
   --color-send-medium: rgba(16, 185, 129, var(--opacity-medium));
   --color-continuous-subtle: rgba(5, 150, 105, var(--opacity-light));
   --color-quick-subtle: rgba(14, 165, 233, var(--opacity-light));
 
-  /* ----- 채팅 버블 색상 ----- */
+  /* Chat bubble colors */
   --color-chat-bubble-bot: rgba(0, 0, 0, 0.04); /* 4% darker than background */
   --color-chat-bubble-user: rgba(0, 0, 0, 0.05); /* 8% darker than background */
 
-  /* ----- 카드 시스템 색상 ----- */
+  /* Card system colors */
   --color-card-bg: rgba(0, 0, 0, 0.04); /* 6% darker than background */
   --shadow-card-enhanced: 0 3px 9px rgba(0, 0, 0, 0.15); /* 15% more shadow */
 
-  /* ----- 확장된 그림자 시스템 (더 세밀한 조절) ----- */
+  /* Extended shadow system */
   --shadow-subtle: 0 1px 2px rgba(0, 0, 0, var(--opacity-subtle));
   --shadow-accent-subtle: 0 2px 4px var(--color-accent-subtle);
   --shadow-accent-medium: 0 3px 8px var(--color-accent-strong);
   
-  /* 🎨 새로운 그림자 효과 */
+  /* Enhanced shadow effects */
   --shadow-send: 0 2px 6px var(--color-send-subtle);
   --shadow-continuous: 0 2px 6px var(--color-continuous-subtle);
 
-  /* ----- 확장된 모션 시스템 (더 부드러운 애니메이션) ----- */
+  /* Enhanced motion system */
   --motion-subtle: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   --motion-gentle: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* ----- 변형 크기 (절제된 스케일링) ----- */
+  /* Transform scaling */
   --transform-subtle: 1.02;         /* 매우 작은 확대 */
   --transform-gentle: 1.05;         /* 부드러운 확대 */
   --transform-lift: -1px;           /* 은은한 상승 */
   --transform-lift-gentle: -2px;    /* 부드러운 상승 */
 
-  /* ----- Alert 시스템 색상 (기존 색상 유지하되 변수화) ----- */
+  /* Alert system colors */
   --alert-info-bg: rgba(239, 246, 255, 0.8);
   --alert-info-border: rgba(191, 219, 254, 0.8);
   --alert-success-bg: rgba(236, 253, 245, 0.8);
@@ -304,7 +302,7 @@ body {
   --alert-error-border: rgba(239, 68, 68, 0.3);
   --alert-error-text: #991b1b;
 
-  /* ----- 채팅 헤더 통일된 변수 ----- */
+  /* Chat header variables */
   --header-button-bg: rgba(255, 255, 255, 0.1);
   --header-button-border: rgba(255, 255, 255, 0.2);
   --header-button-hover-bg: rgba(255, 255, 255, 0.2);
@@ -313,10 +311,9 @@ body {
   --header-button-size-md: 32px;
 }
 
-/* ----- 동적 테마 시스템 (최적화됨) ----- */
-/* 기본 테마 변수는 클래스 선택자로만 정의하여 우선순위 문제 해결 */
+/* Dynamic theme system */
 
-/* AI-ChatOps 테마 (기본) */
+/* AI-ChatOps theme (default) */
 .theme-ai-chatops {
   --active-theme-primary: var(--ai-chatops-primary);
   --active-theme-secondary: var(--ai-chatops-secondary);
@@ -336,7 +333,7 @@ body {
   --active-theme-accent-rgba: 6, 182, 212;
 }
 
-/* Heritage 테마 */
+/* Heritage theme */
 .theme-heritage {
   --active-theme-primary: var(--heritage-primary);
   --active-theme-secondary: var(--heritage-secondary);
@@ -356,7 +353,7 @@ body {
   --active-theme-accent-rgba: 220, 38, 38;
 }
 
-/* Classic 테마 */
+/* Classic theme */
 .theme-classic {
   --active-theme-primary: var(--classic-primary);
   --active-theme-secondary: var(--classic-secondary);
@@ -376,7 +373,7 @@ body {
   --active-theme-accent-rgba: 217, 119, 6;
 }
 
-/* Retro 테마 */
+/* Retro theme */
 .theme-retro {
   --active-theme-primary: var(--retro-primary);
   --active-theme-secondary: var(--retro-secondary);
@@ -434,7 +431,7 @@ body {
   --markdown-quote-border: var(--active-theme-accent);
 }
 
-/* ----- 통합 컴포넌트 스타일 (동적 테마 적용) ----- */
+/* Unified component styles with dynamic themes */
 .card-system,
 .input-container,
 .persona-card,
@@ -459,7 +456,7 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* ----- 통일된 버튼 시스템 ----- */
+/* Unified button system */
 .btn-system {
   display: inline-flex;
   align-items: center;
@@ -520,7 +517,7 @@ body {
   min-height: var(--header-button-size-md) !important;
 }
 
-/* ----- 버튼 크기 변형 ----- */
+/* Button size variants */
 .btn-system--sm {
   min-height: 32px;
   padding: var(--space-xs) var(--space-md);
@@ -538,7 +535,7 @@ body {
   font-size: var(--font-size-lg);
 }
 
-/* ----- 아이콘 전용 버튼 ----- */
+/* Icon-only buttons */
 .btn-system--icon-only {
   padding: 0;
   width: 36px;
@@ -564,12 +561,12 @@ body {
   min-height: 44px;
 }
 
-/* ----- 블록 버튼 ----- */
+/* Block buttons */
 .btn-system--block {
   width: 100%;
 }
 
-/* ----- 로딩 상태 ----- */
+/* Loading state */
 .btn-system--loading {
   pointer-events: none;
 }
@@ -578,9 +575,9 @@ body {
   opacity: 0.7;
 }
 
-/* ----- 버튼 색상 변형 ----- */
+/* Button color variants */
 
-/* Primary 버튼 */
+/* Primary button */
 .btn-system--primary {
   background: var(--color-primary);
   color: var(--color-text-light);
@@ -599,7 +596,7 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* Secondary 버튼 */
+/* Secondary button */
 .btn-system--secondary {
   background: var(--color-surface-medium);
   color: var(--color-text-primary);
@@ -618,7 +615,7 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* Accent 버튼 */
+/* Accent button */
 .btn-system--accent {
   background: var(--color-accent);
   color: var(--color-text-light);
@@ -637,7 +634,7 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* Outline 버튼 */
+/* Outline button */
 .btn-system--outline {
   background: transparent;
   color: var(--color-primary);
@@ -656,7 +653,7 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* Ghost 버튼 */
+/* Ghost button */
 .btn-system--ghost {
   color: var(--color-text-primary);
 }
@@ -671,7 +668,7 @@ body {
   background: var(--color-surface-medium);
 }
 
-/* Danger 버튼 */
+/* Danger button */
 .btn-system--danger {
   background: var(--color-error);
   color: var(--color-text-light);
@@ -690,7 +687,7 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* Success 버튼 */
+/* Success button */
 .btn-system--success {
   background: var(--color-success);
   color: var(--color-text-light);
@@ -709,9 +706,9 @@ body {
   box-shadow: var(--shadow-minimal);
 }
 
-/* ----- 🎨 향상된 버튼 색상 시스템 ----- */
+/* Enhanced button color system */
 
-/* 전송 버튼 전용 스타일 */
+/* Send button styles */
 .btn-system--send {
   background: var(--color-send-button) !important;
   border-color: var(--color-send-button) !important;
@@ -731,7 +728,7 @@ body {
   box-shadow: var(--shadow-send);
 }
 
-/* 연속 채팅 활성 상태 */
+/* Continuous chat active state */
 .btn-system--continuous-active {
   background: var(--color-continuous-active) !important;
   border-color: var(--color-continuous-active) !important;
@@ -746,7 +743,7 @@ body {
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
-/* 빠른 액션 버튼 */
+/* Quick action button */
 .btn-system--quick-action {
   background: var(--color-quick-action) !important;
   border-color: var(--color-quick-action) !important;
@@ -761,7 +758,7 @@ body {
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
 }
 
-/* ----- 액션 버튼 (경량화된 기본 버튼) ----- */
+/* Action buttons (lightweight) */
 .action-btn {
   display: inline-flex;
   align-items: center;
@@ -784,7 +781,7 @@ body {
   border-color: var(--color-border-medium);
 }
 
-/* ----- 반응형 디자인 ----- */
+/* Responsive design */
 @media (max-width: 640px) {
   .btn-system--sm {
     min-height: 32px;
@@ -821,7 +818,7 @@ body {
   }
 }
 
-/* ----- 스크롤바 (크로스 브라우저) ----- */
+/* Cross-browser scrollbar */
 html {
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-medium) var(--color-surface-light);
@@ -846,7 +843,7 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary);
 }
-/* 색상에 의존하지 않는 정보 전달 */
+/* Color-independent information */
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -859,7 +856,7 @@ html {
   border: 0 !important;
 }
 
-/* 애니메이션 제거 옵션 */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -868,7 +865,7 @@ html {
   }
 }
 
-/* 고대비 모드 지원 */
+/* High contrast mode support */
 @media (prefers-contrast: high) {
   .btn-system {
     border-width: 2px !important;
@@ -879,13 +876,13 @@ html {
   }
 }
 
-/* ----- 레거시 테마 클래스 호환성 유지 ----- */
+/* Legacy theme class compatibility */
 .theme-ai-chatops,
 .ai-chatops-chat {
-  /* 동적 테마 시스템에서 자동 처리됨 */
+  /* Handled by dynamic theme system */
 }
 
-/* ----- 유틸리티 클래스 ----- */
+/* Utility classes */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -898,7 +895,7 @@ html {
   border: 0;
 }
 
-/* ----- 카드 시스템 추가 ----- */
+/* Card system */
 .card-system {
   background: var(--color-surface-white);
   border: 1px solid var(--color-border-light);
@@ -916,7 +913,7 @@ html {
   box-shadow: var(--shadow-soft);
 }
 
-/* ----- 아이콘 시스템 통일 ----- */
+/* Unified icon system */
 .lucide-icon,
 .lucide-icon svg,
 [class*="lucide-"] {
@@ -931,7 +928,7 @@ html {
   will-change: transform !important;
 }
 
-/* 아이콘 폴백 방지 및 정규화 */
+/* Icon fallback prevention */
 svg {
   font-family: inherit !important;
   -webkit-font-feature-settings: normal !important;
@@ -941,7 +938,7 @@ svg {
   stroke: currentColor !important;
 }
 
-/* 테마 변경 시 아이콘 안정성 확보 */
+/* Icon stability during theme changes */
 .lucide-icon svg path,
 .lucide-icon svg polyline,
 .lucide-icon svg polygon,
@@ -953,7 +950,7 @@ svg {
   stroke: inherit !important;
 }
 
-/* 별점 시스템 특별 처리 */
+/* Star rating system special handling */
 .star-rating__star svg {
   stroke: #F59E0B !important;
   fill: none !important;

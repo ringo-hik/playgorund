@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- 버튼 컴포넌트 -->
     <component v-if="componentType === 'button'" :is="'button'" :class="buttonClasses" :disabled="disabled || loading"
       :type="type" @click="handleClick">
       <Elements v-if="loading" component-type="spinner" :size="size" class="ai-chatops-button__spinner" />
@@ -13,12 +12,10 @@
       </span>
     </component>
 
-    <!-- 스피너 컴포넌트 -->
     <div v-if="componentType === 'spinner'" :class="spinnerClasses" role="status">
       <span class="sr-only">{{ loadingText }}</span>
     </div>
 
-    <!-- 별점 컴포넌트 -->
     <div v-if="componentType === 'rating'" class="star-rating">
       <div class="star-rating__stars">
         <button v-for="star in maxRating" :key="star" :class="getStarClasses(star)" @click="selectRating(star)"
@@ -29,7 +26,6 @@
       </div>
     </div>
 
-    <!-- 메시지 컴포넌트 -->
     <div v-if="componentType === 'message'" :class="['message', `message--${messageType}`]">
       <div :class="messageClasses">
         <template v-if="isCurrentlyLoading">
@@ -103,12 +99,12 @@ export default {
     centered: { type: Boolean, default: false },
     loadingText: { type: String, default: '로딩 중입니다...' },
 
-    // 별점 관련 props
+    // Rating props
     value: { type: Number, default: 0 },
     maxRating: { type: Number, default: 5 },
     showText: { type: Boolean, default: false },
 
-    // 메시지 관련 props
+    // Message props
     message: { type: Object, default: () => ({}) },
     messageType: { type: String, default: 'user' },
     content: { type: [String, Number], default: '' },
@@ -128,8 +124,8 @@ export default {
       dotInterval: null,
       messageInterval: null,
       currentLoadingMessage: '',
-      selectedRating: 0, // 선택된 별점 유지용
-      formattedContent: '' // async 처리를 위한 데이터 속성
+      selectedRating: 0,
+      formattedContent: ''
     };
   },
 
@@ -212,7 +208,6 @@ export default {
       try {
         this.formattedContent = await aiChatOpsService.formatContentForDisplay(contentStr);
       } catch (error) {
-        console.error('콘텐츠 포맷팅 오류:', error);
         this.formattedContent = contentStr;
       }
     },
@@ -225,7 +220,6 @@ export default {
 
     selectRating(rating) {
       if (this.disabled) return;
-      // 선택된 별점을 상태로 유지
       this.selectedRating = rating;
       this.$emit('input', rating);
       this.$emit('change', rating);
@@ -253,7 +247,6 @@ export default {
     handleCopy() {
       this.localCopyStatus = 'copied';
 
-      // 메시지 데이터 전달
       const messageData = this.message || {
         content: this.content,
         id: Date.now(),
@@ -262,7 +255,6 @@ export default {
 
       this.$emit('copy-message', messageData);
 
-      // 2초 후 상태 리셋
       setTimeout(() => {
         this.localCopyStatus = null;
       }, 2000);
@@ -276,17 +268,17 @@ export default {
       const diff = now - date;
 
       if (diff < 6000) {
-        return '방금 전';
+        return 'Just now';
       }
 
       if (diff < 3600000) {
         const minutes = Math.floor(diff / 60000);
-        return `${minutes}분 전`;
+        return `${minutes}m ago`;
       }
 
       if (diff < 86400000) {
         const hours = Math.floor(diff / 3600000);
-        return `${hours}시간 전`;
+        return `${hours}h ago`;
       }
 
       return date.toLocaleDateString('ko-KR', {
@@ -301,12 +293,10 @@ export default {
       this.dotCount = 0;
       this.currentLoadingMessage = this.getRandomLoadingMessage();
 
-      // 점 애니메이션 (0.3초 간격, 5개 점)
       this.dotInterval = setInterval(() => {
-        this.dotCount = (this.dotCount + 1) % 6; // 0-5 사이클 (5개 점)
+        this.dotCount = (this.dotCount + 1) % 6;
       }, 300);
 
-      // 메시지 변경 (1.5초 간격)
       this.messageInterval = setInterval(() => {
         this.currentLoadingMessage = this.getRandomLoadingMessage();
       }, 1500);
@@ -331,7 +321,7 @@ export default {
       }
 
       return this.currentLanguage === 'ko' ?
-        '응답을 생성하고 있습니다' :
+        'Generating response' :
         'Generating response';
     }
   },
@@ -359,7 +349,6 @@ export default {
     },
 
     value(newVal) {
-      // prop으로 전달된 값이 변경되면 내부 상태도 업데이트
       this.selectedRating = newVal;
     }
   },
@@ -369,7 +358,6 @@ export default {
       this.startDotAnimation();
     }
 
-    // 초기 선택된 별점 설정
     this.selectedRating = this.value;
   },
 
@@ -381,7 +369,7 @@ export default {
 </script>
 
 <style scoped>
-/* ----- 스피너 스타일 ----- */
+/* Spinner styles */
 .loading-spinner {
   border: 2px solid rgba(0, 0, 0, 0.1);
   border-top-color: var(--color-primary);
@@ -416,7 +404,7 @@ export default {
   border-top-color: var(--color-accent);
 }
 
-/* ----- 별점 스타일 ----- */
+/* Rating styles */
 .star-rating {
   display: flex;
   flex-direction: column;
@@ -497,7 +485,7 @@ export default {
   transition: all var(--motion-fast);
 }
 
-/* ----- 메시지 스타일 ----- */
+/* Message styles */
 .message {
   width: 100%;
   padding: var(--space-lg) var(--space-xl);
@@ -513,7 +501,7 @@ export default {
 
 .message--ai {
   margin-bottom: var(--space-xl);
-  /* 복사 버튼 공간 확보 */
+  /* Space for copy button */
 }
 
 .message-bubble {
@@ -779,7 +767,7 @@ export default {
   border: 0;
 }
 
-/* ----- 애니메이션 ----- */
+/* Animations */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -813,7 +801,7 @@ export default {
   }
 }
 
-/* ----- 반응형 ----- */
+/* Responsive */
 @media (max-width: 640px) {
   .message-bubble--ai .message-bubble__content {
     font-size: var(--font-size-sm);

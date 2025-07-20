@@ -194,8 +194,8 @@ export default {
       currentTheme: this.getInitialTheme(),
       personaSessionMap: {},
       personaMessageCache: new Map(),
-      cacheAccessOrder: [], // LRU 캐시를 위한 접근 순서 추적
-      maxMessagesPerPersona: 10, // 메모리 사용량 최적화 (30 → 10)
+      cacheAccessOrder: [],
+      maxMessagesPerPersona: 10,
       windowState: 'normal',
       windowSize: {
         width: 455,
@@ -206,7 +206,6 @@ export default {
       healthCheckInterval: null,
       cacheCleanupInterval: null,
       
-      // 타이머 관리 시스템 (메모리 누수 방지)
       activeTimers: new Set(),
       activeIntervals: new Set(),
       availableThemes: [
@@ -255,7 +254,6 @@ export default {
     },
 
     filteredPersonas() {
-      // 조건부 캐싱으로 성능 최적화
       if (!this.selectedCategory || !Array.isArray(this.personas)) {
         return [];
       }
@@ -265,13 +263,11 @@ export default {
         return this._personaFilterCache.data;
       }
 
-      // 단순화된 필터링 로직 (개발 로그 제거로 성능 향상)
       const filtered = this.personas.filter(persona => 
         persona?.category === this.selectedCategory ||
         persona?.tags?.includes?.(this.selectedCategory)
       );
 
-      // 캐시 저장
       this._personaFilterCache = { key: cacheKey, data: filtered };
       return filtered;
     }
@@ -308,12 +304,10 @@ export default {
       this.saveThemePreference(nextTheme.key);
     },
 
+    // Apply theme classes to body and chat window
     applyTheme(themeKey) {
-      console.log('🎨 테마 적용 시작:', themeKey);
       const body = document.body;
       const chatWindow = this.$refs.chatWindow;
-
-      console.log('📦 chatWindow 참조:', chatWindow ? '존재' : '없음');
 
       this.availableThemes.forEach(theme => {
         body.classList.remove(theme.key);
@@ -325,11 +319,7 @@ export default {
       body.classList.add(themeKey);
       if (chatWindow) {
         chatWindow.classList.add(themeKey);
-        console.log('✅ 테마 클래스 추가됨:', themeKey);
-        console.log('📋 현재 chatWindow 클래스:', chatWindow.className);
       }
-
-      console.log('🔄 body 클래스 목록:', body.className);
     },
 
     getCurrentThemeName() {
@@ -346,7 +336,6 @@ export default {
       try {
         localStorage.setItem('ai-chatops-chat-theme', themeKey);
       } catch (error) {
-        console.log('Could not save theme preference');
       }
     },
 
@@ -390,7 +379,6 @@ export default {
 
     async toggleChat() {
       if (!this.isOpen) {
-        // 이미 초기화 진행 중이거나 닫기 진행 중이면 대기
         if (this.isInitializing || this.isClosing) {
           return;
         }
@@ -414,13 +402,12 @@ export default {
           Promise.all([
             this.loadPersonas(),
             this.preloadPopularPersonas()
-          ]).catch(console.error);
+          ]).catch(() => {});
         });
 
         this.isInitializing = false;
 
       } else {
-        // 이미 닫기 진행 중이면 대기
         if (this.isClosing) {
           return;
         }
@@ -436,7 +423,6 @@ export default {
     },
 
     closeChat() {
-      // 즉시 UI 응답
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -445,10 +431,8 @@ export default {
         windowState: 'normal'
       });
 
-      // 필수 작업은 즉시 처리
       this.cancelAllPendingRequests();
 
-      // 나머지 작업은 비동기로 처리 (성능 최적화)
       this.$nextTick(() => {
         this.saveCurrentMessages();
         if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
@@ -503,34 +487,9 @@ export default {
     },
 
     selectCategory(category) {
-      console.log('🎯 [AIChatOpsLayout] selectCategory:', {
-        category,
-        totalPersonas: this.personas.length,
-        willFilter: true
-      });
-
       Object.assign(this, {
         selectedCategory: category,
         currentView: 'personaList'
-      });
-
-      // 필터링 결과 즉시 확인
-      this.$nextTick(() => {
-        const filtered = this.filteredPersonas;
-        console.log('🔍 [AIChatOpsLayout] selectCategory: Filtered personas:', {
-          category,
-          filteredCount: filtered.length,
-          filteredPersonas: filtered.map(p => ({
-            code: p.personaCode,
-            title: p.title,
-            category: p.category,
-            tags: p.tags
-          }))
-        });
-
-        if (filtered.length === 0) {
-          console.warn('⚠️ [AIChatOpsLayout] selectCategory: No personas found for category:', category);
-        }
       });
     },
 
@@ -556,7 +515,6 @@ export default {
       try {
         localStorage.setItem('ai-chatops-chat-lang', this.currentLanguage);
       } catch (error) {
-        console.log('Could not save language preference');
       }
     },
 
@@ -584,6 +542,7 @@ export default {
       return false;
     },
 
+    // Preload conversation history for popular personas
     async preloadPopularPersonas() {
       const popularPersonas = this.personas.slice(0, 3);
 
@@ -597,15 +556,12 @@ export default {
               this.setCache(persona.personaCode, recentMessages);
             }
           } catch (error) {
-            console.log('Error preloading persona:', persona.personaCode);
           }
         }
       }
     },
 
-    // LRU 캐시 시스템으로 업그레이드
     accessCache(personaCode) {
-      // 캐시 접근 순서 업데이트
       if (this.cacheAccessOrder) {
         const index = this.cacheAccessOrder.indexOf(personaCode);
         if (index > -1) {
@@ -618,7 +574,6 @@ export default {
     setCache(personaCode, messages) {
       const maxCacheSize = this.maxMessagesPerPersona || 10;
       
-      // 캐시 크기 초과 시 LRU 제거
       if (this.personaMessageCache.size >= maxCacheSize && !this.personaMessageCache.has(personaCode)) {
         const oldestKey = this.cacheAccessOrder?.[0];
         if (oldestKey) {
@@ -640,7 +595,6 @@ export default {
     },
 
     cleanupCache() {
-      // LRU 기반 정리 (기존 방식 개선)
       const maxSize = this.maxMessagesPerPersona || 10;
       if (this.personaMessageCache.size > maxSize) {
         const excessCount = this.personaMessageCache.size - maxSize;
@@ -657,7 +611,6 @@ export default {
     },
 
     startCacheCleanup() {
-      // 기존 클린업 정리
       this.stopCacheCleanup();
       this.cacheCleanupInterval = this.safeSetInterval(() => {
         this.cleanupCache();
@@ -671,7 +624,6 @@ export default {
       }
     },
 
-    // 안전한 타이머 관리 메서드들 (메모리 누수 방지)
     safeSetTimeout(callback, delay) {
       const timerId = setTimeout(() => {
         this.activeTimers.delete(timerId);
@@ -708,19 +660,16 @@ export default {
     },
 
     clearAllTimers() {
-      // 모든 활성 타이머 정리
       this.activeTimers.forEach(timerId => {
         clearTimeout(timerId);
       });
       this.activeTimers.clear();
 
-      // 모든 활성 인터벌 정리
       this.activeIntervals.forEach(intervalId => {
         clearInterval(intervalId);
       });
       this.activeIntervals.clear();
 
-      // 기존 인터벌들도 정리
       if (this.healthCheckInterval) {
         clearInterval(this.healthCheckInterval);
         this.healthCheckInterval = null;
@@ -731,61 +680,25 @@ export default {
       }
     },
 
+    // Load personas from API
     loadPersonas() {
       if (this.loadingPersonas) {
-        console.log('🔄 [AIChatOpsLayout] loadPersonas: Already loading, skipping');
         return Promise.resolve();
       }
 
-      console.log('🚀 [AIChatOpsLayout] loadPersonas: Starting to load personas');
       this.loadingPersonas = true;
 
       return aiChatOpsService.getPersonas()
         .then(response => {
-          console.log('📡 [AIChatOpsLayout] loadPersonas: API response received:', {
-            success: response.success,
-            hasData: !!response.data,
-            dataType: typeof response.data,
-            dataLength: Array.isArray(response.data) ? response.data.length : 'not array',
-            fullResponse: response
-          });
-
           if (response.success) {
             const personas = response.data || [];
             this.personas = personas;
-
-            console.log('✅ [AIChatOpsLayout] loadPersonas: Personas loaded successfully:', {
-              count: personas.length,
-              personas: personas.map(p => ({
-                code: p.personaCode,
-                title: p.title,
-                category: p.category,
-                tags: p.tags
-              }))
-            });
-
-            // 데이터 검증 로그
-            if (personas.length === 0) {
-              console.warn('⚠️ [AIChatOpsLayout] loadPersonas: No personas found in response');
-            }
-          } else {
-            console.error('❌ [AIChatOpsLayout] loadPersonas: API returned unsuccessful response:', {
-              errorMessage: response.errorMessage,
-              error: response.error
-            });
           }
         })
         .catch(error => {
-          console.error('❌ [AIChatOpsLayout] loadPersonas: Error loading personas:', {
-            error: error,
-            message: error.message,
-            stack: error.stack,
-            response: error.response?.data
-          });
         })
         .finally(() => {
           this.loadingPersonas = false;
-          console.log('🔚 [AIChatOpsLayout] loadPersonas: Loading completed, personas count:', this.personas.length);
         });
     },
 
@@ -820,51 +733,29 @@ export default {
         });
     },
 
+    // Handle successful API response
     handleSuccessResponse(data, response) {
-      console.log('✅ [AIChatOpsLayout] handleSuccessResponse:', {
-        hasSessionId: !!response.sessionId,
-        sessionId: response.sessionId,
-        personaCode: data.personaCode,
-        hasData: !!response.data,
-        responseKeys: Object.keys(response),
-        hasChatTab: !!this.$refs.chatTab
-      });
-
       if (response.sessionId) {
         this.personaSessionMap[data.personaCode] = response.sessionId;
         try {
           localStorage.setItem('ai-chatops-chat-sessions', JSON.stringify(this.personaSessionMap));
-          console.log('💾 [AIChatOpsLayout] handleSuccessResponse: Session saved for persona:', data.personaCode);
         } catch (error) {
-          console.error('❌ [AIChatOpsLayout] handleSuccessResponse: Could not save session data:', error);
         }
       }
 
       if (this.$refs.chatTab) {
         this.$refs.chatTab.addAiResponse(response);
-        console.log('📤 [AIChatOpsLayout] handleSuccessResponse: Response sent to chatTab');
-      } else {
-        console.error('❌ [AIChatOpsLayout] handleSuccessResponse: No chatTab ref found');
       }
 
       this.isConnected = true;
     },
 
     handleErrorResponse(errorMessage) {
-      console.error('❌ [AIChatOpsLayout] handleErrorResponse:', {
-        errorMessage,
-        hasChatTab: !!this.$refs.chatTab,
-        isConnected: this.isConnected
-      });
-
       if (this.$refs.chatTab) {
         this.$refs.chatTab.addAiResponse({
           success: false,
           message: errorMessage
         });
-        console.log('📤 [AIChatOpsLayout] handleErrorResponse: Error sent to chatTab');
-      } else {
-        console.error('❌ [AIChatOpsLayout] handleErrorResponse: No chatTab ref found, cannot display error');
       }
     },
 
@@ -941,7 +832,6 @@ export default {
       }
     },
 
-    // 컴포넌트 정리 시 모든 타이머 해제
     cleanup() {
       this.clearAllTimers();
       this.stopHealthCheck();
@@ -960,7 +850,6 @@ export default {
   },
 
   beforeDestroy() {
-    // 통합 타이머 정리 시스템 사용
     this.cleanup();
     this.cancelAllPendingRequests();
     this.personas = [];
@@ -1509,13 +1398,13 @@ export default {
   transform: scale(1.05);
 }
 
-/* 플로팅 챗봇 버튼 - 외곽 테두리 제거 */
+/* Floating chatbot button */
 .ai-chatops-chat-button {
   width: var(--layout-float-size);
   height: var(--layout-float-size);
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   border: none;
-  /* 테두리 제거 */
+  /* Remove border */
   border-radius: var(--radius-full);
   cursor: pointer;
   display: flex;

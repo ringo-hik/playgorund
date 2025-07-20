@@ -11,7 +11,6 @@
     </div>
 
     <div v-else class="chat-interface">
-      <!-- 채팅 헤더 추가 -->
       <div class="chat-header">
         <div class="persona-info">
           <div class="persona-badge" @mouseenter="showDevInfo = true" @mouseleave="showDevInfo = false">
@@ -48,17 +47,17 @@
 
         <div class="header-actions">
           <button @click="$emit('go-persona-list')"
-            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="페르소나 변경">
+            class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="Change persona">
             <LucideIcon name="refresh-cw" :width="14" :height="14" :interactive="true" />
           </button>
 
           <button @click="$emit('go-home')" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="홈으로">
+            title="Go home">
             <LucideIcon name="home" :width="14" :height="14" :interactive="true" />
           </button>
 
           <button @click="clearChatHistory" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
-            title="메시지 삭제">
+            title="Delete messages">
             <LucideIcon name="trash" :width="14" :height="14" :interactive="true" />
           </button>
         </div>
@@ -77,8 +76,7 @@
                 {{ selectedPersona ? getPersonaDisplayName(selectedPersona) : '' }}
               </h2>
             </div>
-            <div class="welcome-message" v-if="formattedWelcomeMessage"
-              v-html="formattedWelcomeMessage"></div>
+            <div class="welcome-message" v-if="formattedWelcomeMessage" v-html="formattedWelcomeMessage"></div>
             <p class="welcome-description" v-else>{{ getText('welcomeTip') || '' }}</p>
           </div>
         </div>
@@ -92,7 +90,6 @@
       </div>
 
       <div class="input-area" ref="inputArea">
-        <!-- 빠른 질문 셀렉트박스 형태로 변경 -->
         <div v-if="showQuickQuestions && quickQuestions.length > 0" class="quick-questions-dropdown"
           ref="quickQuestionsDropdown">
           <div class="quick-questions-list">
@@ -113,7 +110,7 @@
               <div class="left-actions">
                 <button @click="generateQuickQuestions" :disabled="isProcessing || isQuickQuestionsLoading"
                   class="btn-system btn-system--ghost btn-system--sm quick-questions-generate-btn"
-                  :title="getText('generateQuestions') || '질문 생성하기'">
+                  :title="getText('generateQuestions') || 'Generate questions'">
                   <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
                   <LucideIcon v-else name="lightbulb" :width="12" :height="12" :interactive="true" />
                 </button>
@@ -123,8 +120,9 @@
                   'btn-system--sm',
                   'continuous-chat-btn',
                   continuousChatEnabled ? 'btn-system--success' : 'btn-system--ghost'
-                ]" :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'">
-                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" :interactive="true" />
+                ]" :title="continuousChatEnabled ? 'Switch to single chat' : 'Switch to continuous chat'">
+                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12"
+                    :interactive="true" />
                 </button>
               </div>
 
@@ -135,9 +133,10 @@
                 'btn-system--icon-only',
                 'send-button-enhanced',
                 { 'loading': isProcessing }
-              ]" title="메시지 전송">
+              ]" title="Send message">
                 <Elements v-if="isProcessing" component-type="spinner" size="sm" color="accent" />
-                <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14" :interactive="true" />
+                <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14"
+                  :interactive="true" />
               </button>
             </div>
           </div>
@@ -198,9 +197,9 @@ export default {
       maxSessionMessages: 30,
       memoryUsage: { used: 0, total: 0 },
       memoryMonitorInterval: null,
-      isDevelopment: true, // 디버깅 모드 기본 활성화
+      isDevelopment: true,
       showDevInfo: false,
-      debugMode: true, // 강제 디버깅 모드
+      debugMode: true,
       renderingStates: [],
       lastApiCall: null,
 
@@ -208,11 +207,9 @@ export default {
       renderingScheduled: false,
       batchUpdateTimeout: null,
 
-      // 타이머 관리 시스템 (메모리 누수 방지)
       activeTimers: new Set(),
       activeIntervals: new Set(),
 
-      // async 처리를 위한 데이터 속성
       formattedWelcomeMessage: '',
 
       enhancedInputManager: {
@@ -236,14 +233,12 @@ export default {
     recentConversations() {
       if (!this.continuousChatEnabled || !this.messages?.length) return [];
 
-      // 조건부 캐싱으로 성능 최적화
       const cacheKey = `${this.messages.length}-${this.continuousChatEnabled}`;
       if (this._conversationCache?.key === cacheKey) {
         return this._conversationCache.data;
       }
 
       const conversationPairs = [];
-      // 뒤에서부터 역순으로 검색하여 최근 5개만 추출 (효율성 향상)
       for (let i = this.messages.length - 2; i >= 0 && conversationPairs.length < 5; i -= 2) {
         if (this.messages[i]?.type === 'user' && this.messages[i + 1]?.type === 'ai') {
           conversationPairs.unshift({
@@ -253,16 +248,14 @@ export default {
         }
       }
 
-      // 캐시 저장
       this._conversationCache = { key: cacheKey, data: conversationPairs };
       return conversationPairs;
     },
 
     messagesClasses() {
-      // 조건을 단순화하여 성능 향상
       const isLoading = this.loadingHistory;
       const canScroll = !isLoading && !this.isInitialLoad && !this.renderingScheduled;
-      
+
       return {
         'smooth-scroll': canScroll,
         'initial-loading': isLoading
@@ -270,7 +263,6 @@ export default {
     },
 
     isExpanded() {
-      // null 체크와 조건 최적화
       return this.windowSize?.width > 600 || this.windowSize?.height > 800;
     }
   },
@@ -296,7 +288,7 @@ export default {
 
         if (newPersona) {
           this.loadPersonaHistory();
-          this.formatWelcomeMessage(); // 웰컴 메시지 async 포맷팅
+          this.formatWelcomeMessage();
         } else {
           this.messages = [];
           this.formattedWelcomeMessage = '';
@@ -319,17 +311,17 @@ export default {
       return persona.welcomeMsg;
     },
 
+    // Format welcome message for display
     async formatWelcomeMessage() {
       const message = this.getPersonaWelcomeMessage(this.selectedPersona);
       if (!message) {
         this.formattedWelcomeMessage = '';
         return;
       }
-      
+
       try {
         this.formattedWelcomeMessage = await aiChatOpsService.formatContentForDisplay(message);
       } catch (error) {
-        console.error('웰컴 메시지 포맷팅 오류:', error);
         this.formattedWelcomeMessage = message;
       }
     },
@@ -363,13 +355,11 @@ export default {
         return;
       }
 
-
       this.loadingHistory = true;
       this.isInitialLoad = true;
 
       try {
         const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
-
 
         if (response.success && response.data && Array.isArray(response.data)) {
           this.messages = [];
@@ -381,9 +371,7 @@ export default {
             conversationId: conv.conversationId || conv.id || Date.now()
           }));
 
-
           const historyMessages = aiChatOpsService.convertConversationsToMessages(normalizedConversations);
-
 
           if (historyMessages.length > 0) {
             this.messages = historyMessages;
@@ -391,18 +379,14 @@ export default {
               this.setInitialScrollPosition();
             });
           } else {
-            // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
-            this.checkManualPersonaAutoQuery();
+            this.checkPersonaAutoQuery();
           }
         } else {
-          // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
-          this.checkManualPersonaAutoQuery();
+          this.checkPersonaAutoQuery();
         }
       } catch (error) {
-        console.error('❌ [ChatTab] 페르소나 히스토리 로드 실패:', error);
-        this.addErrorMessage('히스토리를 불러오는 중 오류가 발생했습니다.');
-        // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
-        this.checkManualPersonaAutoQuery();
+        this.addErrorMessage('Failed to load conversation history.');
+        this.checkPersonaAutoQuery();
       } finally {
         this.loadingHistory = false;
         this.isInitialLoad = false;
@@ -419,11 +403,10 @@ export default {
       }
     },
 
+    // Start memory monitoring at 60-second intervals
     startMemoryMonitoring() {
       if (performance.memory) {
-        // 기존 인터벌 정리
         this.stopMemoryMonitoring();
-        // 60초로 간격 조정 (성능 최적화)
         this.memoryMonitorInterval = this.safeSetInterval(() => {
           this.measureMemoryUsage();
         }, 60000);
@@ -438,7 +421,6 @@ export default {
       }
     },
 
-    // 안전한 타이머 관리 메서드들 (메모리 누수 방지)
     safeSetTimeout(callback, delay) {
       const timerId = setTimeout(() => {
         this.activeTimers.delete(timerId);
@@ -475,19 +457,16 @@ export default {
     },
 
     clearAllTimers() {
-      // 모든 활성 타이머 정리
       this.activeTimers.forEach(timerId => {
         clearTimeout(timerId);
       });
       this.activeTimers.clear();
 
-      // 모든 활성 인터벌 정리
       this.activeIntervals.forEach(intervalId => {
         clearInterval(intervalId);
       });
       this.activeIntervals.clear();
 
-      // 기존 타이머들도 정리
       if (this.memoryMonitorInterval) {
         clearInterval(this.memoryMonitorInterval);
         this.memoryMonitorInterval = null;
@@ -652,7 +631,6 @@ export default {
         this.$emit('message-sent', messageData);
 
       } catch (error) {
-        console.error('❌ [ChatTab] 메시지 전송 오류:', error);
         this.lastApiCall = {
           timestamp: new Date(),
           error: error,
@@ -661,18 +639,16 @@ export default {
 
         this.addAiResponse({
           success: false,
-          message: '메시지 전송 중 오류가 발생했습니다.'
+          message: 'Failed to send message.'
         });
       }
     },
 
-    // 빠른 질문 클릭 시 바로 전송하도록 수정
     sendQuickQuestion(question) {
       this.currentMessage = question;
       this.showQuickQuestions = false;
       this.quickQuestions = [];
 
-      // 바로 전송
       this.$nextTick(() => {
         this.sendMessage();
       });
@@ -693,7 +669,7 @@ export default {
       let responseMessage;
 
       if (response.success) {
-        const aiResponseContent = aiChatOpsService.extractAIResponse(response);
+        const aiResponseContent = response.data.aiResponse || response.data.data;
 
         responseMessage = {
           id: `ai-${this.generateUniqueId()}`,
@@ -701,7 +677,7 @@ export default {
           content: aiResponseContent,
           timestamp: new Date(),
           isLoading: false,
-          conversationId: aiChatOpsService.extractConversationId(response)
+          conversationId: response.data.conversationId
         };
       } else {
         const errorContent = response.message || response.errorMessage || this.getText('aiError');
@@ -719,7 +695,6 @@ export default {
 
       this.addMessageWithLimit(responseMessage);
 
-      // API 호출 상태 업데이트
       if (this.lastApiCall) {
         this.lastApiCall.status = 'completed';
         this.lastApiCall.response = response;
@@ -760,9 +735,6 @@ export default {
         }
 
       } catch (error) {
-        console.error('빠른 질문 생성 오류:', error);
-
-        // 기본 질문으로 폴백
         this.quickQuestions = this.getDefaultQuickQuestions();
         this.showQuickQuestions = true;
       } finally {
@@ -811,12 +783,10 @@ export default {
           this.quickQuestions = questionsList;
           this.showQuickQuestions = true;
         } else {
-          throw new Error('빠른 질문 목록이 비어있습니다.');
+          throw new Error('Quick questions list is empty.');
         }
 
       } catch (error) {
-        console.error('빠른 질문 답변 처리 오류:', error);
-
         this.quickQuestions = this.getDefaultQuickQuestions();
         this.showQuickQuestions = true;
       }
@@ -834,7 +804,7 @@ export default {
       const loadingMessage = {
         id: `loading-${this.generateUniqueId()}`,
         type: 'ai',
-        content: '', // Elements.vue에서 자동으로 생성
+        content: '',
         timestamp: new Date(),
         isLoading: true
       };
@@ -844,7 +814,6 @@ export default {
     },
 
     stopLoadingMessages() {
-      // Elements.vue에서 자동으로 애니메이션이 중지됨
       this.loadingMessageId = null;
     },
 
@@ -930,11 +899,9 @@ export default {
 
     async handleCopyMessage(message) {
       try {
-        // 스마트 복사: 콘텐츠 타입에 따라 적절한 포맷으로 복사
         const textToCopy = aiChatOpsService.getContentForCopy(message.content);
         await navigator.clipboard.writeText(textToCopy);
       } catch (error) {
-        console.error('클립보드 복사 실패:', error);
       }
     },
 
@@ -957,14 +924,12 @@ export default {
       });
     },
 
-    // 외부 클릭 감지 로직 추가
     handleClickOutside(event) {
       if (this.showQuickQuestions) {
         const dropdown = this.$refs.quickQuestionsDropdown;
         const inputArea = this.$refs.inputArea;
         const generateBtn = event.target.closest('.quick-questions-generate-btn');
 
-        // 질문 생성 버튼을 클릭한 경우는 제외
         if (generateBtn) {
           return;
         }
@@ -979,8 +944,7 @@ export default {
     clearChatHistory() {
       if (!this.selectedPersona) return;
 
-      // 확인 다이얼로그 표시
-      const confirmed = confirm(`${this.selectedPersona.title}의 모든 대화 내역을 삭제하시겠습니까?\n\n삭제된 대화는 복구할 수 없습니다.`);
+      const confirmed = confirm(`Delete all conversation history for ${this.selectedPersona.title}?\n\nDeleted conversations cannot be recovered.`);
 
       if (!confirmed) return;
 
@@ -1007,7 +971,6 @@ export default {
           }
         })
         .catch(error => {
-          console.log('Error clearing messages:', error);
         });
     },
 
@@ -1036,14 +999,59 @@ export default {
       };
     },
 
-    // chatbot_manual 페르소나인 경우 "전체 메뉴얼" 자동 실행
-    checkManualPersonaAutoQuery() {
-      if (this.selectedPersona?.personaCode === 'chatbot_manual' && this.messages.length === 0) {
+    // Universal auto-query system for personas
+    checkPersonaAutoQuery() {
+      if (!this.selectedPersona?.personaCode || this.messages.length > 0) {
+        return;
+      }
+
+      const autoQueryConfig = this.getPersonaAutoQueryConfig(this.selectedPersona.personaCode);
+
+      if (autoQueryConfig) {
         this.$nextTick(() => {
-          this.currentMessage = '전체 메뉴얼';
+          this.currentMessage = autoQueryConfig.query;
           this.sendMessage();
         });
       }
+    },
+
+    // Get auto query configuration for specific persona
+    getPersonaAutoQueryConfig(personaCode) {
+      const autoQueryMap = {
+        'jql_reporter': {
+          query: 'Generate weekly JQL report for development team',
+          description: 'Automatically generates weekly development metrics',
+          enabled: true
+        },
+        'project_manager': {
+          query: 'Show me current project status and sprint progress',
+          description: 'Displays current project overview and team metrics',
+          enabled: true
+        },
+        'system_admin': {
+          query: 'Check system performance and infrastructure health',
+          description: 'Provides system monitoring and performance metrics',
+          enabled: true
+        },
+        'data_analyst': {
+          query: 'Generate weekly data analytics and business insights',
+          description: 'Shows KPIs, user behavior, and predictive analytics',
+          enabled: true
+        },
+        'personal_assistant': {
+          query: 'Show me weekly task progress and upcoming priorities',
+          description: 'Displays personal productivity metrics and schedule',
+          enabled: false // Disabled for personal assistant to allow manual interaction
+        },
+        'business_analyst': {
+          query: 'Analyze current business requirements and processes',
+          description: 'Provides business analysis and improvement recommendations',
+          enabled: false // Disabled for business analyst to allow requirement gathering
+        }
+      };
+
+      const config = autoQueryMap[personaCode];
+      return (config && config.enabled) ? config : null;
     },
 
     handleMessageContainerClick(event) {
@@ -1079,7 +1087,6 @@ export default {
 
     this.startMemoryMonitoring();
 
-    // 외부 클릭 이벤트 리스너 추가
     document.addEventListener('click', this.handleClickOutside);
   },
 
@@ -1088,12 +1095,10 @@ export default {
     if (messagesContainer) {
       messagesContainer.removeEventListener('click', this.handleMessageContainerClick);
     }
-    
-    // 통합 타이머 정리 시스템 사용
+
     this.clearAllTimers();
     this.stopLoadingMessages();
 
-    // 외부 클릭 이벤트 리스너 제거
     document.removeEventListener('click', this.handleClickOutside);
 
     Object.assign(this, {
