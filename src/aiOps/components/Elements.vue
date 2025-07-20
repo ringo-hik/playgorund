@@ -6,7 +6,7 @@
       <Elements v-if="loading" component-type="spinner" :size="size" class="ai-chatops-button__spinner" />
 
       <LucideIcon v-if="icon && !loading" :name="icon" fill="currentColor" :width="iconSize" :height="iconSize"
-        class="ai-chatops-button__icon" />
+        :interactive="true" class="ai-chatops-button__icon" />
 
       <span v-if="$slots.default" class="ai-chatops-button__text">
         <slot />
@@ -24,7 +24,7 @@
         <button v-for="star in maxRating" :key="star" :class="getStarClasses(star)" @click="selectRating(star)"
           @mouseenter="hoverRating = star" @mouseleave="hoverRating = 0" @focus="hoverRating = star"
           @blur="hoverRating = 0" :disabled="disabled" type="button">
-          <LucideIcon name="star" :fill="getStarFill(star)" :width="starIconSize" :height="starIconSize" />
+          <LucideIcon name="star" :fill="getStarFill(star)" :width="starIconSize" :height="starIconSize" :interactive="true" />
         </button>
       </div>
     </div>
@@ -66,7 +66,7 @@
               :class="['message-action', 'message-action--copy', 'btn-system', 'btn-system--ghost', 'btn-system--sm', 'btn-system--icon-only', { 'message-action--copied': effectiveCopyStatus === 'copied' }]"
               @click="handleCopy">
               <LucideIcon :name="effectiveCopyStatus === 'copied' ? 'check' : 'copy'" fill="currentColor" :width="12"
-                :height="12" />
+                :height="12" :interactive="true" />
             </button>
           </div>
         </template>
@@ -128,7 +128,8 @@ export default {
       dotInterval: null,
       messageInterval: null,
       currentLoadingMessage: '',
-      selectedRating: 0 // 선택된 별점 유지용
+      selectedRating: 0, // 선택된 별점 유지용
+      formattedContent: '' // async 처리를 위한 데이터 속성
     };
   },
 
@@ -179,13 +180,6 @@ export default {
       return this.hoverRating || this.selectedRating || this.value;
     },
 
-    formattedContent() {
-      const content = this.message?.content || this.content || '';
-      const contentStr = String(content);
-
-      // 콘텐츠 타입에 따라 적절히 포맷팅
-      return aiChatOpsService.formatContentForDisplay(contentStr);
-    },
 
     effectiveTimestamp() {
       return this.message?.timestamp || this.timestamp;
@@ -211,6 +205,18 @@ export default {
   },
 
   methods: {
+    async formatContent() {
+      const content = this.message?.content || this.content || '';
+      const contentStr = String(content);
+      
+      try {
+        this.formattedContent = await aiChatOpsService.formatContentForDisplay(contentStr);
+      } catch (error) {
+        console.error('콘텐츠 포맷팅 오류:', error);
+        this.formattedContent = contentStr;
+      }
+    },
+
     handleClick(event) {
       if (!this.disabled && !this.loading) {
         this.$emit('click', event);
@@ -331,6 +337,19 @@ export default {
   },
 
   watch: {
+    'message.content': {
+      handler() {
+        this.formatContent();
+      },
+      immediate: true
+    },
+
+    content: {
+      handler() {
+        this.formatContent();
+      },
+      immediate: true
+    },
     isCurrentlyLoading(newVal) {
       if (newVal) {
         this.startDotAnimation();

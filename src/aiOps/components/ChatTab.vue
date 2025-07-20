@@ -49,17 +49,17 @@
         <div class="header-actions">
           <button @click="$emit('go-persona-list')"
             class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only" title="페르소나 변경">
-            <LucideIcon name="refresh-cw" :width="14" :height="14" />
+            <LucideIcon name="refresh-cw" :width="14" :height="14" :interactive="true" />
           </button>
 
           <button @click="$emit('go-home')" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
             title="홈으로">
-            <LucideIcon name="home" :width="14" :height="14" />
+            <LucideIcon name="home" :width="14" :height="14" :interactive="true" />
           </button>
 
           <button @click="clearChatHistory" class="btn-system btn-system--ghost btn-system--sm btn-system--icon-only"
             title="메시지 삭제">
-            <LucideIcon name="trash" :width="14" :height="14" />
+            <LucideIcon name="trash" :width="14" :height="14" :interactive="true" />
           </button>
         </div>
       </div>
@@ -77,8 +77,8 @@
                 {{ selectedPersona ? getPersonaDisplayName(selectedPersona) : '' }}
               </h2>
             </div>
-            <div class="welcome-message" v-if="getPersonaWelcomeMessage(selectedPersona)"
-              v-html="formatWelcomeMessage(getPersonaWelcomeMessage(selectedPersona))"></div>
+            <div class="welcome-message" v-if="formattedWelcomeMessage"
+              v-html="formattedWelcomeMessage"></div>
             <p class="welcome-description" v-else>{{ getText('welcomeTip') || '' }}</p>
           </div>
         </div>
@@ -115,7 +115,7 @@
                   class="btn-system btn-system--ghost btn-system--sm quick-questions-generate-btn"
                   :title="getText('generateQuestions') || '질문 생성하기'">
                   <div v-if="isQuickQuestionsLoading" class="loading-spinner"></div>
-                  <LucideIcon v-else name="lightbulb" :width="12" :height="12" />
+                  <LucideIcon v-else name="lightbulb" :width="12" :height="12" :interactive="true" />
                 </button>
 
                 <button @click="toggleContinuousChat" :disabled="isProcessing" :class="[
@@ -124,7 +124,7 @@
                   'continuous-chat-btn',
                   continuousChatEnabled ? 'btn-system--success' : 'btn-system--ghost'
                 ]" :title="continuousChatEnabled ? '단일 대화로 전환' : '연속 대화로 전환'">
-                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" />
+                  <LucideIcon :name="continuousChatEnabled ? 'layers' : 'message-square'" :width="12" :height="12" :interactive="true" />
                 </button>
               </div>
 
@@ -137,7 +137,7 @@
                 { 'loading': isProcessing }
               ]" title="메시지 전송">
                 <Elements v-if="isProcessing" component-type="spinner" size="sm" color="accent" />
-                <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14" />
+                <LucideIcon v-else name="send-horizontal" fill="currentColor" :width="14" :height="14" :interactive="true" />
               </button>
             </div>
           </div>
@@ -208,6 +208,13 @@ export default {
       renderingScheduled: false,
       batchUpdateTimeout: null,
 
+      // 타이머 관리 시스템 (메모리 누수 방지)
+      activeTimers: new Set(),
+      activeIntervals: new Set(),
+
+      // async 처리를 위한 데이터 속성
+      formattedWelcomeMessage: '',
+
       enhancedInputManager: {
         minHeight: 38,
         maxHeight: 400,
@@ -227,30 +234,44 @@ export default {
     },
 
     recentConversations() {
-      if (!this.continuousChatEnabled) return [];
+      if (!this.continuousChatEnabled || !this.messages?.length) return [];
+
+      // 조건부 캐싱으로 성능 최적화
+      const cacheKey = `${this.messages.length}-${this.continuousChatEnabled}`;
+      if (this._conversationCache?.key === cacheKey) {
+        return this._conversationCache.data;
+      }
 
       const conversationPairs = [];
-      for (let i = 0; i < this.messages.length - 1; i += 2) {
+      // 뒤에서부터 역순으로 검색하여 최근 5개만 추출 (효율성 향상)
+      for (let i = this.messages.length - 2; i >= 0 && conversationPairs.length < 5; i -= 2) {
         if (this.messages[i]?.type === 'user' && this.messages[i + 1]?.type === 'ai') {
-          conversationPairs.push({
+          conversationPairs.unshift({
             question: this.messages[i].content,
             answer: this.messages[i + 1].content
           });
         }
       }
-      return conversationPairs.slice(-5);
+
+      // 캐시 저장
+      this._conversationCache = { key: cacheKey, data: conversationPairs };
+      return conversationPairs;
     },
 
     messagesClasses() {
+      // 조건을 단순화하여 성능 향상
+      const isLoading = this.loadingHistory;
+      const canScroll = !isLoading && !this.isInitialLoad && !this.renderingScheduled;
+      
       return {
-        'smooth-scroll': !this.loadingHistory && !this.isInitialLoad && !this.renderingScheduled,
-        'initial-loading': this.loadingHistory
+        'smooth-scroll': canScroll,
+        'initial-loading': isLoading
       };
     },
 
     isExpanded() {
-      if (!this.windowSize) return false;
-      return this.windowSize.width > 600 || this.windowSize.height > 800;
+      // null 체크와 조건 최적화
+      return this.windowSize?.width > 600 || this.windowSize?.height > 800;
     }
   },
 
@@ -275,8 +296,10 @@ export default {
 
         if (newPersona) {
           this.loadPersonaHistory();
+          this.formatWelcomeMessage(); // 웰컴 메시지 async 포맷팅
         } else {
           this.messages = [];
+          this.formattedWelcomeMessage = '';
         }
       },
       immediate: true
@@ -296,9 +319,19 @@ export default {
       return persona.welcomeMsg;
     },
 
-    formatWelcomeMessage(message) {
-      if (!message) return '';
-      return aiChatOpsService.formatContentForDisplay(message);
+    async formatWelcomeMessage() {
+      const message = this.getPersonaWelcomeMessage(this.selectedPersona);
+      if (!message) {
+        this.formattedWelcomeMessage = '';
+        return;
+      }
+      
+      try {
+        this.formattedWelcomeMessage = await aiChatOpsService.formatContentForDisplay(message);
+      } catch (error) {
+        console.error('웰컴 메시지 포맷팅 오류:', error);
+        this.formattedWelcomeMessage = message;
+      }
     },
 
     getPersonaDescription(persona) {
@@ -388,17 +421,80 @@ export default {
 
     startMemoryMonitoring() {
       if (performance.memory) {
-        this.memoryMonitorInterval = setInterval(() => {
+        // 기존 인터벌 정리
+        this.stopMemoryMonitoring();
+        // 60초로 간격 조정 (성능 최적화)
+        this.memoryMonitorInterval = this.safeSetInterval(() => {
           this.measureMemoryUsage();
-        }, 30000);
+        }, 60000);
         this.measureMemoryUsage();
       }
     },
 
     stopMemoryMonitoring() {
       if (this.memoryMonitorInterval) {
+        this.safeClearInterval(this.memoryMonitorInterval);
+        this.memoryMonitorInterval = null;
+      }
+    },
+
+    // 안전한 타이머 관리 메서드들 (메모리 누수 방지)
+    safeSetTimeout(callback, delay) {
+      const timerId = setTimeout(() => {
+        this.activeTimers.delete(timerId);
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, delay);
+      this.activeTimers.add(timerId);
+      return timerId;
+    },
+
+    safeSetInterval(callback, interval) {
+      const intervalId = setInterval(() => {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, interval);
+      this.activeIntervals.add(intervalId);
+      return intervalId;
+    },
+
+    safeClearTimeout(timerId) {
+      if (timerId && this.activeTimers.has(timerId)) {
+        clearTimeout(timerId);
+        this.activeTimers.delete(timerId);
+      }
+    },
+
+    safeClearInterval(intervalId) {
+      if (intervalId && this.activeIntervals.has(intervalId)) {
+        clearInterval(intervalId);
+        this.activeIntervals.delete(intervalId);
+      }
+    },
+
+    clearAllTimers() {
+      // 모든 활성 타이머 정리
+      this.activeTimers.forEach(timerId => {
+        clearTimeout(timerId);
+      });
+      this.activeTimers.clear();
+
+      // 모든 활성 인터벌 정리
+      this.activeIntervals.forEach(intervalId => {
+        clearInterval(intervalId);
+      });
+      this.activeIntervals.clear();
+
+      // 기존 타이머들도 정리
+      if (this.memoryMonitorInterval) {
         clearInterval(this.memoryMonitorInterval);
         this.memoryMonitorInterval = null;
+      }
+      if (this.batchUpdateTimeout) {
+        clearTimeout(this.batchUpdateTimeout);
+        this.batchUpdateTimeout = null;
       }
     },
 
@@ -444,7 +540,7 @@ export default {
       const container = this.$refs.messageInput?.closest('.input-container');
       if (container) {
         container.classList.add('enhanced-input--focused');
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           container.classList.remove('enhanced-input--focused');
         }, 150);
       }
@@ -825,7 +921,7 @@ export default {
           container.style.scrollBehavior = 'auto';
           container.scrollTop = container.scrollHeight;
 
-          setTimeout(() => {
+          this.safeSetTimeout(() => {
             container.style.scrollBehavior = 'smooth';
           }, 100);
         }
@@ -958,7 +1054,7 @@ export default {
           navigator.clipboard.writeText(pre.innerText).then(() => {
             button.textContent = 'Copied!';
             button.classList.add('copied');
-            setTimeout(() => {
+            this.safeSetTimeout(() => {
               button.textContent = 'Copy';
               button.classList.remove('copied');
             }, 2000);
@@ -992,13 +1088,10 @@ export default {
     if (messagesContainer) {
       messagesContainer.removeEventListener('click', this.handleMessageContainerClick);
     }
+    
+    // 통합 타이머 정리 시스템 사용
+    this.clearAllTimers();
     this.stopLoadingMessages();
-    this.stopMemoryMonitoring();
-
-    if (this.batchUpdateTimeout) {
-      clearTimeout(this.batchUpdateTimeout);
-      this.batchUpdateTimeout = null;
-    }
 
     // 외부 클릭 이벤트 리스너 제거
     document.removeEventListener('click', this.handleClickOutside);

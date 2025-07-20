@@ -9,8 +9,9 @@ AI ChatOps Demo Application - A Vue.js-based web application that enables conver
 ## Development Commands
 
 ### Core Development
+
 ```bash
-# Frontend development server (runs on port 3001)
+# Frontend development server (runs on port 3000)
 npm run dev
 
 # Backend mock server (runs on port 3004)
@@ -24,6 +25,7 @@ npm run preview
 ```
 
 ### Testing
+
 ```bash
 # Run all Playwright tests
 npm test
@@ -36,13 +38,18 @@ npm run test:report
 ```
 
 ### Dual Server Setup
+
 The application requires both servers running simultaneously:
-1. Frontend (Vite dev server) on port 3001
+
+1. Frontend (Vite dev server) on port 3000
 2. Backend (JSON server) on port 3004 serving `db.json`
+
+**Important**: Playwright tests are configured to run against `http://localhost:3001`, so ensure the frontend is accessible on that port during testing.
 
 ## Architecture Overview
 
 ### Core Application Flow
+
 1. **AIChatOpsLayout.vue** - Main application container managing view state and navigation
 2. **Multi-view System**: Category selection → Persona list → Chat interface → Feedback
 3. **Service Layer**: All API communication handled through `aiChatOpsService.js`
@@ -51,18 +58,21 @@ The application requires both servers running simultaneously:
 ### Key Components Architecture
 
 #### AIChatOpsLayout.vue (Main Container)
+
 - **View Management**: `currentView` state controls display (category/persona/chat/feedback)
 - **Persona Management**: Loading, filtering, and selection of AI personas
 - **Message Caching**: `personaMessageCache` Map for conversation persistence
 - **Theme System**: 5 built-in themes with dynamic CSS variable switching
 
 #### ChatTab.vue (Chat Interface)
+
 - **Message Flow**: User input → API call → Response rendering → History storage
 - **Loading States**: Dynamic loading messages with animated indicators
 - **Memory Management**: Conversation history with configurable limits
 - **Auto-queries**: Special behavior for `chatbot_manual` persona
 
 #### aiChatOpsService.js (API Service)
+
 - **HTTP Client**: Axios-based with error handling and timeout management
 - **Content Processing**: Markdown detection, HTML conversion, and smart copying
 - **Response Standardization**: Consistent API response format across all endpoints
@@ -71,41 +81,50 @@ The application requires both servers running simultaneously:
 ### Data Flow Architecture
 
 #### Persona System
+
 ```
 db.json → getPersonas() → AIChatOpsLayout → ChatTab → User Interface
 ```
+
 - Personas contain: `personaCode`, `title`, `description`, `category`, `tags`, `welcomeMsg`
 - Categories: `personal`, `general`, `operation`
 - Welcome messages support markdown formatting
 
 #### Message Processing
+
 ```
 User Input → ChatTab → aiChatOpsService → API → Response → Content Processing → UI Rendering
 ```
+
 - Copy functionality preserves original format (markdown/HTML/plain text)
 - Message history cached per persona with session management
 
 #### Theme System
+
 ```
 AIChatOpsLayout → CSS Variables → Component Styling
 ```
-- Themes: `default`, `dark`, `heritage`, `nyf`, `retro`
+
+- Themes: `default`, `dark`, `heritage`, `classic`, `retro`
 - CSS variables cascade through all components
 - Theme persistence in browser storage
 
 ### Critical Implementation Details
 
 #### Content Rendering Strategy
+
 - **Detection**: `isMarkdown()` method identifies content type
 - **Rendering**: `formatContentForDisplay()` applies appropriate transformation
 - **Copying**: `getContentForCopy()` maintains original format for clipboard
 
 #### Message Caching System
+
 - **Storage**: `personaMessageCache` Map with `personaCode` as key
 - **Limits**: `maxMessagesPerPersona` configuration
 - **Persistence**: Automatic save/load on persona switching
 
 #### Error Handling Pattern
+
 - **Service Layer**: All API calls wrapped in try-catch with standardized error responses
 - **HTTP Status Mapping**: Specific error codes mapped to user-friendly messages
 - **Graceful Degradation**: Fallback content for failed operations
@@ -113,12 +132,16 @@ AIChatOpsLayout → CSS Variables → Component Styling
 ### Testing Architecture
 
 #### Playwright Configuration
-- **Base URL**: `http://localhost:3001`
+
+- **Base URL**: `http://localhost:3001` (configured in playwright.config.js)
 - **Timeout**: 30 seconds for operations, 5 seconds for assertions
 - **Test Structure**: Component interaction testing with visual verification
 - **Data Attributes**: `data-testid` attributes for reliable element selection
+- **Web Server**: Automatically starts `npm run dev` before tests
+- **Retries**: 2 retries in CI, 0 in development
 
 #### Test Categories
+
 - **UI Interaction**: Persona selection, message sending, copy functionality
 - **Content Rendering**: Markdown processing, welcome message display
 - **Navigation**: View switching and state management
@@ -126,6 +149,7 @@ AIChatOpsLayout → CSS Variables → Component Styling
 ### Database Structure (db.json)
 
 #### Mock API Endpoints
+
 - `/health` - System health check
 - `/personas` - Persona list with metadata
 - `/message-async` - Chat message processing
@@ -133,6 +157,7 @@ AIChatOpsLayout → CSS Variables → Component Styling
 - `/conversations/:personaCode` - Conversation history
 
 #### Persona Data Schema
+
 ```json
 {
   "personaCode": "unique_identifier",
@@ -147,17 +172,20 @@ AIChatOpsLayout → CSS Variables → Component Styling
 ## Development Guidelines
 
 ### File Modification Patterns
+
 - **Vue Components**: Always read existing file before editing to maintain structure
 - **Service Layer**: Add new methods following existing error handling patterns
 - **Styling**: Use existing CSS variables and component class naming conventions
 - **Testing**: Add `data-testid` attributes for new interactive elements
 
 ### State Management Approach
+
 - **No External Store**: Uses Vue's reactive data system
 - **Message Persistence**: Manual caching with Map-based storage
 - **Session Management**: Persona-specific session IDs for conversation continuity
 
 ### Content Processing Pipeline
+
 1. **Input**: Raw content from API or user input
 2. **Detection**: Automatic content type identification
 3. **Processing**: Markdown rendering or HTML sanitization
@@ -165,6 +193,28 @@ AIChatOpsLayout → CSS Variables → Component Styling
 5. **Copying**: Format-preserving clipboard operations
 
 ### Commit Convention
+
 - Create commits after completing functional changes
 - Include Korean descriptions for UI-related changes
 - Follow existing commit message patterns with co-authoring
+
+## Configuration Details
+
+### Vite Configuration
+
+- **Dev Server**: Port 3000 with host access enabled
+- **Proxy**: API calls to `/api` are proxied to `http://localhost:3001`
+- **Build Output**: `dist/` directory with assets in `assets/` subdirectory
+
+### Important Files
+
+- **db.json**: Mock database with personas, health check, and API endpoints
+- **routes.json**: Additional route configurations for json-server
+- **server.js**: Custom server configuration if needed
+
+### Development Notes
+
+- The application uses Vue 3 with Vite as the build tool
+- Axios is used for HTTP requests with timeout and error handling
+- No external state management library - uses Vue's reactive system
+- Korean/English internationalization built into components

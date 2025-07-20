@@ -11,6 +11,7 @@
   background: transparent;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  white-space: normal;
 }
 
 /* ----- 헤딩 스타일 ----- */
@@ -18,7 +19,7 @@
   color: var(--markdown-heading-color);
   font-weight: 700;
   line-height: 1.3;
-  margin: var(--space-lg) 0 var(--space-sm) 0;
+  margin: var(--space-sm) 0 var(--space-xs) 0;
   position: relative;
 }
 
@@ -104,12 +105,12 @@
 
 /* ----- 리스트 ----- */
 .markdown-content .markdown-list {
-  margin: var(--space-sm) 0;
+  margin: var(--space-xs) 0;
   padding-left: var(--space-lg);
 }
 
 .markdown-content .markdown-list-item {
-  margin: 4px 0;
+  margin: 2px 0;
   color: var(--color-text-secondary);
   position: relative;
 }
@@ -140,7 +141,7 @@
 .markdown-content .markdown-code-block {
   background: linear-gradient(200deg, var(--color-surface-elevated) 50%, var(--color-surface-medium) 100%);
   position: relative;
-  margin: var(--space-lg) 0;
+  margin: var(--space-sm) 0;
   border: 1px solid var(--color-border-medium);
   border-radius: var(--radius-sm);
   overflow: hidden;
@@ -209,7 +210,7 @@
 
 /* ----- 테이블 ----- */
 .markdown-content .markdown-table-container {
-  margin: var(--space-md) 0;
+  margin: var(--space-sm) 0;
   overflow-x: auto;
   border: 1px solid var(--color-border-medium);
   border-radius: var(--radius-sm);
@@ -281,7 +282,7 @@
 
 /* ----- 알림 박스 ----- */
 .markdown-content .markdown-alert {
-  margin: var(--space-md) 0;
+  margin: var(--space-sm) 0;
   padding: var(--space-sm);
   border: 1px solid;
   border-radius: var(--radius-md);
@@ -396,7 +397,7 @@
   border: none;
   height: 2px;
   background: linear-gradient(90deg, transparent 0%, var(--color-border-medium) 50%, transparent 100%);
-  margin: var(--space-lg) 0;
+  margin: var(--space-sm) 0;
 }
 
 /* ----- 스크롤바 스타일링 ----- */

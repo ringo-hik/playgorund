@@ -1,5 +1,5 @@
 <template>
-  <span class="lucide-icon" :style="{
+  <span :class="['lucide-icon', { 'lucide-icon--interactive': interactive }]" :style="{
     width: size + 'px',
     height: size + 'px',
     color: fill,
@@ -28,6 +28,10 @@ export default {
     height: {
       type: [Number, String],
       default: 24
+    },
+    interactive: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

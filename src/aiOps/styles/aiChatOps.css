@@ -2,6 +2,38 @@
    AIChatOps - 통일된 CSS 변수 시스템 (미니멀리즘 적용) + 색상 강화
    =========================================================================== */
 
+/* ----- 커서 포인터 강제 표시 ----- */
+
+body, html {
+  cursor: auto !important;
+}
+
+input, textarea, button, select, a, [tabindex] {
+  cursor: pointer !important;
+}
+
+input[type="text"], input[type="password"], input[type="email"], textarea {
+  cursor: text !important;
+}
+
+/* 커서 사라짐 방지를 위한 강력한 설정 */
+
+button:hover, a:hover, [onclick]:hover, [tabindex]:hover {
+  cursor: pointer !important;
+}
+
+input:hover, textarea:hover {
+  cursor: text !important;
+}
+
+/* 브라우저별 커서 강제 표시 */
+body {
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
+}
+
 :root {
   /* ----- 브랜드 컬러 팔레트 (기존 유지) --------------------------- */
   --ai-chatops-primary: #2563EB;
@@ -37,28 +69,28 @@
   --heritage-gray-800: #292524;
   --heritage-gray-900: #1C1917;
 
-  --nyf-primary: #F37021; 
-  --nyf-secondary: #3995d8; 
-  --nyf-accent: #071a76; 
-  --nyf-neutral: #786868; 
-  --nyf-background: #edf0f3; 
-  --nyf-text: #1b1b1b; 
-  --nyf-text-light: #FFFFFF;
-  --nyf-border: #D7CCC8;
+  --classic-primary: #F37021; 
+  --classic-secondary: #3995d8; 
+  --classic-accent: #071a76; 
+  --classic-neutral: #786868; 
+  --classic-background: #edf0f3; 
+  --classic-text: #1b1b1b; 
+  --classic-text-light: #FFFFFF;
+  --classic-border: #D7CCC8;
   
-  --nyf-highlight: #3995d8;
-  --nyf-sage: #A1887F;
+  --classic-highlight: #3995d8;
+  --classic-sage: #A1887F;
   
-  --nyf-gray-50: #FAFAFA;
-  --nyf-gray-100: #F5F5F5;
-  --nyf-gray-200: #EEEEEE;
-  --nyf-gray-300: #E0E0E0;
-  --nyf-gray-400: #BDBDBD;
-  --nyf-gray-500: #9E9E9E;
-  --nyf-gray-600: #757575;
-  --nyf-gray-700: #616161;
-  --nyf-gray-800: #424242;
-  --nyf-gray-900: #212121;
+  --classic-gray-50: #FAFAFA;
+  --classic-gray-100: #F5F5F5;
+  --classic-gray-200: #EEEEEE;
+  --classic-gray-300: #E0E0E0;
+  --classic-gray-400: #BDBDBD;
+  --classic-gray-500: #9E9E9E;
+  --classic-gray-600: #757575;
+  --classic-gray-700: #616161;
+  --classic-gray-800: #424242;
+  --classic-gray-900: #212121;
 
   /* 🎨 Retro 팔레트 추가 (레트로 감성 강조) */
   --retro-primary: #807e50;
@@ -198,15 +230,15 @@
   /* ----- 블러 효과 ----- */
   --blur-strong: 16px;
 
-  /* ----- 호환성을 위한 레거시 변수들 (v2.0에서 제거 예정) ----- */
-  --primary-dark: var(--color-primary-dark);
-  --accent-primary: var(--color-accent);
-  --text-primary: var(--color-text-primary);
-  --text-secondary: var(--color-text-secondary);
-  --text-muted: var(--color-text-muted);
-  --surface-white: var(--color-surface-white);
-  --surface-light: var(--color-surface-light);
-  --border-light: var(--color-border-light);
+  /* ----- 호환성을 위한 레거시 변수들 (동적 테마 시스템 참조) ----- */
+  --primary-dark: var(--active-theme-secondary);
+  --accent-primary: var(--active-theme-accent);
+  --text-primary: var(--active-theme-text);
+  --text-secondary: #4B5563;
+  --text-muted: #6B7280;
+  --surface-white: var(--active-theme-surface-white);
+  --surface-light: var(--active-theme-surface-light);
+  --border-light: var(--active-theme-border-light);
   --spacing-sm: var(--space-sm);
   --spacing-lg: var(--space-lg);
   --spacing-xl: var(--space-xl);
@@ -281,264 +313,147 @@
   --header-button-size-md: 32px;
 }
 
-/* ----- 테마별 CSS 변수 오버라이드 ----- */
-.theme-heritage {
-  --color-primary: var(--heritage-primary);
-  --color-primary-dark: var(--heritage-secondary);
-  --color-accent: var(--heritage-accent);
-  --color-accent-secondary: var(--heritage-neutral);
-  --color-text-primary: var(--heritage-text);
-  --color-text-secondary: var(--heritage-gray-600);
-  --color-text-muted: var(--heritage-gray-500);
-  --color-text-tertiary: var(--heritage-gray-400);
-  --color-text-light: var(--heritage-text-light);
-  
-  /* 🎨 Heritage 깊이별 배경 색상 */
-  --color-surface-white: var(--heritage-gray-50);
-  --color-surface-light: var(--heritage-gray-100);
-  --color-surface-medium: var(--heritage-gray-200);
-  --color-surface-elevated: var(--heritage-background);
-  
-  /* 🎨 Heritage 뉴트럴 보더 색상 */
-  --color-border-light: var(--heritage-gray-300);
-  --color-border-medium: var(--heritage-gray-400);
-  --color-border-accent: var(--heritage-accent);
-  
-  --color-header-bg: var(--heritage-primary);
-  --color-header-accent: var(--heritage-accent);
-  
-  /* 🎨 Heritage 테마 기능별 색상 */
-  --color-highlight: var(--heritage-highlight);
-  --color-interactive: var(--heritage-warm);
-  --color-send-button: var(--heritage-highlight);
-  --color-continuous-active: var(--heritage-warm);
-  --color-quick-action: var(--heritage-accent);
-  
-  --color-accent-subtle: rgba(220, 38, 38, var(--opacity-light));
-  --color-accent-medium: rgba(220, 38, 38, var(--opacity-medium));
-  --color-accent-strong: rgba(220, 38, 38, var(--opacity-accent));
-  --color-primary-subtle: rgba(124, 45, 18, var(--opacity-light));
-  --markdown-code-bg: rgba(220, 38, 38, 0.08);
-  --markdown-code-border: rgba(220, 38, 38, 0.2);
-  --markdown-quote-border: var(--heritage-accent);
-}
+/* ----- 동적 테마 시스템 (최적화됨) ----- */
+/* 기본 테마 변수는 클래스 선택자로만 정의하여 우선순위 문제 해결 */
 
-.theme-nyf {
-  --color-primary: var(--nyf-primary);
-  --color-primary-dark: var(--nyf-secondary);
-  --color-accent: var(--nyf-accent);
-  --color-accent-secondary: var(--nyf-neutral);
-  --color-text-primary: var(--nyf-text);
-  --color-text-secondary: var(--nyf-gray-600);
-  --color-text-muted: var(--nyf-gray-500);
-  --color-text-tertiary: var(--nyf-gray-400);
-  --color-text-light: var(--nyf-text-light);
-  
-  /* 🎨 nyf 깊이별 배경 색상 */
-  --color-surface-white: var(--nyf-gray-50);
-  --color-surface-light: var(--nyf-gray-100);
-  --color-surface-medium: var(--nyf-gray-200);
-  --color-surface-elevated: var(--nyf-background);
-  
-  /* 🎨 nyf 뉴트럴 보더 색상 */
-  --color-border-light: var(--nyf-gray-300);
-  --color-border-medium: var(--nyf-gray-400);
-  --color-border-accent: var(--nyf-accent);
-  
-  --color-header-bg: var(--nyf-primary);
-  --color-header-accent: var(--nyf-accent);
-  
-  /* 🎨 nyf 테마 기능별 색상 */
-  --color-highlight: var(--nyf-highlight);
-  --color-interactive: var(--nyf-sage);
-  --color-send-button: var(--nyf-highlight);
-  --color-continuous-active: var(--nyf-accent);
-  --color-quick-action: var(--nyf-secondary);
-  
-  --color-accent-subtle: rgba(217, 119, 6, var(--opacity-light));
-  --color-accent-medium: rgba(217, 119, 6, var(--opacity-medium));
-  --color-accent-strong: rgba(217, 119, 6, var(--opacity-accent));
-  --color-primary-subtle: rgba(6, 95, 70, var(--opacity-light));
-  --markdown-code-bg: rgba(217, 119, 6, 0.08);
-  --markdown-code-border: rgba(217, 119, 6, 0.2);
-  --markdown-quote-border: var(--nyf-accent);
-}
-
-.theme-retro {
-  --color-primary: var(--retro-primary);
-  --color-primary-dark: var(--retro-secondary);
-  --color-accent: var(--retro-accent);
-  --color-accent-secondary: var(--retro-neutral);
-  --color-text-primary: var(--retro-text);
-  --color-text-secondary: var(--retro-gray-600);
-  --color-text-muted: var(--retro-gray-500);
-  --color-text-tertiary: var(--retro-gray-400);
-  --color-text-light: var(--retro-text-light);
-  
-  /* 🎨 Retro 깊이별 배경 색상 */
-  --color-surface-white: var(--retro-gray-50);
-  --color-surface-light: var(--retro-gray-100);
-  --color-surface-medium: var(--retro-gray-200);
-  --color-surface-elevated: var(--retro-background);
-  
-  /* 🎨 Retro 뉴트럴 보더 색상 */
-  --color-border-light: var(--retro-gray-300);
-  --color-border-medium: var(--retro-gray-400);
-  --color-border-accent: var(--retro-accent);
-  
-  --color-header-bg: var(--retro-primary);
-  --color-header-accent: var(--retro-accent);
-  
-  /* 🎨 Retro 테마 기능별 색상 */
-  --color-highlight: var(--retro-highlight);
-  --color-interactive: var(--retro-warm);
-  --color-send-button: var(--retro-highlight);
-  --color-continuous-active: var(--retro-warm);
-  --color-quick-action: var(--retro-accent);
-  
-  --color-accent-subtle: rgba(111, 203, 159, var(--opacity-light));
-  --color-accent-medium: rgba(111, 203, 159, var(--opacity-medium));
-  --color-accent-strong: rgba(111, 203, 159, var(--opacity-accent));
-  --color-primary-subtle: rgba(102, 101, 71, var(--opacity-light));
-  --markdown-code-bg: rgba(111, 203, 159, 0.08);
-  --markdown-code-border: rgba(111, 203, 159, 0.2);
-  --markdown-quote-border: var(--retro-accent);
-}
-
-/* ----- 새로운 ai-chatops 테마 오버라이드 (추가) ----- */
+/* AI-ChatOps 테마 (기본) */
 .theme-ai-chatops {
-  --color-primary: var(--ai-chatops-primary);
-  --color-primary-dark: var(--ai-chatops-secondary);
-  --color-accent: var(--ai-chatops-accent);
-  --color-accent-secondary: var(--ai-chatops-neutral);
-  --color-text-primary: #0f141b;
+  --active-theme-primary: var(--ai-chatops-primary);
+  --active-theme-secondary: var(--ai-chatops-secondary);
+  --active-theme-accent: var(--ai-chatops-accent);
+  --active-theme-neutral: var(--ai-chatops-neutral);
+  --active-theme-highlight: var(--ai-chatops-highlight);
+  --active-theme-background: var(--ai-chatops-background);
+  --active-theme-text: #0f141b;
+  --active-theme-text-light: #FFFFFF;
+  --active-theme-surface-white: #FFFFFF;
+  --active-theme-surface-light: #F9FAFB;
+  --active-theme-surface-medium: #F3F4F6;
+  --active-theme-border-light: #E2E8F0;
+  --active-theme-border-medium: #CBD5E1;
+  --active-theme-send-button: #10B981;
+  --active-theme-interactive: var(--ai-chatops-success);
+  --active-theme-accent-rgba: 6, 182, 212;
+}
+
+/* Heritage 테마 */
+.theme-heritage {
+  --active-theme-primary: var(--heritage-primary);
+  --active-theme-secondary: var(--heritage-secondary);
+  --active-theme-accent: var(--heritage-accent);
+  --active-theme-neutral: var(--heritage-neutral);
+  --active-theme-highlight: var(--heritage-highlight);
+  --active-theme-background: var(--heritage-background);
+  --active-theme-text: var(--heritage-text);
+  --active-theme-text-light: var(--heritage-text-light);
+  --active-theme-surface-white: var(--heritage-gray-50);
+  --active-theme-surface-light: var(--heritage-gray-100);
+  --active-theme-surface-medium: var(--heritage-gray-200);
+  --active-theme-border-light: var(--heritage-gray-300);
+  --active-theme-border-medium: var(--heritage-gray-400);
+  --active-theme-send-button: var(--heritage-highlight);
+  --active-theme-interactive: var(--heritage-warm);
+  --active-theme-accent-rgba: 220, 38, 38;
+}
+
+/* Classic 테마 */
+.theme-classic {
+  --active-theme-primary: var(--classic-primary);
+  --active-theme-secondary: var(--classic-secondary);
+  --active-theme-accent: var(--classic-accent);
+  --active-theme-neutral: var(--classic-neutral);
+  --active-theme-highlight: var(--classic-highlight);
+  --active-theme-background: var(--classic-background);
+  --active-theme-text: var(--classic-text);
+  --active-theme-text-light: var(--classic-text-light);
+  --active-theme-surface-white: var(--classic-gray-50);
+  --active-theme-surface-light: var(--classic-gray-100);
+  --active-theme-surface-medium: var(--classic-gray-200);
+  --active-theme-border-light: var(--classic-gray-300);
+  --active-theme-border-medium: var(--classic-gray-400);
+  --active-theme-send-button: var(--classic-highlight);
+  --active-theme-interactive: var(--classic-sage);
+  --active-theme-accent-rgba: 217, 119, 6;
+}
+
+/* Retro 테마 */
+.theme-retro {
+  --active-theme-primary: var(--retro-primary);
+  --active-theme-secondary: var(--retro-secondary);
+  --active-theme-accent: var(--retro-accent);
+  --active-theme-neutral: var(--retro-neutral);
+  --active-theme-highlight: var(--retro-highlight);
+  --active-theme-background: var(--retro-background);
+  --active-theme-text: var(--retro-text);
+  --active-theme-text-light: var(--retro-text-light);
+  --active-theme-surface-white: var(--retro-gray-50);
+  --active-theme-surface-light: var(--retro-gray-100);
+  --active-theme-surface-medium: var(--retro-gray-200);
+  --active-theme-border-light: var(--retro-gray-300);
+  --active-theme-border-medium: var(--retro-gray-400);
+  --active-theme-send-button: var(--retro-highlight);
+  --active-theme-interactive: var(--retro-warm);
+  --active-theme-accent-rgba: 111, 203, 159;
+}
+
+/* 통합 컬러 변수 매핑 - 모든 테마에 적용 */
+.theme-ai-chatops,
+.theme-heritage,
+.theme-classic,
+.theme-retro {
+  --color-primary: var(--active-theme-primary);
+  --color-primary-dark: var(--active-theme-secondary);
+  --color-accent: var(--active-theme-accent);
+  --color-accent-secondary: var(--active-theme-neutral);
+  --color-text-primary: var(--active-theme-text);
   --color-text-secondary: #4B5563;
   --color-text-muted: #6B7280;
   --color-text-tertiary: #9CA3AF;
-  --color-text-light: #FFFFFF;
-  
-  /* 🎨 AIChatOps 깊이별 배경 색상 */
-  --color-surface-white: #FFFFFF;
-  --color-surface-light: #F9FAFB;
-  --color-surface-medium: #F3F4F6;
-  --color-surface-elevated: #FFFFFF;
-  
-  /* 🎨 AIChatOps 뉴트럴 보더 색상 */
-  --color-border-light: #E2E8F0;
-  --color-border-medium: #CBD5E1;
-  --color-border-accent: var(--ai-chatops-accent);
-  
-  --color-header-bg: var(--ai-chatops-primary);
-  --color-header-accent: var(--ai-chatops-accent);
-  
-  /* 🎨 AIChatOps 테마 기능별 색상 */
-  --color-highlight: var(--ai-chatops-highlight);
-  --color-interactive: var(--ai-chatops-success);
-  --color-send-button: #10B981;
-  --color-continuous-active: #059669;
-  --color-quick-action: #0EA5E9;
-  
-  --color-accent-subtle: rgba(6, 182, 212, var(--opacity-light));
-  --color-accent-medium: rgba(6, 182, 212, var(--opacity-medium));
-  --color-accent-strong: rgba(6, 182, 212, var(--opacity-accent));
-  --color-primary-subtle: rgba(37, 99, 235, var(--opacity-light));
-  --markdown-code-bg: rgba(6, 182, 212, 0.08);
-  --markdown-code-border: rgba(6, 182, 212, 0.2);
-  --markdown-quote-border: var(--ai-chatops-accent);
+  --color-text-light: var(--active-theme-text-light);
+  --color-surface-white: var(--active-theme-surface-white);
+  --color-surface-light: var(--active-theme-surface-light);
+  --color-surface-medium: var(--active-theme-surface-medium);
+  --color-surface-elevated: var(--active-theme-surface-white);
+  --color-border-light: var(--active-theme-border-light);
+  --color-border-medium: var(--active-theme-border-medium);
+  --color-border-accent: var(--active-theme-accent);
+  --color-header-bg: var(--active-theme-primary);
+  --color-header-text: #FFFFFF;
+  --color-header-text-secondary: rgba(255, 255, 255, 0.8);
+  --color-header-accent: var(--active-theme-accent);
+  --color-highlight: var(--active-theme-highlight);
+  --color-interactive: var(--active-theme-interactive);
+  --color-send-button: var(--active-theme-send-button);
+  --color-continuous-active: var(--active-theme-highlight);
+  --color-quick-action: var(--active-theme-accent);
+  --color-accent-subtle: rgba(var(--active-theme-accent-rgba), var(--opacity-light));
+  --color-accent-medium: rgba(var(--active-theme-accent-rgba), var(--opacity-medium));
+  --color-accent-strong: rgba(var(--active-theme-accent-rgba), var(--opacity-accent));
+  --markdown-code-bg: rgba(var(--active-theme-accent-rgba), 0.08);
+  --markdown-code-border: rgba(var(--active-theme-accent-rgba), 0.2);
+  --markdown-quote-border: var(--active-theme-accent);
 }
 
-.theme-heritage .card-system,
-.theme-heritage .input-container,
-.theme-heritage .persona-card,
-.theme-heritage .category-card {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 1px 3px rgba(68, 64, 60, 0.1);
-}
-
-.theme-heritage .messages-container {
-  background: var(--color-surface-white);
-}
-
-.theme-heritage .message-bubble--user .message-bubble__content {
-  background: var(--color-surface-medium);
-  border: 1px solid var(--color-border-light);
-}
-
-.theme-heritage .quick-questions-list {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 4px 12px rgba(68, 64, 60, 0.15);
-}
-
-.theme-nyf .card-system,
-.theme-nyf .input-container,
-.theme-nyf .persona-card,
-.theme-nyf .category-card {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 1px 3px rgba(66, 66, 66, 0.1);
-}
-
-.theme-nyf .messages-container {
-  background: var(--color-surface-white);
-}
-
-.theme-nyf .message-bubble--user .message-bubble__content {
-  background: var(--color-surface-medium);
-  border: 1px solid var(--color-border-light);
-}
-
-.theme-nyf .quick-questions-list {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 4px 12px rgba(66, 66, 66, 0.15);
-}
-
-.theme-retro .card-system,
-.theme-retro .input-container,
-.theme-retro .persona-card,
-.theme-retro .category-card {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 1px 3px rgba(68, 64, 60, 0.1);
-}
-
-.theme-retro .messages-container {
-  background: var(--color-surface-white);
-}
-
-.theme-retro .message-bubble--user .message-bubble__content {
-  background: var(--color-surface-medium);
-  border: 1px solid var(--color-border-light);
-}
-
-.theme-retro .quick-questions-list {
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-light);
-  box-shadow: 0 4px 12px rgba(68, 64, 60, 0.15);
-}
-
-/* ----- 새로운 ai-chatops 테마 스타일 추가 ----- */
-.theme-ai-chatops .card-system,
-.theme-ai-chatops .input-container,
-.theme-ai-chatops .persona-card,
-.theme-ai-chatops .category-card {
+/* ----- 통합 컴포넌트 스타일 (동적 테마 적용) ----- */
+.card-system,
+.input-container,
+.persona-card,
+.category-card {
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border-light);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.theme-ai-chatops .messages-container {
+.messages-container {
   background: var(--color-surface-white);
 }
 
-.theme-ai-chatops .message-bubble--user .message-bubble__content {
+.message-bubble--user .message-bubble__content {
   background: var(--color-surface-medium);
   border: 1px solid var(--color-border-light);
 }
 
-.theme-ai-chatops .quick-questions-list {
+.quick-questions-list {
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-border-light);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -964,16 +879,10 @@ html {
   }
 }
 
-/* ----- 테마 시스템 (기존 유지) ----- */
+/* ----- 레거시 테마 클래스 호환성 유지 ----- */
 .theme-ai-chatops,
 .ai-chatops-chat {
-  --color-primary: var(--ai-chatops-primary);
-  --color-primary-dark: var(--ai-chatops-secondary);
-  --color-accent: var(--ai-chatops-accent);
-  --color-accent-secondary: var(--ai-chatops-neutral);
-  --color-header-bg: var(--ai-chatops-primary);
-  --color-header-accent: var(--ai-chatops-accent);
-  --color-surface-light: var(--ai-chatops-background);
+  /* 동적 테마 시스템에서 자동 처리됨 */
 }
 
 /* ----- 유틸리티 클래스 ----- */

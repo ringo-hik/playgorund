@@ -6,7 +6,7 @@ function convertMarkdownToHtml(mdString) {
     // 3. 문자열 앞뒤 불필요한 공백 제거
     const normalizedMd = mdString
         .replace(/^[ \t]+$/gm, '')  // 공백만 있는 줄을 빈 줄로
-        .replace(/\n{3,}/g, '\n\n')  // 3개 이상의 연속 줄바꿈을 2개로
+        .replace(/\n{2,}/g, '\n')  // 2개 이상의 연속 줄바꿈을 1개로
         .trim();  // 앞뒤 공백 제거
     const lines = normalizedMd.split('\n');
     let inCodeBlock = false;
@@ -40,7 +40,7 @@ function convertMarkdownToHtml(mdString) {
             continue;
         }
         if (inCodeBlock) {
-            html += escapeHtml(originalLine) + '\n'; // 원본 라인 사용 (들여쓰기 유지)
+            html += escapeHtml(originalLine); // 원본 라인 사용 (들여쓰기 유지), \n 제거
             continue;
         }
 

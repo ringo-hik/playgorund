@@ -2,8 +2,8 @@
   <div class="ai-chatops-chat">
     <button :class="['ai-chatops-chat-button', { 'is-active': isOpen }]" @click="toggleChat">
       <Elements v-if="isLoading" component-type="spinner" size="md" />
-      <LucideIcon v-if="!isLoading && isOpen" name="x" fill="currentColor" :width="28" :height="28" key="close-icon" />
-      <LucideIcon v-if="!isLoading && !isOpen" name="robot" fill="currentColor" :width="28" :height="28"
+      <LucideIcon v-if="!isLoading && isOpen" name="x" fill="currentColor" :width="28" :height="28" :interactive="true" key="close-icon" />
+      <LucideIcon v-if="!isLoading && !isOpen" name="robot" fill="currentColor" :width="28" :height="28" :interactive="true"
         key="chat-icon" />
     </button>
 
@@ -38,14 +38,14 @@
 
           <div class="window-controls">
             <button class="window-control-btn header-btn" @click="minimizeWindow">
-              <LucideIcon name="minus" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon name="minus" fill="currentColor" :width="12" :height="12" :interactive="true" />
             </button>
             <button class="window-control-btn header-btn" @click="toggleMaximizeWindow">
               <LucideIcon :name="windowState === 'maximized' ? 'minimize-2' : 'maximize-2'" fill="currentColor"
-                :width="12" :height="12" />
+                :width="12" :height="12" :interactive="true" />
             </button>
             <button class="window-control-btn header-btn" @click="closeChat">
-              <LucideIcon name="x" fill="currentColor" :width="12" :height="12" />
+              <LucideIcon name="x" fill="currentColor" :width="12" :height="12" :interactive="true" />
             </button>
           </div>
         </div>
@@ -194,7 +194,8 @@ export default {
       currentTheme: this.getInitialTheme(),
       personaSessionMap: {},
       personaMessageCache: new Map(),
-      maxMessagesPerPersona: 30,
+      cacheAccessOrder: [], // LRU 캐시를 위한 접근 순서 추적
+      maxMessagesPerPersona: 10, // 메모리 사용량 최적화 (30 → 10)
       windowState: 'normal',
       windowSize: {
         width: 455,
@@ -204,10 +205,14 @@ export default {
       pendingRequests: new Map(),
       healthCheckInterval: null,
       cacheCleanupInterval: null,
+      
+      // 타이머 관리 시스템 (메모리 누수 방지)
+      activeTimers: new Set(),
+      activeIntervals: new Set(),
       availableThemes: [
         { key: 'theme-ai-chatops', name: 'AI-ChatOps', displayName: 'AI' },
         { key: 'theme-heritage', name: 'Heritage', displayName: 'HT' },
-        { key: 'theme-nyf', name: 'nyf', displayName: 'NY' },
+        { key: 'theme-classic', name: 'classic', displayName: 'NY' },
         { key: 'theme-retro', name: 'retro', displayName: 'RT' }
       ],
       personaColors: [
@@ -250,45 +255,24 @@ export default {
     },
 
     filteredPersonas() {
-      if (!this.selectedCategory) {
+      // 조건부 캐싱으로 성능 최적화
+      if (!this.selectedCategory || !Array.isArray(this.personas)) {
         return [];
       }
 
-      if (!this.personas) {
-        console.log('🔍 [AIChatOpsLayout] filteredPersonas: No personas data, returning empty array');
-        return [];
+      const cacheKey = `${this.selectedCategory}-${this.personas.length}`;
+      if (this._personaFilterCache?.key === cacheKey) {
+        return this._personaFilterCache.data;
       }
 
-      if (!Array.isArray(this.personas)) {
-        console.error('❌ [AIChatOpsLayout] filteredPersonas: personas is not an array:', {
-          type: typeof this.personas,
-          value: this.personas
-        });
-        return [];
-      }
+      // 단순화된 필터링 로직 (개발 로그 제거로 성능 향상)
+      const filtered = this.personas.filter(persona => 
+        persona?.category === this.selectedCategory ||
+        persona?.tags?.includes?.(this.selectedCategory)
+      );
 
-      const filtered = this.personas.filter(persona => {
-        if (!persona) {
-          console.warn('⚠️ [AIChatOpsLayout] filteredPersonas: Found null/undefined persona');
-          return false;
-        }
-
-        const matchesCategory = persona.category === this.selectedCategory;
-        const matchesTags = persona.tags && Array.isArray(persona.tags) && persona.tags.includes(this.selectedCategory);
-
-        return matchesCategory || matchesTags;
-      });
-
-      console.log('🔍 [AIChatOpsLayout] filteredPersonas: Filtering result:', {
-        selectedCategory: this.selectedCategory,
-        totalPersonas: this.personas.length,
-        filteredCount: filtered.length,
-        filterCriteria: {
-          categoryMatch: this.personas.filter(p => p?.category === this.selectedCategory).length,
-          tagsMatch: this.personas.filter(p => p?.tags && Array.isArray(p.tags) && p.tags.includes(this.selectedCategory)).length
-        }
-      });
-
+      // 캐시 저장
+      this._personaFilterCache = { key: cacheKey, data: filtered };
       return filtered;
     }
   },
@@ -444,7 +428,7 @@ export default {
         this.isClosing = true;
         this.isOpen = false;
 
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           this.isInitialized = false;
           this.isClosing = false;
         }, 150);
@@ -469,7 +453,7 @@ export default {
         this.saveCurrentMessages();
         if (this.$refs.chatTab) this.$refs.chatTab.resetToInitialState();
 
-        setTimeout(() => {
+        this.safeSetTimeout(() => {
           this.isInitialized = false;
         }, 150);
       });
@@ -586,12 +570,12 @@ export default {
       if (this.selectedPersona && this.$refs.chatTab && this.$refs.chatTab.messages.length > 0) {
         const currentMessages = this.$refs.chatTab.messages;
         const messagesToSave = currentMessages.slice(-this.maxMessagesPerPersona);
-        this.personaMessageCache.set(this.selectedPersona.personaCode, messagesToSave);
+        this.setCache(this.selectedPersona.personaCode, messagesToSave);
       }
     },
 
     loadCachedMessages(personaCode) {
-      const cachedMessages = this.personaMessageCache.get(personaCode);
+      const cachedMessages = this.getCache(personaCode);
       if (cachedMessages && cachedMessages.length > 0) {
         this.$refs.chatTab.messages = [...cachedMessages];
         this.$refs.chatTab.scrollToBottomInstantly();
@@ -604,13 +588,13 @@ export default {
       const popularPersonas = this.personas.slice(0, 3);
 
       for (const persona of popularPersonas) {
-        if (!this.personaMessageCache.has(persona.personaCode)) {
+        if (!this.getCache(persona.personaCode)) {
           try {
             const response = await aiChatOpsService.getConversations(persona.personaCode);
             if (response.success && response.data) {
               const messages = aiChatOpsService.convertConversationsToMessages(response.data);
               const recentMessages = messages.slice(-this.maxMessagesPerPersona);
-              this.personaMessageCache.set(persona.personaCode, recentMessages);
+              this.setCache(persona.personaCode, recentMessages);
             }
           } catch (error) {
             console.log('Error preloading persona:', persona.personaCode);
@@ -619,23 +603,128 @@ export default {
       }
     },
 
+    // LRU 캐시 시스템으로 업그레이드
+    accessCache(personaCode) {
+      // 캐시 접근 순서 업데이트
+      if (this.cacheAccessOrder) {
+        const index = this.cacheAccessOrder.indexOf(personaCode);
+        if (index > -1) {
+          this.cacheAccessOrder.splice(index, 1);
+        }
+        this.cacheAccessOrder.push(personaCode);
+      }
+    },
+
+    setCache(personaCode, messages) {
+      const maxCacheSize = this.maxMessagesPerPersona || 10;
+      
+      // 캐시 크기 초과 시 LRU 제거
+      if (this.personaMessageCache.size >= maxCacheSize && !this.personaMessageCache.has(personaCode)) {
+        const oldestKey = this.cacheAccessOrder?.[0];
+        if (oldestKey) {
+          this.personaMessageCache.delete(oldestKey);
+          this.cacheAccessOrder.shift();
+        }
+      }
+      
+      this.personaMessageCache.set(personaCode, messages);
+      this.accessCache(personaCode);
+    },
+
+    getCache(personaCode) {
+      if (this.personaMessageCache.has(personaCode)) {
+        this.accessCache(personaCode);
+        return this.personaMessageCache.get(personaCode);
+      }
+      return null;
+    },
+
     cleanupCache() {
-      if (this.personaMessageCache.size > 10) {
-        const entries = Array.from(this.personaMessageCache.entries());
-        const oldestEntries = entries.slice(0, this.personaMessageCache.size - 10);
-        oldestEntries.forEach(([key]) => {
+      // LRU 기반 정리 (기존 방식 개선)
+      const maxSize = this.maxMessagesPerPersona || 10;
+      if (this.personaMessageCache.size > maxSize) {
+        const excessCount = this.personaMessageCache.size - maxSize;
+        const keysToRemove = this.cacheAccessOrder?.slice(0, excessCount) || [];
+        
+        keysToRemove.forEach(key => {
           this.personaMessageCache.delete(key);
+          const index = this.cacheAccessOrder.indexOf(key);
+          if (index > -1) {
+            this.cacheAccessOrder.splice(index, 1);
+          }
         });
       }
     },
 
     startCacheCleanup() {
-      this.cacheCleanupInterval = setInterval(() => {
+      // 기존 클린업 정리
+      this.stopCacheCleanup();
+      this.cacheCleanupInterval = this.safeSetInterval(() => {
         this.cleanupCache();
       }, 300000);
     },
 
     stopCacheCleanup() {
+      if (this.cacheCleanupInterval) {
+        this.safeClearInterval(this.cacheCleanupInterval);
+        this.cacheCleanupInterval = null;
+      }
+    },
+
+    // 안전한 타이머 관리 메서드들 (메모리 누수 방지)
+    safeSetTimeout(callback, delay) {
+      const timerId = setTimeout(() => {
+        this.activeTimers.delete(timerId);
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, delay);
+      this.activeTimers.add(timerId);
+      return timerId;
+    },
+
+    safeSetInterval(callback, interval) {
+      const intervalId = setInterval(() => {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, interval);
+      this.activeIntervals.add(intervalId);
+      return intervalId;
+    },
+
+    safeClearTimeout(timerId) {
+      if (timerId && this.activeTimers.has(timerId)) {
+        clearTimeout(timerId);
+        this.activeTimers.delete(timerId);
+      }
+    },
+
+    safeClearInterval(intervalId) {
+      if (intervalId && this.activeIntervals.has(intervalId)) {
+        clearInterval(intervalId);
+        this.activeIntervals.delete(intervalId);
+      }
+    },
+
+    clearAllTimers() {
+      // 모든 활성 타이머 정리
+      this.activeTimers.forEach(timerId => {
+        clearTimeout(timerId);
+      });
+      this.activeTimers.clear();
+
+      // 모든 활성 인터벌 정리
+      this.activeIntervals.forEach(intervalId => {
+        clearInterval(intervalId);
+      });
+      this.activeIntervals.clear();
+
+      // 기존 인터벌들도 정리
+      if (this.healthCheckInterval) {
+        clearInterval(this.healthCheckInterval);
+        this.healthCheckInterval = null;
+      }
       if (this.cacheCleanupInterval) {
         clearInterval(this.cacheCleanupInterval);
         this.cacheCleanupInterval = null;
@@ -831,7 +920,10 @@ export default {
     },
 
     startHealthCheck() {
-      this.healthCheckInterval = setInterval(() => {
+      if (this.healthCheckInterval) {
+        this.safeClearInterval(this.healthCheckInterval);
+      }
+      this.healthCheckInterval = this.safeSetInterval(() => {
         aiChatOpsService.healthCheck()
           .then(response => {
             this.isConnected = response.success;
@@ -844,9 +936,16 @@ export default {
 
     stopHealthCheck() {
       if (this.healthCheckInterval) {
-        clearInterval(this.healthCheckInterval);
+        this.safeClearInterval(this.healthCheckInterval);
         this.healthCheckInterval = null;
       }
+    },
+
+    // 컴포넌트 정리 시 모든 타이머 해제
+    cleanup() {
+      this.clearAllTimers();
+      this.stopHealthCheck();
+      this.stopCacheCleanup();
     }
   },
 
@@ -861,16 +960,14 @@ export default {
   },
 
   beforeDestroy() {
-    this.stopHealthCheck();
-    this.stopCacheCleanup();
+    // 통합 타이머 정리 시스템 사용
+    this.cleanup();
     this.cancelAllPendingRequests();
     this.personas = [];
     this.selectedPersona = null;
     this.selectedCategory = null;
     this.pendingRequests.clear();
     this.personaMessageCache.clear();
-    this.healthCheckInterval = null;
-    this.cacheCleanupInterval = null;
     this.personaSessionMap = {};
 
     if (this.$refs.chatTab) {

@@ -1,9 +1,25 @@
 import axios from 'axios';
-import { convertMarkdownToHtml } from './convertMarkdownToHtml.js';
 
 const API_BASE_URL = 'http://localhost:3004';
 
+// 조건부 임포트를 위한 마크다운 컨버터 캐시
+let markdownConverter = null;
+
 const aiChatOpsService = {
+
+  // 조건부 마크다운 컨버터 로딩 (번들 최적화)
+  async loadMarkdownConverter() {
+    if (!markdownConverter) {
+      try {
+        const module = await import('./convertMarkdownToHtml.js');
+        markdownConverter = module.convertMarkdownToHtml;
+      } catch (error) {
+        console.error('마크다운 컨버터 로딩 실패:', error);
+        markdownConverter = (text) => text; // 폴백 함수
+      }
+    }
+    return markdownConverter;
+  },
 
   async healthCheck() {
     try {
@@ -13,7 +29,7 @@ const aiChatOpsService = {
 
       return {
         success: response.data.success || true,
-        data: response.data.data || response.data,
+        data: response.data.data,
         message: response.data.message || 'Health check successful'
       };
 
@@ -27,8 +43,6 @@ const aiChatOpsService = {
   },
 
   async getPersonas() {
-    console.log('🚀 [aiChatOpsService] getPersonas: Starting API call');
-    
     try {
       const response = await axios.get(`${API_BASE_URL}/personas`, {
         headers: {
@@ -37,38 +51,13 @@ const aiChatOpsService = {
         timeout: 15000
       });
 
-      console.log('📡 [aiChatOpsService] getPersonas: Raw API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        hasData: !!response.data,
-        dataType: typeof response.data,
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        fullData: response.data
-      });
-
-      console.log('📄 [aiChatOpsService] getPersonas: Processed personas data:', {
-        personasType: typeof response.data,
-        isArray: Array.isArray(response.data),
-        length: Array.isArray(response.data) ? response.data.length : 'not array',
-        firstItem: Array.isArray(response.data) && response.data.length > 0 ? response.data[0] : null
-      });
-
       return {
         success: response.data.success || true,
-        data: response.data.data || response.data,
+        data: response.data.data,
         message: response.data.message || 'Personas loaded successfully'
       };
 
     } catch (error) {
-      console.error('❌ [aiChatOpsService] getPersonas: API call failed:', {
-        error: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        responseData: error.response?.data,
-        requestURL: error.config?.url,
-        timeout: error.code === 'ECONNABORTED'
-      });
-      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -78,32 +67,17 @@ const aiChatOpsService = {
   },
 
   async sendMessage(messageData) {
-    console.log('🚀 [aiChatOpsService] sendMessage: Starting API call:', {
-      personaCode: messageData.personaCode,
-      userQueryLength: messageData.userQuery?.length || 0,
-      hasSessionId: !!messageData.sessionId,
-      hasQueryHistory: !!(messageData.queryHistory && messageData.queryHistory.length > 0),
-      queryHistoryCount: messageData.queryHistory?.length || 0
-    });
-    
     try {
+      // sessionId는 프론트엔드에서만 사용하므로 백엔드로 전송하지 않음
       const requestBody = {
         personaCode: messageData.personaCode,
-        userQuery: messageData.userQuery,
-        sessionId: messageData.sessionId
+        userQuery: messageData.userQuery
       };
 
+      // 연속 채팅을 위한 대화 기록 포함
       if (messageData.queryHistory && messageData.queryHistory.length > 0) {
         requestBody.queryHistory = JSON.stringify(messageData.queryHistory);
-        console.log('📄 [aiChatOpsService] sendMessage: Including query history:', messageData.queryHistory.length, 'items');
       }
-
-      console.log('📤 [aiChatOpsService] sendMessage: Request body prepared:', {
-        personaCode: requestBody.personaCode,
-        userQueryLength: requestBody.userQuery?.length,
-        sessionId: requestBody.sessionId,
-        hasQueryHistory: !!requestBody.queryHistory
-      });
 
       const response = await axios.get(`${API_BASE_URL}/message-async`, {
         headers: {
@@ -112,56 +86,18 @@ const aiChatOpsService = {
         timeout: 60000
       });
 
-      console.log('📡 [aiChatOpsService] sendMessage: Raw API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        hasData: !!response.data,
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        success: response.data?.success,
-        hasAiQuery: !!response.data?.aiQuery,
-        hasAiResponse: !!response.data?.data?.aiResponse,
-        hasSessionId: !!response.data?.sessionId,
-        fullResponse: response.data
-      });
-
-      const aiResponse = response.data.data || response.data;
-      
-      console.log('🤖 [aiChatOpsService] sendMessage: AI response extracted:', {
-        aiResponseType: typeof aiResponse,
-        aiResponseLength: typeof aiResponse === 'string' ? aiResponse.length : 'not string',
-        aiResponsePreview: typeof aiResponse === 'string' ? aiResponse.substring(0, 100) + '...' : aiResponse
-      });
-      
-      const result = {
+      // response.data.data 구조에 맞게 처리
+      return {
         success: response.data.success || true,
         data: {
-          aiResponse: aiResponse,
+          aiResponse: response.data.data,
           success: response.data.success
         },
-        sessionId: response.data.sessionId || messageData.sessionId,
+        sessionId: messageData.sessionId, // 프론트엔드에서 관리
         message: response.data.message || 'Message sent successfully'
       };
-      
-      console.log('✅ [aiChatOpsService] sendMessage: Final result prepared:', {
-        success: result.success,
-        hasAiResponse: !!result.data.aiResponse,
-        sessionId: result.sessionId,
-        message: result.message
-      });
-      
-      return result;
 
     } catch (error) {
-      console.error('❌ [aiChatOpsService] sendMessage: API call failed:', {
-        error: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        responseData: error.response?.data,
-        requestURL: error.config?.url,
-        timeout: error.code === 'ECONNABORTED',
-        personaCode: messageData.personaCode
-      });
-      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -171,12 +107,6 @@ const aiChatOpsService = {
   },
 
   async generateQuickQuestions(questionData) {
-    console.log('🚀 [aiChatOpsService] generateQuickQuestions: Starting API call:', {
-      personaCode: questionData.personaCode,
-      hasConversationContext: !!questionData.conversationContext,
-      currentLanguage: questionData.currentLanguage
-    });
-    
     try {
       const response = await axios.get(`${API_BASE_URL}/quick-questions`, {
         headers: {
@@ -185,31 +115,9 @@ const aiChatOpsService = {
         timeout: 30000
       });
 
-      console.log('📡 [aiChatOpsService] generateQuickQuestions: Raw API response:', {
-        status: response.status,
-        statusText: response.statusText,
-        hasData: !!response.data,
-        dataKeys: response.data ? Object.keys(response.data) : [],
-        success: response.data?.success,
-        hasAiQuery: !!response.data?.aiQuery,
-        fullResponse: response.data
-      });
-
-      const questionsData = response.data.data || response.data;
-      
-      console.log('❓ [aiChatOpsService] generateQuickQuestions: Raw questions data:', {
-        type: typeof questionsData,
-        isArray: Array.isArray(questionsData),
-        length: typeof questionsData === 'string' ? questionsData.length : 'not string',
-        preview: typeof questionsData === 'string' ? questionsData.substring(0, 200) + '...' : questionsData
-      });
-      
+      // response.data.data 구조에서 질문 데이터 추출
+      const questionsData = response.data.data;
       const parsedQuestions = this.parseQuickQuestions(questionsData);
-      
-      console.log('📄 [aiChatOpsService] generateQuickQuestions: Parsed questions:', {
-        count: parsedQuestions.length,
-        questions: parsedQuestions
-      });
       
       return {
         success: response.data.success || true,
@@ -221,16 +129,6 @@ const aiChatOpsService = {
       };
 
     } catch (error) {
-      console.error('❌ [aiChatOpsService] generateQuickQuestions: API call failed:', {
-        error: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        responseData: error.response?.data,
-        requestURL: error.config?.url,
-        timeout: error.code === 'ECONNABORTED',
-        personaCode: questionData.personaCode
-      });
-      
       return {
         success: false,
         errorMessage: this.getErrorMessage(error),
@@ -240,80 +138,43 @@ const aiChatOpsService = {
   },
 
   parseQuickQuestions(rawData) {
-    console.log('🔄 [aiChatOpsService] parseQuickQuestions: Starting parsing:', {
-      hasRawData: !!rawData,
-      rawDataType: typeof rawData,
-      isArray: Array.isArray(rawData),
-      rawDataPreview: typeof rawData === 'string' ? rawData.substring(0, 200) + '...' : rawData
-    });
-    
-    if (!rawData) {
-      console.warn('⚠️ [aiChatOpsService] parseQuickQuestions: No raw data provided');
-      return [];
-    }
+    if (!rawData) return [];
     
     try {
-      let cleanData = rawData;
-      
+      // 문자열 데이터 처리
       if (typeof rawData === 'string') {
-        cleanData = rawData.trim();
-        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing string data:', {
-          length: cleanData.length,
-          hasJsonMatch: /\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]/.test(cleanData)
-        });
+        const cleanData = rawData.trim();
         
+        // JSON 배열 형태 파싱 시도
         const jsonMatch = cleanData.match(/\[\s*"[^"]*"(?:\s*,\s*"[^"]*")*\s*\]/);
         if (jsonMatch) {
-          console.log('🔮 [aiChatOpsService] parseQuickQuestions: JSON match found:', jsonMatch[0]);
           const questions = JSON.parse(jsonMatch[0]);
-          const filtered = Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
-          console.log('✅ [aiChatOpsService] parseQuickQuestions: JSON parsing successful:', filtered);
-          return filtered;
+          return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
         }
         
-        console.log('📄 [aiChatOpsService] parseQuickQuestions: No JSON match, processing lines');
-        const lines = cleanData.split(/\r?\n/)
+        // 줄 단위 파싱
+        return cleanData.split(/\r?\n/)
           .map(line => line.trim())
           .filter(line => line && !line.match(/^[\[\]\r\n\s\-\*]*$/))
           .map(line => line.replace(/^[0-9]+\.?\s*/, '').replace(/^["'\-\*•]\s*|["'\-\*•]\s*$/g, ''))
           .filter(line => line.length > 5)
           .slice(0, 5);
-        
-        console.log('✅ [aiChatOpsService] parseQuickQuestions: Line processing result:', lines);
-        return lines;
       }
       
+      // 배열 데이터 처리
       if (Array.isArray(rawData)) {
-        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing array data:', {
-          length: rawData.length,
-          items: rawData
-        });
-        const filtered = rawData.filter(q => q && q.trim() && q.trim().length > 5).slice(0, 5);
-        console.log('✅ [aiChatOpsService] parseQuickQuestions: Array processing result:', filtered);
-        return filtered;
+        return rawData.filter(q => q && q.trim() && q.trim().length > 5).slice(0, 5);
       }
       
+      // 객체 데이터 처리
       if (rawData && typeof rawData === 'object') {
-        console.log('📄 [aiChatOpsService] parseQuickQuestions: Processing object data:', {
-          keys: Object.keys(rawData),
-          hasQuestions: !!rawData.questions,
-          hasQueries: !!rawData.queries,
-          hasData: !!rawData.data
-        });
         const questions = rawData.questions || rawData.queries || rawData.data || [];
-        const filtered = Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
-        console.log('✅ [aiChatOpsService] parseQuickQuestions: Object processing result:', filtered);
-        return filtered;
+        return Array.isArray(questions) ? questions.filter(q => q && q.trim()).slice(0, 5) : [];
       }
       
-      console.warn('⚠️ [aiChatOpsService] parseQuickQuestions: Unknown data type, returning empty array');
       return [];
     } catch (error) {
-      console.error('❌ [aiChatOpsService] parseQuickQuestions: 빠른 질문 파싱 실패:', {
-        error: error.message,
-        stack: error.stack,
-        rawData: rawData
-      });
+      console.error('빠른 질문 파싱 실패:', error.message);
       return [];
     }
   },
@@ -329,7 +190,7 @@ const aiChatOpsService = {
 
       return {
         success: response.data.success || true,
-        data: response.data.data || response.data,
+        data: response.data.data,
         message: response.data.message || 'Conversations loaded successfully'
       };
 
@@ -353,7 +214,7 @@ const aiChatOpsService = {
 
       return {
         success: response.data.success || true,
-        data: response.data.data || response.data,
+        data: response.data.data,
         message: response.data.message || 'Conversations deleted successfully'
       };
 
@@ -365,82 +226,6 @@ const aiChatOpsService = {
       };
     }
   },
-  /* 아직 사용 안함 
-
-  async getPersonaByCode(personaCode) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'Persona loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
-  },
-
-  async getSystemPrompt(personaCode) {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'System prompt loaded successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
-  },
-
-  async updateSystemPrompt(personaCode, systemPrompt) {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/personas/${personaCode}/prompt`, {
-        systemPrompt: systemPrompt
-      }, {
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 20000
-      });
-
-      return {
-        success: true,
-        data: response.data.data || response.data,
-        message: response.data.message || 'System prompt updated successfully'
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        errorMessage: this.getErrorMessage(error),
-        error: error
-      };
-    }
-  },
-  */
 
   async sendFeedback(feedbackData) {
     try {
@@ -453,7 +238,7 @@ const aiChatOpsService = {
 
       return {
         success: response.data.success || true,
-        data: response.data.data || response.data,
+        data: response.data.data,
         message: response.data.message || 'Feedback sent successfully'
       };
 
@@ -467,7 +252,7 @@ const aiChatOpsService = {
   },
 
   getPersonaIcon(personaCode) {
-    this.getRandomPersonaIcon(personaCode);
+    return this.getRandomPersonaIcon(personaCode);
   },
 
   getRandomPersonaIcon(personaCode) {
@@ -687,18 +472,6 @@ const aiChatOpsService = {
     return html.replace(/<[^>]*>/g, '');
   },
 
-  // 단순화된 응답 추출 유틸리티
-  extractAIResponse(response) {
-    return response.data?.aiResponse || response.data?.data || response.data;
-  },
-
-  extractConversationId(response) {
-    return response.data?.conversationId || response.sessionId || Date.now();
-  },
-
-  extractQuickQuestions(response) {
-    return response.data?.questions || response.data?.data || [];
-  },
 
   getErrorMessage(error) {
     if (error?.response?.status) {
@@ -753,11 +526,12 @@ const aiChatOpsService = {
     return markdownPatterns.some(pattern => pattern.test(content));
   },
 
-  markdownToHtml(markdown) {
+  async markdownToHtml(markdown) {
     if (!markdown || typeof markdown !== 'string') return markdown;
     
     try {
-      return convertMarkdownToHtml(markdown);
+      const converter = await this.loadMarkdownConverter();
+      return converter(markdown);
     } catch (error) {
       console.error('마크다운 변환 실패:', error);
       return markdown;
@@ -780,12 +554,12 @@ const aiChatOpsService = {
     return 'plain';
   },
 
-  formatContentForDisplay(content) {
+  async formatContentForDisplay(content) {
     const contentType = this.detectContentType(content);
     
     switch (contentType) {
       case 'markdown':
-        return this.markdownToHtml(content);
+        return await this.markdownToHtml(content);
       case 'html':
         return content;
       case 'plain':

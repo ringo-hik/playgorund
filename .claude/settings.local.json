@@ -48,7 +48,8 @@
       "Bash(cmd /c start http://localhost:3001)",
       "Bash(npm test)",
       "Bash(cmd /c start:*)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(echo:*)"
     ],
     "deny": []
   }
