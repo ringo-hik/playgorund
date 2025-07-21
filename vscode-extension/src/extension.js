@@ -13,19 +13,28 @@ let currentReportContent = '';
 function activate(context) {
     console.log('SWDP ChatOps Extension is now active!');
 
-    // Initialize services
-    const apiService = new ApiService();
-    const gitUtils = new GitUtils();
-    
-    // Create and register tree data provider
-    const treeDataProvider = new ChatOpsTreeProvider();
-    
-    // Register tree view with data provider
-    const treeView = vscode.window.createTreeView('swdpChatOps', {
-        treeDataProvider: treeDataProvider,
-        showCollapseAll: true,
-        canSelectMany: false
-    });
+    try {
+        // Initialize services
+        const apiService = new ApiService();
+        const gitUtils = new GitUtils();
+        
+        // Create tree data provider
+        const treeDataProvider = new ChatOpsTreeProvider();
+        console.log('Tree data provider created');
+        
+        // Register tree data provider explicitly
+        const disposableProvider = vscode.window.registerTreeDataProvider('swdpChatOps', treeDataProvider);
+        context.subscriptions.push(disposableProvider);
+        console.log('Tree data provider registered');
+        
+        // Create tree view
+        const treeView = vscode.window.createTreeView('swdpChatOps', {
+            treeDataProvider: treeDataProvider,
+            showCollapseAll: true,
+            canSelectMany: false
+        });
+        context.subscriptions.push(treeView);
+        console.log('Tree view created');
 
     // Register commands
     const commands = [
@@ -62,13 +71,17 @@ function activate(context) {
         })
     ];
 
-    // Add all commands to context subscriptions
-    commands.forEach(command => {
-        context.subscriptions.push(command);
-    });
-
-    // Add tree view to context subscriptions
-    context.subscriptions.push(treeView);
+        // Add all commands to context subscriptions
+        commands.forEach(command => {
+            context.subscriptions.push(command);
+        });
+        
+        console.log('All commands registered successfully');
+        
+    } catch (error) {
+        console.error('Error activating extension:', error);
+        vscode.window.showErrorMessage(`Failed to activate SWDP ChatOps Extension: ${error.message}`);
+    }
 }
 
 /**

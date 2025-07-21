@@ -1,52 +1,67 @@
-const axios = require('axios');
 const https = require('https');
+const http = require('http');
+const { URL } = require('url');
 
 class ApiService {
     constructor() {
         this.baseURL = 'http://localhost:3004';
         this.timeout = 30000;
-        
-        // Create axios instance with custom configuration
-        this.httpClient = axios.create({
-            baseURL: this.baseURL,
-            timeout: this.timeout,
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'SWDP-ChatOps-Extension/1.0.0'
-            }
-        });
-
-        // Add request interceptor for logging
-        this.httpClient.interceptors.request.use(
-            (config) => {
-                console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
-                if (config.data) {
-                    console.log('Request Data:', config.data);
-                }
-                return config;
-            },
-            (error) => {
-                console.error('Request Error:', error);
-                return Promise.reject(error);
-            }
-        );
-
-        // Add response interceptor for logging
-        this.httpClient.interceptors.response.use(
-            (response) => {
-                console.log(`API Response: ${response.status} ${response.statusText}`);
-                return response;
-            },
-            (error) => {
-                console.error('Response Error:', error.message);
-                if (error.response) {
-                    console.error('Error Status:', error.response.status);
-                    console.error('Error Data:', error.response.data);
-                }
-                return Promise.reject(error);
-            }
-        );
     }
+
+    async httpRequest(url, options = {}) {
+        return new Promise((resolve, reject) => {
+            const parsedUrl = new URL(url);
+            const isHttps = parsedUrl.protocol === 'https:';
+            const client = isHttps ? https : http;
+            
+            const requestOptions = {
+                hostname: parsedUrl.hostname,
+                port: parsedUrl.port || (isHttps ? 443 : 80),
+                path: parsedUrl.pathname + parsedUrl.search,
+                method: options.method || 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'SWDP-ChatOps-Extension/1.0.0',
+                    ...options.headers
+                },
+                timeout: this.timeout
+            };
+
+            const req = client.request(requestOptions, (res) => {
+                let data = '';
+                res.on('data', (chunk) => data += chunk);
+                res.on('end', () => {
+                    try {
+                        const result = {
+                            status: res.statusCode,
+                            statusText: res.statusMessage,
+                            data: data ? JSON.parse(data) : null
+                        };
+                        resolve(result);
+                    } catch (error) {
+                        resolve({
+                            status: res.statusCode,
+                            statusText: res.statusMessage,
+                            data: data
+                        });
+                    }
+                });
+            });
+
+            req.on('error', reject);
+            req.on('timeout', () => {
+                req.destroy();
+                reject(new Error('Request timeout'));
+            });
+
+            if (options.data) {
+                req.write(JSON.stringify(options.data));
+            }
+
+            req.end();
+        });
+    }
+
 
     /**
      * Generate Weekly Report
@@ -66,7 +81,10 @@ class ApiService {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await this.httpClient.post('/message-async', requestBody);
+            const response = await this.httpRequest(`${this.baseURL}/message-async`, {
+                method: 'POST',
+                data: requestBody
+            });
             
             return {
                 success: response.data.success || true,
@@ -102,7 +120,10 @@ class ApiService {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await this.httpClient.post('/message-async', requestBody);
+            const response = await this.httpRequest(`${this.baseURL}/message-async`, {
+                method: 'POST',
+                data: requestBody
+            });
             
             return {
                 success: response.data.success || true,
@@ -122,7 +143,7 @@ class ApiService {
      */
     async healthCheck() {
         try {
-            const response = await this.httpClient.get('/health');
+            const response = await this.httpRequest(`${this.baseURL}/health`);
             
             return {
                 success: response.data.success || true,
@@ -141,7 +162,7 @@ class ApiService {
      */
     async getPersonas() {
         try {
-            const response = await this.httpClient.get('/personas');
+            const response = await this.httpRequest(`${this.baseURL}/personas`);
             
             // Filter only Extension category personas
             let personas = response.data.data || [];
@@ -167,7 +188,10 @@ class ApiService {
      */
     async sendFeedback(feedbackData) {
         try {
-            const response = await this.httpClient.post('/feedback', feedbackData);
+            const response = await this.httpRequest(`${this.baseURL}/feedback`, {
+                method: 'POST',
+                data: feedbackData
+            });
             
             return {
                 success: response.data.success || true,
@@ -192,27 +216,25 @@ class ApiService {
         let errorMessage = 'Unknown error occurred';
         let errorDetails = {};
 
-        if (error.response) {
+        if (error.status) {
             // Server responded with error status
-            const status = error.response.status;
-            errorMessage = this.getStatusMessage(status);
+            errorMessage = this.getStatusMessage(error.status);
             errorDetails = {
-                status: status,
-                statusText: error.response.statusText,
-                data: error.response.data
+                status: error.status,
+                statusText: error.statusText,
+                data: error.data
             };
-        } else if (error.request) {
-            // Request was made but no response received
-            errorMessage = 'Network error - no response from server';
+        } else if (error.message) {
+            // Network error or other error
+            errorMessage = error.message;
             errorDetails = {
-                code: error.code,
                 message: error.message
             };
         } else {
-            // Something else happened
-            errorMessage = error.message || 'Request configuration error';
+            // Fallback
+            errorMessage = 'Request failed';
             errorDetails = {
-                message: error.message
+                error: error.toString()
             };
         }
 

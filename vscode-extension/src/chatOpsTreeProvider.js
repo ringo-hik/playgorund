@@ -15,67 +15,82 @@ class ChatOpsTreeProvider {
     }
 
     getChildren(element) {
-        if (!element) {
-            // Root level - return Reports directly
-            return [
-                new ChatOpsTreeItem(
-                    'Reports', 
-                    'Report Management', 
-                    vscode.TreeItemCollapsibleState.Expanded,
-                    'reports'
-                )
-            ];
-        }
+        try {
+            console.log('getChildren called with element:', element ? element.contextValue : 'root');
+            
+            if (!element) {
+                // Root level - return Reports directly
+                const rootItems = [
+                    new ChatOpsTreeItem(
+                        'Reports', 
+                        'Report Management', 
+                        vscode.TreeItemCollapsibleState.Expanded,
+                        'reports'
+                    )
+                ];
+                console.log('Returning root items:', rootItems.length);
+                return Promise.resolve(rootItems);
+            }
 
-        if (element.contextValue === 'reports') {
-            // Reports category level
-            return [
-                new ChatOpsTreeItem(
-                    '주간보고 생성하기', 
-                    'Generate Weekly Report', 
-                    vscode.TreeItemCollapsibleState.Expanded,
-                    'weeklyReportGroup'
-                )
-            ];
-        }
+            if (element.contextValue === 'reports') {
+                // Reports category level
+                const reportItems = [
+                    new ChatOpsTreeItem(
+                        '주간보고 생성하기', 
+                        'Generate Weekly Report', 
+                        vscode.TreeItemCollapsibleState.Expanded,
+                        'weeklyReportGroup'
+                    )
+                ];
+                console.log('Returning report items:', reportItems.length);
+                return Promise.resolve(reportItems);
+            }
 
-        if (element.contextValue === 'weeklyReportGroup') {
-            // Weekly report sub-items
-            return [
-                new ChatOpsTreeItem(
-                    '주간보고 생성하기', 
-                    'Click to generate weekly report', 
-                    vscode.TreeItemCollapsibleState.None,
-                    'weeklyReportItem',
-                    {
-                        command: 'swdpChatOps.generateWeeklyReport',
-                        title: 'Generate Weekly Report'
-                    }
-                ),
-                new ChatOpsTreeItem(
-                    '피드백 입력', 
-                    'Provide feedback on the generated report', 
-                    vscode.TreeItemCollapsibleState.None,
-                    'feedbackItem',
-                    {
-                        command: 'swdpChatOps.provideFeedback',
-                        title: 'Provide Feedback'
-                    }
-                ),
-                new ChatOpsTreeItem(
-                    '리포트 저장', 
-                    'Save the current report to workspace', 
-                    vscode.TreeItemCollapsibleState.None,
-                    'saveItem',
-                    {
-                        command: 'swdpChatOps.saveReport',
-                        title: 'Save Report'
-                    }
-                )
-            ];
-        }
+            if (element.contextValue === 'weeklyReportGroup') {
+                // Weekly report sub-items
+                const subItems = [
+                    new ChatOpsTreeItem(
+                        '주간보고 생성하기', 
+                        'Click to generate weekly report', 
+                        vscode.TreeItemCollapsibleState.None,
+                        'weeklyReportItem',
+                        {
+                            command: 'swdpChatOps.generateWeeklyReport',
+                            title: 'Generate Weekly Report'
+                        }
+                    ),
+                    new ChatOpsTreeItem(
+                        '피드백 입력', 
+                        'Provide feedback on the generated report', 
+                        vscode.TreeItemCollapsibleState.None,
+                        'feedbackItem',
+                        {
+                            command: 'swdpChatOps.provideFeedback',
+                            title: 'Provide Feedback'
+                        }
+                    ),
+                    new ChatOpsTreeItem(
+                        '리포트 저장', 
+                        'Save the current report to workspace', 
+                        vscode.TreeItemCollapsibleState.None,
+                        'saveItem',
+                        {
+                            command: 'swdpChatOps.saveReport',
+                            title: 'Save Report'
+                        }
+                    )
+                ];
+                console.log('Returning sub items:', subItems.length);
+                return Promise.resolve(subItems);
+            }
 
-        return [];
+            console.log('No matching context, returning empty array');
+            return Promise.resolve([]);
+            
+        } catch (error) {
+            console.error('Error in getChildren:', error);
+            return Promise.resolve([]);
+        }
     }
 }
 
