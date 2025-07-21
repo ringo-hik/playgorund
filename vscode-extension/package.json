@@ -1,0 +1,101 @@
+{
+  "name": "swdp-chatops-extension",
+  "displayName": "SWDP ChatOps Extension",
+  "description": "VSCode extension for SWDP ChatOps integration with one-click automation",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/swdp-chatops-extension.git"
+  },
+  "publisher": "swdp-team",
+  "activationEvents": [
+    "onView:swdpChatOps"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "swdp-chatops-container",
+          "title": "SWDP ChatOps",
+          "icon": "$(robot)"
+        }
+      ]
+    },
+    "views": {
+      "swdp-chatops-container": [
+        {
+          "id": "swdpChatOps",
+          "name": "SWDP ChatOps",
+          "when": "true"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "swdpChatOps.generateWeeklyReport",
+        "title": "Generate Weekly Report",
+        "icon": "$(file-text)"
+      },
+      {
+        "command": "swdpChatOps.provideFeedback",
+        "title": "Provide Feedback",
+        "icon": "$(comment)"
+      },
+      {
+        "command": "swdpChatOps.saveReport",
+        "title": "Save Report",
+        "icon": "$(save)"
+      },
+      {
+        "command": "swdpChatOps.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "swdpChatOps.refresh",
+          "when": "view == swdpChatOps",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "swdpChatOps.generateWeeklyReport",
+          "when": "view == swdpChatOps && viewItem == weeklyReportItem",
+          "group": "inline"
+        },
+        {
+          "command": "swdpChatOps.provideFeedback",
+          "when": "view == swdpChatOps && viewItem == feedbackItem",
+          "group": "inline"
+        },
+        {
+          "command": "swdpChatOps.saveReport",
+          "when": "view == swdpChatOps && viewItem == saveItem",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "node --version",
+    "watch": "node --version"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.74.0",
+    "@types/node": "16.x"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}

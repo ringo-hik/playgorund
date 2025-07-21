@@ -916,7 +916,7 @@ export default {
 }
 
 .chat-header {
-  background: var(--color-header-bg) !important;
+  background: var(--color-header-bg);
   padding: var(--space-md) var(--space-lg);
   border-bottom: 1px solid var(--color-border-light);
   display: flex;
@@ -947,7 +947,7 @@ export default {
 .avatar {
   width: 36px;
   height: 36px;
-  background: var(--color-header-accent) !important;
+  background: var(--color-header-accent);
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
@@ -967,7 +967,7 @@ export default {
 .details .name {
   font-size: var(--font-size-base);
   font-weight: 500;
-  color: var(--color-header-text) !important;
+  color: var(--color-header-text);
   margin-bottom: 2px;
   letter-spacing: -0.01em;
 }
@@ -977,7 +977,7 @@ export default {
   align-items: center;
   gap: 6px;
   font-size: var(--font-size-sm);
-  color: var(--color-header-text-secondary) !important;
+  color: var(--color-header-text-secondary);
   font-weight: 400;
 }
 
@@ -1422,8 +1422,8 @@ export default {
 }
 
 .ai-chatops-chat-button .lucide-icon {
-  color: var(--color-surface-white) !important;
-  fill: var(--color-surface-white) !important;
+  color: var(--color-surface-white);
+  fill: var(--color-surface-white);
   transform: translateZ(0);
   backface-visibility: hidden;
 }
@@ -1435,8 +1435,8 @@ export default {
 }
 
 .ai-chatops-chat-button.is-active .lucide-icon {
-  color: var(--color-surface-white) !important;
-  fill: var(--color-surface-white) !important;
+  color: var(--color-surface-white);
+  fill: var(--color-surface-white);
 }
 
 .ai-chatops-chat-button:hover {

@@ -1,27 +1,36 @@
 /* AIChatOps - Unified CSS Variable System */
 
-/* Cursor pointer enforcement */
-
-body, html {
-  cursor: auto !important;
+/* Cursor definitions for AI Chat component */
+.ai-chatops-chat {
+  cursor: auto;
 }
 
-input, textarea, button, select, a, [tabindex] {
-  cursor: pointer !important;
+.ai-chatops-chat input,
+.ai-chatops-chat textarea,
+.ai-chatops-chat button,
+.ai-chatops-chat select,
+.ai-chatops-chat a,
+.ai-chatops-chat [tabindex] {
+  cursor: pointer;
 }
 
-input[type="text"], input[type="password"], input[type="email"], textarea {
-  cursor: text !important;
+.ai-chatops-chat input[type="text"],
+.ai-chatops-chat input[type="password"],
+.ai-chatops-chat input[type="email"],
+.ai-chatops-chat textarea {
+  cursor: text;
 }
 
-/* Prevent cursor disappearance */
-
-button:hover, a:hover, [onclick]:hover, [tabindex]:hover {
-  cursor: pointer !important;
+.ai-chatops-chat button:hover,
+.ai-chatops-chat a:hover,
+.ai-chatops-chat [onclick]:hover,
+.ai-chatops-chat [tabindex]:hover {
+  cursor: pointer;
 }
 
-input:hover, textarea:hover {
-  cursor: text !important;
+.ai-chatops-chat input:hover,
+.ai-chatops-chat textarea:hover {
+  cursor: text;
 }
 
 /* Cross-browser cursor enforcement */
@@ -688,15 +697,15 @@ body {
 /* Enhanced button color system */
 
 /* Send button styles */
-.btn-system--send {
-  background: var(--color-send-button) !important;
-  border-color: var(--color-send-button) !important;
-  color: var(--color-text-light) !important;
+.ai-chatops-chat .btn-system--send {
+  background: var(--color-send-button);
+  border-color: var(--color-send-button);
+  color: var(--color-text-light);
   box-shadow: var(--shadow-send);
 }
 
-.btn-system--send:hover:not(:disabled) {
-  background: #047857 !important;
+.ai-chatops-chat .btn-system--send:hover:not(:disabled) {
+  background: #047857;
   border-color: #047857 !important;
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
