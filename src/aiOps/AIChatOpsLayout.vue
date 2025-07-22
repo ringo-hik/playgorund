@@ -709,7 +709,7 @@ export default {
       return aiChatOpsService.getPersonas()
         .then(response => {
           if (response.success) {
-            this.personas = response.data || [];
+            this.personas = response.data.data || response.data || [];
           }
         })
         .catch(error => {

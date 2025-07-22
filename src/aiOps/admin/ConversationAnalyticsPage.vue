@@ -304,7 +304,7 @@ export default {
       try {
         const response = await aiChatOpsService.getAllPersonasWithPrompts();
         if (response.success) {
-          this.personas = response.data || [];
+          this.personas = response.data.data || response.data || [];
         }
       } catch (error) {
         this.showError('페르소나 로드 실패: ' + error.message);
