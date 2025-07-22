@@ -1,0 +1,240 @@
+● Update(src\aiOps\admin\SystemAdminPage.vue)
+
+  ⎿  Updated src\aiOps\admin\SystemAdminPage.vue with 56 additions and 30 removals
+       44              </div>
+       45            </section>
+       46    
+       47 -          <!-- 페르소나 편집 폼 -->
+       48 -          <section class="persona-form">
+       49 -            <h2>{{ editMode === 'create' ? '새 페르소나 생성' : editMode ===      
+     'edit' ? '페르소나 수정' : '페르소나 정보' }}</h2>
+          - 'edit' ? '페르소나 수정' : '페르소나 정보' }}</h2>
+       47 +          <!-- 페르소나 기본 정보 -->
+       48 +          <section class="persona-info">
+       49 +            <div class="section-header">
+       50 +              <h2>{{ editMode === 'create' ? '새 페르소나 생성' : editMode        
+     ===
+          +  'edit-info' ? '페르소나 정보 수정' : '페르소나 기본 정보' }}</h2>
+       51 +              <div class="header-actions" v-if="editMode === 'view' && 
+          + selectedPersona">
+       52 +                <button @click="startEditInfo" class="btn-primary">정보 
+          + 수정</button>
+       53 +              </div>
+       54 +            </div>
+       55 
+       56              <div class="form-grid">
+       57                <!-- 기본 정보 -->
+     ...
+       56                    v-model="editingPersona.personaCode" 
+       57                    type="text" 
+       58                    :disabled="editMode === 'view'"
+       59 -                  :readonly="editMode === 'edit'"
+       59 +                  :readonly="editMode === 'edit-info'"
+       60                    placeholder="영문, 숫자, 언더스코어만 사용"
+       61                    class="form-input"
+       62                  >
+     ...
+       120                    class="form-textarea"
+       121                  ></textarea>
+       122                </div>
+       123 +            </div>
+       124    
+       125 -              <div class="form-group form-group-full">
+       126 -                <label>시스템 프롬프트</label>
+       127 -                <div class="prompt-editor">
+       128 -                  <div class="prompt-toolbar">
+       129 -                    <span class="char-count">{{ 
+     editingPersona.systemPrompt?.length || 0 }}자</span>
+           - editingPersona.systemPrompt?.length || 0 }}자</span>
+       130 -                  </div>
+       131 -                  <textarea 
+       132 -                    v-model="editingPersona.systemPrompt"
+       133 -                    :disabled="editMode === 'view'"
+       134 -                    placeholder="AI의 역할과 동작을 정의하는 시스템 
+     프롬프트를 입력하세요"
+           - 프롬프트를 입력하세요"
+       135 -                    rows="10"
+       136 -                    class="form-textarea prompt-textarea"
+       137 -                  ></textarea>
+       138 -                </div>
+       125 +            <!-- 기본 정보 액션 버튼 -->
+       126 +            <div class="form-actions" v-if="editMode === 'create' || 
+     editMode === 'edit-info'">
+           +  === 'edit-info'">
+       127 +              <div class="action-group">
+       128 +                <button 
+       129 +                  v-if="editMode !== 'view'" 
+       130 +                  @click="cancelEdit" 
+       131 +                  class="btn-secondary"
+       132 +                >
+       133 +                  취소
+       134 +                </button>
+       135 +                <button 
+       136 +                  v-if="editMode !== 'view'" 
+       137 +                  @click="savePersonaInfo" 
+       138 +                  :disabled="!canSaveInfo || isSaving"
+       139 +                  class="btn-success"
+       140 +                >
+       141 +                  {{ isSaving ? '저장중...' : (editMode === 'create' ? 
+     '생성'
+           +  : '저장') }}
+       142 +                </button>
+       143                </div>
+       144              </div>
+       145 +          </section>
+       146    
+       147 -            <!-- 폼 액션 버튼 -->
+       148 -            <div class="form-actions">
+       149 -              <div class="action-group">
+       147 +          <!-- 시스템 프롬프트 편집 (기존 페르소나만) -->
+       148 +          <section class="prompt-section" v-if="editMode !== 'create' &&         
+     selectedPersona">
+           + selectedPersona">
+       149 +            <div class="section-header">
+       150 +              <h2>시스템 프롬프트</h2>
+       151 +              <div class="header-actions">
+       152                  <button 
+       153 -                  v-if="editMode === 'view' && selectedPersona" 
+       154 -                  @click="startEdit" 
+       153 +                  v-if="editMode !== 'edit-prompt'" 
+       154 +                  @click="startEditPrompt" 
+       155                    class="btn-primary"
+       156                  >
+       157 -                  수정하기
+       157 +                  프롬프트 수정
+       158                  </button>
+       159                  <button 
+       160 -                  v-if="editMode !== 'view'" 
+       161 -                  @click="cancelEdit" 
+       160 +                  v-if="editMode === 'edit-prompt'" 
+       161 +                  @click="cancelEditPrompt" 
+       162                    class="btn-secondary"
+       163                  >
+       164                    취소
+       165                  </button>
+       166                  <button 
+       167 -                  v-if="editMode !== 'view'" 
+       168 -                  @click="savePersona" 
+       169 -                  :disabled="!canSave || isSaving"
+       167 +                  v-if="editMode === 'edit-prompt'" 
+       168 +                  @click="savePrompt" 
+       169 +                  :disabled="!canSavePrompt || isSavingPrompt"
+       170                    class="btn-success"
+       171                  >
+       172 -                  {{ isSaving ? '저장중...' : (editMode === 'create' ? 
+     '생성' : '저장') }}
+           -  : '저장') }}
+       172 +                  {{ isSavingPrompt ? '저장중...' : '저장' }}
+       173                  </button>
+       174                </div>
+       175              </div>
+       176 +  
+       177 +            <div class="prompt-editor">
+       178 +              <div class="prompt-toolbar">
+       179 +                <span class="char-count">{{ 
+           + editingPersona.systemPrompt?.length || 0 }}자</span>
+       180 +              </div>
+       181 +              <textarea 
+       182 +                v-model="editingPersona.systemPrompt"
+       183 +                :disabled="editMode !== 'edit-prompt'"
+       184 +                placeholder="AI의 역할과 동작을 정의하는 시스템 프롬프트를       
+           + 입력하세요"
+       185 +                rows="12"
+       186 +                class="form-textarea prompt-textarea"
+       187 +              ></textarea>
+       188 +            </div>
+       189            </section>
+       190    
+       191            <!-- 테스트 섹션 -->
+
+
+● 이제 테스트 메시지 창 CSS 문제를 수정하겠습니다.
+
+
+● Update(src\aiOps\admin\SystemAdminPage.vue)
+
+  ⎿  Updated src\aiOps\admin\SystemAdminPage.vue with 21 additions and 17 removals
+       195    
+       196            <!-- 테스트 섹션 -->
+       197            <section class="test-section" v-if="editMode !== 'create'">
+       198 -            <h3>프롬프트 테스트</h3>
+       199 -            <div class="test-input">
+       200 -              <label>테스트 메시지</label>
+       201 -              <textarea 
+       202 -                v-model="userPrompt"
+       203 -                placeholder="테스트할 메시지를 입력하세요..."
+       204 -                rows="3"
+       205 -                class="form-textarea"
+       206 -              ></textarea>
+       198 +            <div class="section-header">
+       199 +              <h3>프롬프트 테스트</h3>
+       200              </div>
+       201 -            <div class="test-actions">
+       202 -              <button 
+       203 -                @click="testPrompt" 
+       204 -                :disabled="!canTest" 
+       205 -                class="btn-test"
+       206 -              >
+       207 -                {{ isTesting ? '테스트중...' : '프롬프트 테스트' }}
+       208 -              </button>
+       201 +            <div class="test-content">
+       202 +              <div class="test-input">
+       203 +                <label>테스트 메시지</label>
+       204 +                <textarea 
+       205 +                  v-model="userPrompt"
+       206 +                  placeholder="테스트할 메시지를 입력하세요..."
+       207 +                  rows="4"
+       208 +                  class="test-textarea"
+       209 +                ></textarea>
+       210 +              </div>
+       211 +              <div class="test-actions">
+       212 +                <button 
+       213 +                  @click="testPrompt" 
+       214 +                  :disabled="!canTest" 
+       215 +                  class="btn-test"
+       216 +                >
+       217 +                  {{ isTesting ? '테스트중...' : '프롬프트 테스트' }}
+       218 +                </button>
+       219 +              </div>
+       220              </div>
+       221            </section>
+       222          </div>
+
+
+● 이제 JavaScript 로직을 새로운 편집 모드에 맞게 업데이트하겠습니다.
+
+
+● Update(src\aiOps\admin\SystemAdminPage.vue)
+
+  ⎿  Updated src\aiOps\admin\SystemAdminPage.vue with 1 addition and 1 removal
+       262          selectedPersonaCode: '',
+       263          selectedPersona: null,
+       264 
+       265 -        editMode: 'view', // 'view', 'edit', 'create'
+       265 +        editMode: 'view', // 'view', 'edit-info', 'edit-prompt', 'create'        
+       266          editingPersona: {
+       267            personaCode: '',
+       268            title: '',
+
+
+● Update(src\aiOps\admin\SystemAdminPage.vue)
+
+  ⎿  Updated src\aiOps\admin\SystemAdminPage.vue with 1 addition
+       256          isLoading: false,
+       257          isTesting: false,
+       258          isSaving: false,
+       259 +        isSavingPrompt: false,
+       260          isDeleting: false,
+       261 
+       262          personas: [],
+
+
+● Update(src\aiOps\admin\SystemAdminPage.vue)
+
+  ⎿  Updated src\aiOps\admin\SystemAdminPage.vue with 1 addition
+       275            tags: []
+       276          },
+       277          originalPersona: null,
+       278 +        originalPrompt: '',
+       279 
+       280          userPrompt: '안녕하세요. 테스트 메시지입니다.',

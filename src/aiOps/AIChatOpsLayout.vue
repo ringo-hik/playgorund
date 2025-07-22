@@ -8,9 +8,10 @@
         :interactive="true" key="chat-icon" />
     </button>
 
-    <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" :class="[windowClasses, currentTheme]"
-      ref="chatWindow">
-      <div class="chat-header">
+    <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" 
+         :class="[windowClasses, currentTheme, { 'system-admin-mode': currentView === 'systemAdmin' }]"
+         ref="chatWindow">
+      <div v-if="currentView !== 'systemAdmin'" class="chat-header">
         <div class="bot-info">
           <div class="avatar">
             <LucideIcon name="robot" fill="white" :width="26" :height="26" />
@@ -28,6 +29,10 @@
           <div class="easter-egg-trigger" @click="openRandomEasterEgg">
             <LucideIcon name="sparkles" fill="currentColor" :width="4" :height="4" />
           </div>
+
+          <button class="system-admin-btn header-btn header-btn--md" @click="openSystemAdmin" title="시스템 관리">
+            <LucideIcon name="shield" fill="currentColor" :width="16" :height="16" />
+          </button>
 
           <button class="theme-selector header-btn header-btn--md" @click="cycleTheme" :title="getCurrentThemeName()">
             <span class="theme-indicator">{{ getThemeDisplayName() }}</span>
@@ -156,6 +161,9 @@
 
         <FeedbackTab v-if="currentView === 'feedback' && isInitialized" ref="feedbackTab"
           :current-language="currentLanguage" @feedback-sent="handleFeedbackSent" @go-home="goToCategorySelect" />
+
+        <SystemAdminPage v-if="currentView === 'systemAdmin' && isInitialized" ref="systemAdminPage"
+          :current-language="currentLanguage" @go-home="goToCategorySelect" />
       </div>
     </div>
   </div>
@@ -166,6 +174,7 @@ import aiChatOpsService from './service/aiChatOpsService.js';
 import { getText } from './utils/i18n.js';
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
+import SystemAdminPage from './admin/SystemAdminPage.vue';
 import Elements from './components/Elements.vue';
 import LucideIcon from './components/LucideIcon.vue';
 
@@ -174,6 +183,7 @@ export default {
   components: {
     ChatTab,
     FeedbackTab,
+    SystemAdminPage,
     Elements,
     LucideIcon
   },
@@ -241,6 +251,12 @@ export default {
           icon: 'settings',
           titleKey: 'operationCategory',
           descKey: 'operationCategoryDesc'
+        },
+        {
+          key: 'systemAdmin',
+          icon: 'shield',
+          titleKey: 'systemAdminCategory',
+          descKey: 'systemAdminCategoryDesc'
         }
       ]
     };
@@ -343,7 +359,8 @@ export default {
       const iconMap = {
         'operation': 'settings',
         'general': 'users',
-        'personal': 'user'
+        'personal': 'user',
+        'systemAdmin': 'shield'
       };
       return iconMap[category] || 'grid';
     },
@@ -352,7 +369,8 @@ export default {
       const displayNames = {
         'personal': 'personalCategory',
         'general': 'generalCategory',
-        'operation': 'operationCategory'
+        'operation': 'operationCategory',
+        'systemAdmin': 'systemAdminCategory'
       };
 
       return this.getText(displayNames[category] || category);
@@ -423,6 +441,9 @@ export default {
     },
 
     closeChat() {
+      // body 스크롤 복원
+      document.body.style.overflow = '';
+      
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -462,6 +483,11 @@ export default {
     goToCategorySelect() {
       this.saveCurrentMessages();
 
+      // 시스템 관리 모드에서 나가는 경우 body 스크롤 복원
+      if (this.currentView === 'systemAdmin') {
+        document.body.style.overflow = '';
+      }
+
       Object.assign(this, {
         currentView: 'categorySelect',
         selectedCategory: null,
@@ -487,10 +513,17 @@ export default {
     },
 
     selectCategory(category) {
-      Object.assign(this, {
-        selectedCategory: category,
-        currentView: 'personaList'
-      });
+      if (category === 'systemAdmin') {
+        Object.assign(this, {
+          currentView: 'systemAdmin',
+          selectedCategory: category
+        });
+      } else {
+        Object.assign(this, {
+          selectedCategory: category,
+          currentView: 'personaList'
+        });
+      }
     },
 
     selectPersona(persona) {
@@ -522,6 +555,21 @@ export default {
       const randomNumber = Math.floor(Math.random() * 5) + 1;
       const easterEggUrl = `/playground/easter-egg${randomNumber}.html`;
       window.open(easterEggUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+    },
+
+    openSystemAdmin() {
+      // 시스템 관리 모드로 직접 전환
+      if (!this.isOpen) {
+        this.toggleChat(); // 챗봇이 닫혀있으면 먼저 열기
+      }
+      
+      this.$nextTick(() => {
+        this.currentView = 'systemAdmin';
+        this.selectedCategory = 'systemAdmin';
+        
+        // 전체 화면 모드를 위해 body 스크롤 비활성화
+        document.body.style.overflow = 'hidden';
+      });
     },
 
     saveCurrentMessages() {
@@ -904,6 +952,21 @@ export default {
   will-change: transform, opacity;
 }
 
+/* 시스템 관리 페이지 전체 화면 모드 */
+.ai-chatops-chat-window.system-admin-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+  background: #f8fafc;
+  z-index: 10000;
+}
+
 .ai-chatops-chat-window.minimized {
   height: var(--layout-header-height);
 }
@@ -1027,6 +1090,18 @@ export default {
   font-weight: 600;
 }
 
+.system-admin-btn {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  border: none;
+}
+
+.system-admin-btn:hover {
+  background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
 .language-btn span {
   font-size: var(--font-size-xs);
   font-weight: 600;
@@ -1042,6 +1117,11 @@ export default {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* 시스템 관리 모드에서 content가 전체 공간 사용 */
+.system-admin-mode .content {
+  height: 100vh;
 }
 
 .category-select {
@@ -1147,6 +1227,10 @@ export default {
 
 .category-icon--operation {
   background: var(--color-accent);
+}
+
+.category-icon--systemAdmin {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
 .category-icon::before {

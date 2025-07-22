@@ -49,7 +49,11 @@
       "Bash(npm test)",
       "Bash(cmd /c start:*)",
       "Bash(npm test:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(vsce package:*)",
+      "Bash(code:*)",
+      "Bash(pkill:*)",
+      "Bash(chmod:*)"
     ],
     "deny": []
   }

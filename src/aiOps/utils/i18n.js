@@ -23,6 +23,8 @@ const i18nResources = {
     generalCategoryDesc: '사용자 지원 및 문의 응답',
     operationCategory: '운영/관리',
     operationCategoryDesc: '시스템 운영 및 관리 지원',
+    systemAdminCategory: '시스템 관리',
+    systemAdminCategoryDesc: '시스템 프롬프트 관리 및 테스트',
     
     selectPersona: '페르소나를 선택해주세요',
     selectPersonaDesc: 'Persona(전문가)를 선택해주세요',
@@ -67,6 +69,31 @@ const i18nResources = {
     sendAnother: '다른 피드백 보내기',
     
     easterEgg: '이스터 에그 ',
+    
+    // System Admin
+    systemAdminTitle: '시스템 프롬프트 관리',
+    systemAdminDescription: '시스템 프롬프트를 로드하고 수정하여 AI 응답을 테스트할 수 있습니다.',
+    promptManagement: '프롬프트 관리',
+    loadPrompts: '프롬프트 로드',
+    promptEditor: '프롬프트 편집기',
+    testPrompt: '프롬프트 테스트',
+    savePrompt: '프롬프트 저장',
+    testResults: '테스트 결과',
+    clearResults: '결과 지우기',
+    reset: '초기화',
+    noDescription: '설명 없음',
+    noPromptsFound: '프롬프트를 찾을 수 없습니다',
+    noPromptsDescription: '시스템 프롬프트를 로드하려면 위의 버튼을 클릭하세요.',
+    promptPlaceholder: '시스템 프롬프트를 입력하세요...',
+    testInput: '테스트 입력',
+    testOutput: '테스트 출력',
+    success: '성공',
+    error: '오류',
+    promptLoadError: '프롬프트 로드 중 오류가 발생했습니다',
+    promptSaveSuccess: '프롬프트가 성공적으로 저장되었습니다',
+    promptSaveError: '프롬프트 저장 중 오류가 발생했습니다',
+    testError: '테스트 중 오류가 발생했습니다',
+    defaultTestMessage: '안녕하세요. 시스템 프롬프트 테스트입니다.',
 
     loadingMessages: [
   "Prompting...",
@@ -128,6 +155,8 @@ const i18nResources = {
     generalCategoryDesc: 'User support and inquiry response',
     operationCategory: 'Operations',
     operationCategoryDesc: 'System operation and management support',
+    systemAdminCategory: 'System Admin',
+    systemAdminCategoryDesc: 'System prompt management and testing',
     
     selectPersona: 'Please select a persona',
     selectPersonaDesc: 'Choose your Persona (Expert)',
@@ -172,6 +201,31 @@ const i18nResources = {
     sendAnother: 'Send Another Feedback',
     
     easterEgg: 'Easter Egg ',
+    
+    // System Admin
+    systemAdminTitle: 'System Prompt Management',
+    systemAdminDescription: 'Load and modify system prompts to test AI responses.',
+    promptManagement: 'Prompt Management',
+    loadPrompts: 'Load Prompts',
+    promptEditor: 'Prompt Editor',
+    testPrompt: 'Test Prompt',
+    savePrompt: 'Save Prompt',
+    testResults: 'Test Results',
+    clearResults: 'Clear Results',
+    reset: 'Reset',
+    noDescription: 'No description',
+    noPromptsFound: 'No prompts found',
+    noPromptsDescription: 'Click the button above to load system prompts.',
+    promptPlaceholder: 'Enter system prompt...',
+    testInput: 'Test Input',
+    testOutput: 'Test Output',
+    success: 'Success',
+    error: 'Error',
+    promptLoadError: 'Error occurred while loading prompts',
+    promptSaveSuccess: 'Prompt saved successfully',
+    promptSaveError: 'Error occurred while saving prompt',
+    testError: 'Error occurred during testing',
+    defaultTestMessage: 'Hello. This is a system prompt test.',
 
     loadingMessages: [
   "Prompting...",
