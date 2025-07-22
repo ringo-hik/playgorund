@@ -4,7 +4,7 @@ const { URL } = require('url');
 
 class ApiService {
     constructor() {
-        this.baseURL = 'http://localhost:3004';
+        this.baseURL = 'http://localhost:443/api/v1/extension';
         this.timeout = 30000;
     }
 
@@ -64,145 +64,42 @@ class ApiService {
 
 
     /**
-     * Generate Weekly Report
-     * @param {string} personaCode - The persona code (e.g., 'weekly_report')
+     * Process Weekly Report Request (Generate or Apply Feedback)
      * @param {string} userId - User ID extracted from git email
+     * @param {string} [feedback] - User feedback text (optional)
+     * @param {string} [currentReport] - Current report content to be modified (optional)
      * @returns {Promise<Object>} API response
      */
-    async generateWeeklyReport(personaCode, userId) {
+    async processWeeklyReport(userId, feedback = null, currentReport = null) {
         try {
-            console.log(`Generating weekly report for user: ${userId}, persona: ${personaCode}`);
+            let userQuery;
             
-            const requestBody = {
-                personaCode: personaCode,
-                category: 'Extension',
-                userId: userId,
-                action: 'generate',
-                timestamp: new Date().toISOString()
-            };
-
-            const response = await this.httpRequest(`${this.baseURL}/message-async`, {
-                method: 'POST',
-                data: requestBody
-            });
-            
-            return {
-                success: response.data.success || true,
-                data: response.data.data || response.data,
-                sessionId: response.data.sessionId,
-                message: response.data.message || 'Weekly report generated successfully'
-            };
-
-        } catch (error) {
-            return this.handleError('generateWeeklyReport', error);
-        }
-    }
-
-    /**
-     * Provide Feedback on existing report
-     * @param {string} personaCode - The persona code (e.g., 'weekly_report')
-     * @param {string} userId - User ID extracted from git email
-     * @param {string} feedback - User feedback text
-     * @param {string} currentReport - Current report content to be modified
-     * @returns {Promise<Object>} API response
-     */
-    async provideFeedback(personaCode, userId, feedback, currentReport) {
-        try {
-            console.log(`Providing feedback for user: ${userId}, persona: ${personaCode}`);
-            
-            const requestBody = {
-                personaCode: personaCode,
-                category: 'Extension',
-                userId: userId,
-                action: 'feedback',
-                userQuery: feedback,
-                currentContent: currentReport,
-                timestamp: new Date().toISOString()
-            };
-
-            const response = await this.httpRequest(`${this.baseURL}/message-async`, {
-                method: 'POST',
-                data: requestBody
-            });
-            
-            return {
-                success: response.data.success || true,
-                data: response.data.data || response.data,
-                sessionId: response.data.sessionId,
-                message: response.data.message || 'Feedback processed successfully'
-            };
-
-        } catch (error) {
-            return this.handleError('provideFeedback', error);
-        }
-    }
-
-    /**
-     * Health Check
-     * @returns {Promise<Object>} API response
-     */
-    async healthCheck() {
-        try {
-            const response = await this.httpRequest(`${this.baseURL}/health`);
-            
-            return {
-                success: response.data.success || true,
-                data: response.data.data,
-                message: response.data.message || 'Health check successful'
-            };
-
-        } catch (error) {
-            return this.handleError('healthCheck', error);
-        }
-    }
-
-    /**
-     * Get Available Personas (for future extension)
-     * @returns {Promise<Object>} API response
-     */
-    async getPersonas() {
-        try {
-            const response = await this.httpRequest(`${this.baseURL}/personas`);
-            
-            // Filter only Extension category personas
-            let personas = response.data.data || [];
-            if (Array.isArray(personas)) {
-                personas = personas.filter(persona => persona.category === 'Extension');
+            if (feedback && currentReport) {
+                userQuery = `<<DOCUMENT_START>>\n${currentReport}\n<<DOCUMENT_END>>\n\nREVISION_REQUEST: ${feedback}\n\nPlease revise the above document based on the revision request.`;
+            } else {
+                userQuery = "Generate a comprehensive weekly report based on the data from the last 8 days starting from today.";
             }
-
-            return {
-                success: response.data.success || true,
-                data: personas,
-                message: response.data.message || 'Personas loaded successfully'
-            };
-
-        } catch (error) {
-            return this.handleError('getPersonas', error);
-        }
-    }
-
-    /**
-     * Send General Feedback
-     * @param {Object} feedbackData - Feedback data
-     * @returns {Promise<Object>} API response
-     */
-    async sendFeedback(feedbackData) {
-        try {
-            const response = await this.httpRequest(`${this.baseURL}/feedback`, {
+            
+            const response = await this.httpRequest(`${this.baseURL}/weekly-report`, {
                 method: 'POST',
-                data: feedbackData
+                data: {
+                    userId: userId,
+                    userQuery: userQuery
+                }
             });
             
+            const operation = feedback ? 'feedback processing' : 'report generation';
             return {
-                success: response.data.success || true,
-                data: response.data.data,
-                message: response.data.message || 'Feedback sent successfully'
+                success: response.status === 200,
+                data: response.data,
+                message: `Weekly report ${operation} completed successfully`
             };
 
         } catch (error) {
-            return this.handleError('sendFeedback', error);
+            return this.handleError('processWeeklyReport', error);
         }
     }
+
 
     /**
      * Handle API errors consistently
@@ -268,48 +165,6 @@ class ApiService {
         return statusMessages[status] || `HTTP error ${status}`;
     }
 
-    /**
-     * Test connection to the API
-     * @returns {Promise<boolean>} True if connection is successful
-     */
-    async testConnection() {
-        try {
-            const response = await this.healthCheck();
-            return response.success;
-        } catch (error) {
-            console.error('Connection test failed:', error);
-            return false;
-        }
-    }
-
-    /**
-     * Get current configuration
-     * @returns {Object} Current configuration
-     */
-    getConfig() {
-        return {
-            baseURL: this.baseURL,
-            timeout: this.timeout
-        };
-    }
-
-    /**
-     * Update configuration
-     * @param {Object} config - New configuration
-     */
-    updateConfig(config) {
-        if (config.baseURL) {
-            this.baseURL = config.baseURL;
-            this.httpClient.defaults.baseURL = config.baseURL;
-        }
-        
-        if (config.timeout) {
-            this.timeout = config.timeout;
-            this.httpClient.defaults.timeout = config.timeout;
-        }
-
-        console.log('API configuration updated:', this.getConfig());
-    }
 }
 
 module.exports = {

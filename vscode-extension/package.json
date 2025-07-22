@@ -39,14 +39,9 @@
     },
     "commands": [
       {
-        "command": "swdpChatOps.generateWeeklyReport",
-        "title": "Generate Weekly Report",
+        "command": "swdpChatOps.processWeeklyReport",
+        "title": "Process Weekly Report",
         "icon": "$(file-text)"
-      },
-      {
-        "command": "swdpChatOps.provideFeedback",
-        "title": "Provide Feedback",
-        "icon": "$(comment)"
       },
       {
         "command": "swdpChatOps.saveReport",
@@ -69,13 +64,8 @@
       ],
       "view/item/context": [
         {
-          "command": "swdpChatOps.generateWeeklyReport",
+          "command": "swdpChatOps.processWeeklyReport",
           "when": "view == swdpChatOps && viewItem == weeklyReportItem",
-          "group": "inline"
-        },
-        {
-          "command": "swdpChatOps.provideFeedback",
-          "when": "view == swdpChatOps && viewItem == feedbackItem",
           "group": "inline"
         },
         {

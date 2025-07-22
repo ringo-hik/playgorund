@@ -22,8 +22,8 @@ class ChatOpsTreeProvider {
                 // Root level - return Reports directly
                 const rootItems = [
                     new ChatOpsTreeItem(
-                        'Reports', 
-                        'Report Management', 
+                        'Weekly Reports', 
+                        'Weekly Report Management', 
                         vscode.TreeItemCollapsibleState.Expanded,
                         'reports'
                     )
@@ -36,8 +36,8 @@ class ChatOpsTreeProvider {
                 // Reports category level
                 const reportItems = [
                     new ChatOpsTreeItem(
-                        '주간보고 생성하기', 
-                        'Generate Weekly Report', 
+                        'Weekly Report Actions', 
+                        'Available weekly report operations', 
                         vscode.TreeItemCollapsibleState.Expanded,
                         'weeklyReportGroup'
                     )
@@ -50,27 +50,17 @@ class ChatOpsTreeProvider {
                 // Weekly report sub-items
                 const subItems = [
                     new ChatOpsTreeItem(
-                        '주간보고 생성하기', 
-                        'Click to generate weekly report', 
+                        'Process Weekly Report', 
+                        'Generate new report or apply feedback', 
                         vscode.TreeItemCollapsibleState.None,
                         'weeklyReportItem',
                         {
-                            command: 'swdpChatOps.generateWeeklyReport',
-                            title: 'Generate Weekly Report'
+                            command: 'swdpChatOps.processWeeklyReport',
+                            title: 'Process Weekly Report'
                         }
                     ),
                     new ChatOpsTreeItem(
-                        '피드백 입력', 
-                        'Provide feedback on the generated report', 
-                        vscode.TreeItemCollapsibleState.None,
-                        'feedbackItem',
-                        {
-                            command: 'swdpChatOps.provideFeedback',
-                            title: 'Provide Feedback'
-                        }
-                    ),
-                    new ChatOpsTreeItem(
-                        '리포트 저장', 
+                        'Save Report', 
                         'Save the current report to workspace', 
                         vscode.TreeItemCollapsibleState.None,
                         'saveItem',
@@ -115,9 +105,6 @@ class ChatOpsTreeItem extends vscode.TreeItem {
                 break;
             case 'weeklyReportItem':
                 this.iconPath = new vscode.ThemeIcon('play');
-                break;
-            case 'feedbackItem':
-                this.iconPath = new vscode.ThemeIcon('comment');
                 break;
             case 'saveItem':
                 this.iconPath = new vscode.ThemeIcon('save');
