@@ -573,6 +573,178 @@ ${(promptContent || '').substring(0, 200)}${(promptContent || '').length > 200 ?
       }
     });
     
+  } else if (url.startsWith('/admin/conversations') && method === 'GET') {
+    // Parse query parameters for pagination and filtering
+    const urlObj = new URL(url, `http://localhost:${PORT}`);
+    const page = parseInt(urlObj.searchParams.get('page') || '0');
+    const size = parseInt(urlObj.searchParams.get('size') || '20');
+    const personaCode = urlObj.searchParams.get('personaCode');
+    const userId = urlObj.searchParams.get('userId');
+    const startDate = urlObj.searchParams.get('startDate');
+    const endDate = urlObj.searchParams.get('endDate');
+    
+    // Mock conversation data generation
+    const generateMockConversations = (page, size, filters) => {
+      const personaCodes = ['personal_assistant', 'project_manager', 'developer', 'system_admin'];
+      const userIds = ['user001', 'user002', 'user003', 'admin', 'tester'];
+      const queries = [
+        "안녕하세요. 도움이 필요합니다.",
+        "프로젝트 일정을 확인해주세요.",
+        "시스템 상태를 점검해주세요.",
+        "데이터 분석 결과를 알려주세요.",
+        "보안 점검이 필요합니다."
+      ];
+      const responses = [
+        "네, 어떤 도움이 필요하신지 알려주세요.",
+        "프로젝트 일정을 확인하여 알려드리겠습니다.",
+        "시스템 상태를 점검하고 보고드리겠습니다.",
+        "데이터 분석을 수행하여 결과를 제공해드리겠습니다.",
+        "보안 점검을 진행하여 보고서를 작성해드리겠습니다."
+      ];
+      
+      const totalElements = 250;
+      const startIndex = page * size;
+      const conversations = [];
+      
+      for (let i = 0; i < Math.min(size, totalElements - startIndex); i++) {
+        const id = startIndex + i + 1;
+        const personaCode = personaCodes[Math.floor(Math.random() * personaCodes.length)];
+        const userId = userIds[Math.floor(Math.random() * userIds.length)];
+        const queryIndex = Math.floor(Math.random() * queries.length);
+        const createdDate = new Date();
+        createdDate.setHours(createdDate.getHours() - Math.floor(Math.random() * 24 * 7));
+        
+        conversations.push({
+          id: id,
+          personaCode: personaCode,
+          userQuery: queries[queryIndex],
+          aiResponse: responses[queryIndex],
+          createdDate: createdDate.toISOString(),
+          userId: userId,
+          sessionId: `session_${Math.floor(Math.random() * 1000)}`,
+          responseTime: Math.floor(Math.random() * 3000) + 500,
+          success: Math.random() > 0.05,
+          queryLength: queries[queryIndex].length,
+          responseLength: responses[queryIndex].length
+        });
+      }
+      
+      return {
+        conversations: conversations,
+        currentPage: page,
+        pageSize: size,
+        totalPages: Math.ceil(totalElements / size),
+        totalElements: totalElements,
+        first: page === 0,
+        last: page === Math.ceil(totalElements / size) - 1,
+        hasNext: page < Math.ceil(totalElements / size) - 1,
+        hasPrevious: page > 0,
+        personaCode: filters.personaCode,
+        userId: filters.userId,
+        startDate: filters.startDate,
+        endDate: filters.endDate
+      };
+    };
+    
+    const mockData = generateMockConversations(page, size, {
+      personaCode, userId, startDate, endDate
+    });
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200);
+    res.end(JSON.stringify({
+      success: true,
+      data: mockData,
+      message: 'Conversations loaded successfully',
+      timestamp: new Date().toISOString()
+    }));
+    
+  } else if (url.startsWith('/admin/conversation-stats') && method === 'GET') {
+    const urlObj = new URL(url, `http://localhost:${PORT}`);
+    const personaCode = urlObj.searchParams.get('personaCode');
+    const period = urlObj.searchParams.get('period') || 'all';
+    
+    const mockStats = {
+      totalConversations: 1247,
+      totalUsers: 86,
+      totalPersonas: 11,
+      dailyAverage: 42.3,
+      todayCount: 38,
+      weekCount: 296,
+      monthCount: 1247,
+      personaStats: {
+        'personal_assistant': {
+          personaCode: 'personal_assistant',
+          title: '개인 업무 어시스턴트',
+          totalCount: 315,
+          dailyAverage: 10.7,
+          successRate: 0.98,
+          avgResponseTime: 1250,
+          uniqueUsers: 28
+        },
+        'project_manager': {
+          personaCode: 'project_manager',
+          title: '프로젝트 매니저',
+          totalCount: 267,
+          dailyAverage: 9.1,
+          successRate: 0.96,
+          avgResponseTime: 1450,
+          uniqueUsers: 22
+        },
+        'system_admin': {
+          personaCode: 'system_admin',
+          title: '시스템 관리자',
+          totalCount: 198,
+          dailyAverage: 6.7,
+          successRate: 0.94,
+          avgResponseTime: 1850,
+          uniqueUsers: 18
+        },
+        'developer': {
+          personaCode: 'developer',
+          title: '개발자',
+          totalCount: 156,
+          dailyAverage: 5.3,
+          successRate: 0.97,
+          avgResponseTime: 2100,
+          uniqueUsers: 15
+        }
+      },
+      hourlyDistribution: {
+        '9': 45, '10': 62, '11': 58, '12': 32, '13': 38, '14': 78, 
+        '15': 85, '16': 67, '17': 52, '18': 28
+      },
+      topUsers: [
+        { userId: 'user001', conversationCount: 127, uniquePersonas: 4, mostUsedPersona: 'personal_assistant', lastActiveDate: '2024-01-22' },
+        { userId: 'admin', conversationCount: 98, uniquePersonas: 6, mostUsedPersona: 'system_admin', lastActiveDate: '2024-01-21' },
+        { userId: 'user002', conversationCount: 85, uniquePersonas: 3, mostUsedPersona: 'project_manager', lastActiveDate: '2024-01-20' }
+      ],
+      responseTimeStats: {
+        avgResponseTime: 1562,
+        minResponseTime: 480,
+        maxResponseTime: 4200,
+        medianResponseTime: 1350,
+        responseTimeRanges: {
+          '0-1s': 387,
+          '1-3s': 678,
+          '3-5s': 142,
+          '5s+': 40
+        }
+      },
+      successRate: 0.96,
+      successCount: 1197,
+      failureCount: 50
+    };
+    
+    res.setHeader('Content-Type', 'application/json');
+    res.writeHead(200);
+    res.end(JSON.stringify({
+      success: true,
+      data: mockStats,
+      message: 'Statistics loaded successfully',
+      timestamp: new Date().toISOString()
+    }));
+    
   } else {
     // 404 for unknown endpoints
     res.writeHead(404);

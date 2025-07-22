@@ -1,10 +1,10 @@
 const https = require('https');
 const http = require('http');
-const { URL } = require('url');
+const logger = require('./logger');
 
 class ApiService {
     constructor() {
-        this.baseURL = 'http://localhost:443/api/v1/extension';
+        this.baseURL = 'http://localhost:443/devportal';
         this.timeout = 30000;
     }
 
@@ -80,7 +80,7 @@ class ApiService {
                 userQuery = "Generate a comprehensive weekly report based on the data from the last 8 days starting from today.";
             }
             
-            const response = await this.httpRequest(`${this.baseURL}/weekly-report`, {
+            const response = await this.httpRequest(`${this.baseURL}/api/v1/extension/weekly-report`, {
                 method: 'POST',
                 data: {
                     userId: userId,
@@ -102,13 +102,38 @@ class ApiService {
 
 
     /**
+     * Check authentication token
+     * @param {string} token - Authentication token
+     * @returns {Promise<Object>} API response
+     */
+    async checkAuth(token) {
+        try {
+            const response = await this.httpRequest(`${this.baseURL}/devportal/rest/api/auth/check`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            return {
+                success: response.status === 200 && response.data?.authenticated === true,
+                data: response.data,
+                message: 'Token verification successful'
+            };
+
+        } catch (error) {
+            return this.handleError('checkAuth', error);
+        }
+    }
+
+    /**
      * Handle API errors consistently
      * @param {string} operation - Operation name for logging
      * @param {Error} error - Error object
      * @returns {Object} Standardized error response
      */
     handleError(operation, error) {
-        console.error(`API Error in ${operation}:`, error);
+        logger.error(`API Error in ${operation}:`, error);
 
         let errorMessage = 'Unknown error occurred';
         let errorDetails = {};

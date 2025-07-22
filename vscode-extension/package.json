@@ -24,7 +24,7 @@
         {
           "id": "swdp-chatops-container",
           "title": "SWDP ChatOps",
-          "icon": "$(robot)"
+          "icon": "$(hubot)"
         }
       ]
     },
@@ -44,20 +44,30 @@
         "icon": "$(file-text)"
       },
       {
-        "command": "swdpChatOps.saveReport",
-        "title": "Save Report",
-        "icon": "$(save)"
-      },
-      {
         "command": "swdpChatOps.refresh",
         "title": "Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "swdpChatOps.checkAuth",
+        "title": "Check Authentication",
+        "icon": "$(verified)"
+      },
+      {
+        "command": "swdpChatOps.openSettings",
+        "title": "Open Settings",
+        "icon": "$(settings)"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "swdpChatOps.refresh",
+          "when": "view == swdpChatOps",
+          "group": "navigation"
+        },
+        {
+          "command": "swdpChatOps.openSettings",
           "when": "view == swdpChatOps",
           "group": "navigation"
         }
@@ -67,13 +77,18 @@
           "command": "swdpChatOps.processWeeklyReport",
           "when": "view == swdpChatOps && viewItem == weeklyReportItem",
           "group": "inline"
-        },
-        {
-          "command": "swdpChatOps.saveReport",
-          "when": "view == swdpChatOps && viewItem == saveItem",
-          "group": "inline"
         }
       ]
+    },
+    "configuration": {
+      "title": "SWDP ChatOps",
+      "properties": {
+        "swdpChatOps.authToken": {
+          "type": "string",
+          "default": "",
+          "description": "Authentication token for SWDP ChatOps API."
+        }
+      }
     }
   },
   "scripts": {

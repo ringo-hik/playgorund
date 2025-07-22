@@ -305,32 +305,34 @@ Guidelines:
 
 <style scoped>
 .persona-manager {
-  background: #fafafa;
+  background: #f8fafc;
+  font-size: 12px;
 }
 
 .manager-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid #e2e8f0;
 }
 
 .manager-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #334155;
 }
 
 .btn-create {
-  padding: 6px 12px;
+  padding: 5px 10px;
   background: #3b82f6;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .btn-create:hover {
@@ -339,22 +341,22 @@ Guidelines:
 
 /* 생성 폼 */
 .create-form {
-  padding: 20px;
+  padding: 16px;
   border-bottom: 1px solid #e2e8f0;
   background: white;
 }
 
 .create-form h4 {
-  margin: 0 0 16px 0;
-  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-size: 13px;
   font-weight: 600;
   color: #475569;
 }
 
 .form-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .form-group {
@@ -363,8 +365,8 @@ Guidelines:
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: 4px;
+  font-size: 11px;
   font-weight: 500;
   color: #374151;
 }
@@ -373,10 +375,10 @@ Guidelines:
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid #d1d5db;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   box-sizing: border-box;
 }
 
@@ -395,19 +397,19 @@ Guidelines:
 
 .form-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .btn-reset {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #6b7280;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .btn-reset:hover {
@@ -415,13 +417,13 @@ Guidelines:
 }
 
 .btn-submit {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #10b981;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .btn-submit:hover {
@@ -435,18 +437,18 @@ Guidelines:
 
 /* 페르소나 목록 */
 .persona-list {
-  padding: 20px;
+  padding: 16px;
 }
 
 .persona-list h4 {
-  margin: 0 0 16px 0;
-  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-size: 13px;
   font-weight: 600;
   color: #475569;
 }
 
 .list-container {
-  max-height: 300px;
+  max-height: 240px;
   overflow-y: auto;
 }
 
@@ -454,11 +456,11 @@ Guidelines:
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
+  padding: 8px 10px;
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
 }
 
 .persona-info {
@@ -468,51 +470,52 @@ Guidelines:
 .persona-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 6px;
+  margin-bottom: 3px;
 }
 
 .persona-header strong {
-  font-size: 14px;
+  font-size: 12px;
   color: #1e293b;
+  font-weight: 600;
 }
 
 .persona-code {
-  font-size: 11px;
+  font-size: 10px;
   color: #64748b;
   background: #f1f5f9;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 1px 4px;
+  border-radius: 2px;
   font-family: monospace;
 }
 
 .persona-category {
-  font-size: 11px;
+  font-size: 10px;
   color: white;
   background: #3b82f6;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 1px 4px;
+  border-radius: 2px;
   font-weight: 500;
 }
 
 .persona-desc {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
-  line-height: 1.4;
+  line-height: 1.3;
 }
 
 .persona-actions {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .btn-edit, .btn-delete {
-  padding: 4px 8px;
+  padding: 3px 6px;
   border: none;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
 }
 
@@ -561,13 +564,13 @@ Guidelines:
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;
+  padding: 16px;
   border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #1e293b;
 }
@@ -591,26 +594,26 @@ Guidelines:
 }
 
 .modal-content form {
-  padding: 20px;
+  padding: 16px;
 }
 
 .modal-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid #e2e8f0;
 }
 
 .btn-cancel {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #6b7280;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .btn-cancel:hover {
@@ -618,13 +621,13 @@ Guidelines:
 }
 
 .btn-update {
-  padding: 8px 16px;
+  padding: 6px 12px;
   background: #f59e0b;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 11px;
 }
 
 .btn-update:hover {

@@ -263,6 +263,67 @@ public class AdminController {
     }
 
     /**
+     * GET /admin/conversations
+     * 대화 내역 조회 (페이지네이션 지원)
+     */
+    @GetMapping("/conversations")
+    public ResponseEntity<ApiResponseDto<ConversationPageDto>> getConversations(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) String personaCode,
+            @RequestParam(required = false) String userId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        try {
+            ConversationPageDto conversations = adminService.getConversations(
+                page, size, personaCode, userId, startDate, endDate);
+            
+            return ResponseEntity.ok(ApiResponseDto.<ConversationPageDto>builder()
+                .success(true)
+                .data(conversations)
+                .message("대화 내역이 조회되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .build());
+                
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponseDto.<ConversationPageDto>builder()
+                    .success(false)
+                    .errorMessage("대화 내역 조회 중 오류가 발생했습니다: " + e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }
+    }
+
+    /**
+     * GET /admin/conversation-stats
+     * 대화 통계 조회
+     */
+    @GetMapping("/conversation-stats")
+    public ResponseEntity<ApiResponseDto<ConversationStatsDto>> getConversationStats(
+            @RequestParam(required = false) String personaCode,
+            @RequestParam(required = false) String period) {
+        try {
+            ConversationStatsDto stats = adminService.getConversationStats(personaCode, period);
+            
+            return ResponseEntity.ok(ApiResponseDto.<ConversationStatsDto>builder()
+                .success(true)
+                .data(stats)
+                .message("대화 통계가 조회되었습니다.")
+                .timestamp(LocalDateTime.now())
+                .build());
+                
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponseDto.<ConversationStatsDto>builder()
+                    .success(false)
+                    .errorMessage("대화 통계 조회 중 오류가 발생했습니다: " + e.getMessage())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+        }
+    }
+
+    /**
      * GET /admin/health
      * 관리자 시스템 상태 확인
      */

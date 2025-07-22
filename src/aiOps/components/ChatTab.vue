@@ -320,7 +320,7 @@ export default {
       }
 
       try {
-        this.formattedWelcomeMessage = await aiChatOpsService.formatContentForDisplay(message);
+        this.formattedWelcomeMessage = await aiChatOpsService.formatContentMarkdown(message);
       } catch (error) {
         this.formattedWelcomeMessage = message;
       }
@@ -361,11 +361,11 @@ export default {
       try {
         const response = await aiChatOpsService.getConversations(this.selectedPersona.personaCode);
 
-        if (response.success && response.data && Array.isArray(response.data)) {
+        if (response.success && response.conversations && Array.isArray(response.conversations)) {
           this.messages = [];
           this.pendingMessages = [];
 
-          const normalizedConversations = response.data.map(conv => ({
+          const normalizedConversations = response.conversations.map(conv => ({
             ...conv,
             userQuery: conv.userQuery,
             conversationId: conv.conversationId || conv.id || Date.now()
@@ -728,8 +728,7 @@ export default {
         const response = await aiChatOpsService.generateQuickQuestions(questionData);
 
         if (response.success) {
-          const quickQuestionsData = aiChatOpsService.extractQuickQuestions(response);
-          this.displayQuickQuestionsResponse(quickQuestionsData);
+          this.displayQuickQuestionsResponse(response.data);
         } else {
           throw new Error(response.message || response.errorMessage);
         }
@@ -899,7 +898,7 @@ export default {
 
     async handleCopyMessage(message) {
       try {
-        const textToCopy = aiChatOpsService.getContentForCopy(message.content);
+        const textToCopy = aiChatOpsService.convertHtmlToMarkdown(message.content);
         await navigator.clipboard.writeText(textToCopy);
       } catch (error) {
       }

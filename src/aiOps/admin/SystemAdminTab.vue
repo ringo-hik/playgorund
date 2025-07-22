@@ -165,7 +165,7 @@ export default {
         };
 
         if (response.success && response.data) {
-          result.formattedOutput = await aiChatOpsService.formatContentForDisplay(response.data);
+          result.formattedOutput = await aiChatOpsService.formatContentMarkdown(response.data);
         } else {
           result.formattedOutput = result.output;
         }
@@ -252,170 +252,193 @@ export default {
 
 <style scoped>
 .system-admin {
-  padding: 20px;
+  padding: 16px;
   max-width: 1200px;
   margin: 0 auto;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .header h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
 }
 
 .header button {
-  padding: 8px 16px;
-  background: #f5f5f5;
-  border: 1px solid #ccc;
+  padding: 6px 12px;
+  background: #f8fafc;
+  border: 1px solid #d1d5db;
   cursor: pointer;
+  font-size: 11px;
+  border-radius: 4px;
 }
 
 .header button:hover {
-  background: #e0e0e0;
+  background: #f1f5f9;
 }
 
 .section {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .section h3 {
-  margin: 0 0 15px 0;
-  font-size: 18px;
-  font-weight: bold;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
 }
 
 .section > button {
-  padding: 8px 16px;
-  background: #007cba;
+  padding: 6px 12px;
+  background: #3b82f6;
   color: white;
   border: none;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
+  font-size: 11px;
+  border-radius: 4px;
 }
 
 .section > button:hover {
-  background: #005a87;
+  background: #2563eb;
 }
 
 .section > button:disabled {
-  background: #ccc;
+  background: #94a3b8;
   cursor: not-allowed;
 }
 
 .prompt-list {
-  border: 1px solid #ddd;
-  max-height: 200px;
+  border: 1px solid #e2e8f0;
+  max-height: 160px;
   overflow-y: auto;
+  border-radius: 4px;
 }
 
 .prompt-item {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
   cursor: pointer;
+  transition: background-color 0.15s;
 }
 
 .prompt-item:hover {
-  background: #f5f5f5;
+  background: #f8fafc;
 }
 
 .prompt-item.selected {
-  background: #e3f2fd;
-  border-left: 3px solid #007cba;
+  background: #e0f2fe;
+  border-left: 3px solid #3b82f6;
 }
 
 .prompt-item strong {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .prompt-item div {
-  font-size: 12px;
-  color: #666;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.4;
 }
 
 .empty {
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  color: #666;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  color: #64748b;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 11px;
 }
 
 .editor-controls {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .editor-controls button {
-  padding: 6px 12px;
-  border: 1px solid #ccc;
+  padding: 4px 10px;
+  border: 1px solid #d1d5db;
   background: white;
   cursor: pointer;
+  font-size: 11px;
+  border-radius: 4px;
 }
 
 .editor-controls button:hover {
-  background: #f5f5f5;
+  background: #f8fafc;
 }
 
 .editor-controls button:disabled {
-  background: #f0f0f0;
-  color: #999;
+  background: #f1f5f9;
+  color: #94a3b8;
   cursor: not-allowed;
 }
 
 .char-count {
-  font-size: 12px;
-  color: #666;
+  font-size: 10px;
+  color: #64748b;
   margin-left: auto;
+  font-family: monospace;
 }
 
 .prompt-editor {
   width: 100%;
-  min-height: 400px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  font-family: 'Courier New', monospace;
-  font-size: 13px;
+  min-height: 320px;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 12px;
   line-height: 1.4;
   resize: vertical;
+  border-radius: 4px;
 }
 
 .prompt-editor:focus {
   outline: none;
-  border-color: #007cba;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .test-result {
-  border: 1px solid #ddd;
-  margin-bottom: 10px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 8px;
+  border-radius: 4px;
 }
 
 .result-header {
-  padding: 10px;
-  background: #f9f9f9;
+  padding: 8px 10px;
+  background: #f8fafc;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 11px;
 }
 
 .result-header button {
-  padding: 4px 8px;
-  border: 1px solid #ccc;
+  padding: 3px 6px;
+  border: 1px solid #d1d5db;
   background: white;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
+  border-radius: 3px;
 }
 
 .success {
@@ -429,33 +452,39 @@ export default {
 }
 
 .result-content {
-  padding: 15px;
+  padding: 12px;
 }
 
 .test-section {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .test-section h4 {
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  font-weight: bold;
+  margin: 0 0 6px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
 }
 
 .test-section pre {
-  background: #f5f5f5;
-  padding: 8px;
-  border: 1px solid #ddd;
-  font-size: 12px;
+  background: #f8fafc;
+  padding: 6px 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 11px;
   white-space: pre-wrap;
   margin: 0;
+  border-radius: 3px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 }
 
 .test-section div {
-  border: 1px solid #ddd;
-  padding: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 6px 8px;
   background: white;
-  max-height: 200px;
+  max-height: 160px;
   overflow-y: auto;
+  border-radius: 3px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 </style>

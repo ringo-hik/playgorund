@@ -3,7 +3,7 @@ const { ChatOpsTreeProvider } = require('./chatOpsTreeProvider');
 const { ApiService } = require('./apiService');
 const { GitUtils } = require('./gitUtils');
 const path = require('path');
-const fs = require('fs');
+const logger = require('./logger');
 
 let currentReportContent = '';
 
@@ -11,7 +11,7 @@ let currentReportContent = '';
  * This method is called when your extension is activated
  */
 function activate(context) {
-    console.log('SWDP ChatOps Extension is now active!');
+    logger.log('SWDP ChatOps Extension is now active!');
 
     try {
         // Initialize services
@@ -20,12 +20,12 @@ function activate(context) {
         
         // Create tree data provider
         const treeDataProvider = new ChatOpsTreeProvider();
-        console.log('Tree data provider created');
+        logger.log('Tree data provider created');
         
         // Register tree data provider explicitly
         const disposableProvider = vscode.window.registerTreeDataProvider('swdpChatOps', treeDataProvider);
         context.subscriptions.push(disposableProvider);
-        console.log('Tree data provider registered');
+        logger.log('Tree data provider registered');
         
         // Create tree view
         const treeView = vscode.window.createTreeView('swdpChatOps', {
@@ -34,7 +34,7 @@ function activate(context) {
             canSelectMany: false
         });
         context.subscriptions.push(treeView);
-        console.log('Tree view created');
+        logger.log('Tree view created');
 
     // Register commands
     const commands = [
@@ -59,6 +59,20 @@ function activate(context) {
             } catch (error) {
                 vscode.window.showErrorMessage(`Failed to save report: ${error.message}`);
             }
+        }),
+
+        // Check Authentication command
+        vscode.commands.registerCommand('swdpChatOps.checkAuth', async () => {
+            try {
+                await checkAuth(apiService);
+            } catch (error) {
+                vscode.window.showErrorMessage(`Failed to check authentication: ${error.message}`);
+            }
+        }),
+
+        // Open Settings command
+        vscode.commands.registerCommand('swdpChatOps.openSettings', () => {
+            vscode.commands.executeCommand('workbench.action.openSettings', 'swdpChatOps');
         })
     ];
 
@@ -67,10 +81,10 @@ function activate(context) {
             context.subscriptions.push(command);
         });
         
-        console.log('All commands registered successfully');
+        logger.log('All commands registered successfully');
         
     } catch (error) {
-        console.error('Error activating extension:', error);
+        logger.error('Error activating extension:', error);
         vscode.window.showErrorMessage(`Failed to activate SWDP ChatOps Extension: ${error.message}`);
     }
 }
@@ -124,18 +138,13 @@ async function processWeeklyReport(apiService, gitUtils) {
         if (response.success) {
             currentReportContent = response.data;
             
-            // Show the report in a new editor
-            const doc = await vscode.workspace.openTextDocument({
-                content: currentReportContent,
-                language: 'markdown'
-            });
-            
-            await vscode.window.showTextDocument(doc, {
-                preview: false,
-                viewColumn: vscode.ViewColumn.One
-            });
-
-            vscode.window.showInformationMessage('Weekly report processed successfully!');
+            // Automatically save the report
+            try {
+                await saveReport();
+                vscode.window.showInformationMessage('Weekly report processed and saved successfully!');
+            } catch (saveError) {
+                vscode.window.showErrorMessage(`Report generated but failed to save: ${saveError.message}`);
+            }
         } else {
             vscode.window.showErrorMessage(`Failed to process report: ${response.errorMessage}`);
         }
@@ -166,10 +175,11 @@ async function saveReport() {
             fs.mkdirSync(reportDir, { recursive: true });
         }
 
-        // Generate filename with current date
+        // Generate filename with current date and time
         const now = new Date();
         const dateString = now.toISOString().slice(2, 10).replace(/-/g, '');
-        const filename = `weekly_report_${dateString}.md`;
+        const timeString = now.toISOString().slice(11, 16).replace(/:/g, '');
+        const filename = `weekly_report_${dateString}_${timeString}.md`;
         const filePath = path.join(reportDir, filename);
 
         // Write file
@@ -189,10 +199,56 @@ async function saveReport() {
 }
 
 /**
+ * Check Authentication
+ */
+async function checkAuth(apiService) {
+    try {
+        let token = vscode.workspace.getConfiguration('swdpChatOps').get('authToken');
+        if (!token) {
+            token = await vscode.window.showInputBox({
+                prompt: 'Enter your authentication token',
+                placeHolder: 'Paste your token here',
+                ignoreFocusOut: true
+            });
+
+            if (token) {
+                await vscode.workspace.getConfiguration('swdpChatOps').update('authToken', token, vscode.ConfigurationTarget.Global);
+                vscode.window.showInformationMessage('Authentication token saved.');
+            } else {
+                vscode.window.showWarningMessage('Authentication token is required.');
+                return;
+            }
+        }
+
+        vscode.window.showInformationMessage('Checking authentication token...');
+        const response = await apiService.checkAuth(token);
+
+        if (response.success) {
+            vscode.window.showInformationMessage('Authentication successful!');
+        } else {
+            const retry = await vscode.window.showErrorMessage(
+                `Authentication failed: ${response.errorMessage}`,
+                'Retry with New Token',
+                'Cancel'
+            );
+            
+            if (retry === 'Retry with New Token') {
+                // Clear current token and retry
+                await vscode.workspace.getConfiguration('swdpChatOps').update('authToken', '', vscode.ConfigurationTarget.Global);
+                await checkAuth(apiService);
+            }
+        }
+    } catch (error) {
+        logger.error('Error checking authentication:', error);
+        vscode.window.showErrorMessage(`Error checking authentication: ${error.message}`);
+    }
+}
+
+/**
  * This method is called when your extension is deactivated
  */
 function deactivate() {
-    console.log('SWDP ChatOps Extension deactivated');
+    logger.log('SWDP ChatOps Extension deactivated');
 }
 
 module.exports = {

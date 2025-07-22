@@ -207,7 +207,7 @@ export default {
       const contentStr = String(content);
 
       try {
-        this.formattedContent = await aiChatOpsService.formatContentForDisplay(contentStr);
+        this.formattedContent = await aiChatOpsService.formatContentMarkdown(contentStr);
       } catch (error) {
         this.formattedContent = contentStr;
       }

@@ -14,70 +14,54 @@
       </div>
     </header>
 
+    <!-- 페르소나 선택 -->
+    <section class="persona-selector">
+      <div class="selector-row">
+        <div class="selector-group">
+          <label>페르소나 선택</label>
+          <select v-model="selectedPersonaCode" @change="onPersonaChange">
+            <option value="">페르소나를 선택하세요</option>
+            <option v-for="persona in personas" :key="persona.personaCode" :value="persona.personaCode">
+              {{ persona.title }} ({{ persona.personaCode }})
+            </option>
+          </select>
+        </div>
+        <button @click="createNewPersona" class="btn-new">+ 새 페르소나</button>
+      </div>
+    </section>
+
     <!-- 메인 컨텐츠 -->
     <main class="admin-main">
-      <!-- 왼쪽 패널: 페르소나 목록 -->
-      <div class="persona-list-panel">
-        <div class="list-header">
-          <h3>페르소나 목록</h3>
-          <button @click="createNewPersona" class="btn-new">+ 새 페르소나</button>
-        </div>
-        <div class="list-content">
-          <ul>
-            <li 
-              v-for="persona in personas" 
-              :key="persona.personaCode"
-              :class="{ 'active': selectedPersonaCode === persona.personaCode }"
-              @click="onPersonaSelect(persona.personaCode)"
-            >
-              <span class="persona-title">{{ persona.title }}</span>
-              <span class="persona-code">{{ persona.personaCode }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- 중앙 패널: 페르소나 편집기 -->
+      <!-- 페르소나 편집기 -->
       <div class="editor-panel">
         <div v-if="!selectedPersona && editMode !== 'create'" class="editor-placeholder">
-          왼쪽 목록에서 페르소나를 선택하거나<br>새 페르소나를 생성하세요.
+          페르소나를 선택하거나 새 페르소나를 생성하세요.
         </div>
         <div v-else class="editor-content">
           <div class="editor-header">
             <h2>{{ editMode === 'create' ? '새 페르소나 생성' : '페르소나 편집' }}</h2>
             <div class="editor-actions">
-              <button 
-                v-if="editMode !== 'create'"
-                @click="deleteCurrentPersona" 
-                class="btn-delete"
-                :disabled="isDeleting"
-              >
+              <button v-if="editMode !== 'create'" @click="deleteCurrentPersona" class="btn-delete"
+                :disabled="isDeleting">
                 {{ isDeleting ? '삭제중...' : '삭제' }}
               </button>
-              <button 
-                @click="savePersona" 
-                :disabled="!canSave || isSaving"
-                class="btn-save"
-              >
+              <button @click="savePersona" :disabled="!canSave || isSaving" class="btn-save">
                 {{ isSaving ? '저장중...' : '저장' }}
               </button>
-              <button 
-                v-if="editMode !== 'view'"
-                @click="cancelEdit" 
-                class="btn-cancel"
-              >
+              <button v-if="editMode !== 'view'" @click="cancelEdit" class="btn-cancel">
                 취소
               </button>
             </div>
           </div>
-          
+
           <div class="form-scroll-area">
             <section class="form-section">
               <h4>기본 정보</h4>
               <div class="form-grid">
                 <div class="form-group">
                   <label>페르소나 코드 *</label>
-                  <input v-model="editingPersona.personaCode" type="text" :readonly="editMode === 'edit'" placeholder="영문, 숫자, 언더스코어만 사용">
+                  <input v-model="editingPersona.personaCode" type="text" :readonly="editMode === 'edit'"
+                    placeholder="영문, 숫자, 언더스코어만 사용">
                 </div>
                 <div class="form-group">
                   <label>카테고리 *</label>
@@ -165,15 +149,15 @@ export default {
       isTesting: false,
       isSaving: false,
       isDeleting: false,
-      
+
       personas: [],
       selectedPersonaCode: '',
       selectedPersona: null,
-      
+
       editMode: 'view', // 'view', 'edit', 'create'
       editingPersona: {},
       originalPersona: null,
-      
+
       userPrompt: '안녕하세요. 테스트 메시지입니다.',
       lastResponse: null
     };
@@ -181,17 +165,17 @@ export default {
 
   computed: {
     canTest() {
-      return this.selectedPersona && 
-             this.editingPersona.systemPrompt && 
-             this.editingPersona.systemPrompt.trim() && 
-             this.userPrompt.trim() && 
-             !this.isTesting;
+      return this.selectedPersona &&
+        this.editingPersona.systemPrompt &&
+        this.editingPersona.systemPrompt.trim() &&
+        this.userPrompt.trim() &&
+        !this.isTesting;
     },
 
     canSave() {
       if (this.editMode === 'view') return false;
       if (this.isSaving) return false;
-      
+
       const p = this.editingPersona;
       if (!p.personaCode || !p.title || !p.description || !p.descriptionEn || !p.category) {
         return false;
@@ -199,11 +183,11 @@ export default {
       if (!/^[a-zA-Z0-9_]+$/.test(p.personaCode)) {
         return false;
       }
-      
+
       if (this.editMode === 'edit') {
         return JSON.stringify(this.editingPersona) !== JSON.stringify(this.originalPersona);
       }
-      
+
       return true;
     }
   },
@@ -238,6 +222,17 @@ export default {
         this.editMode = 'edit';
       }
       this.lastResponse = null;
+    },
+
+    onPersonaChange() {
+      if (this.selectedPersonaCode) {
+        this.onPersonaSelect(this.selectedPersonaCode);
+      } else {
+        this.selectedPersona = null;
+        this.editingPersona = {};
+        this.editMode = 'view';
+        this.lastResponse = null;
+      }
     },
 
     loadPersonaData(persona) {
@@ -302,7 +297,7 @@ export default {
         };
 
         if (response.success && response.data) {
-          result.formattedContent = await aiChatOpsService.formatContentForDisplay(response.data);
+          result.formattedContent = await aiChatOpsService.formatContentMarkdown(response.data);
         } else {
           result.formattedContent = this.escapeHtml(result.content);
         }
@@ -362,7 +357,7 @@ export default {
 
     async deleteCurrentPersona() {
       if (!this.selectedPersona) return;
-      
+
       if (!confirm(`정말로 '${this.selectedPersona.title}' 페르소나를 삭제하시겠습니까?`)) {
         return;
       }
@@ -386,18 +381,18 @@ export default {
         this.isDeleting = false;
       }
     },
-    
+
     async refreshData() {
       await this.loadPersonas();
       if (this.selectedPersonaCode) {
         const selectedExists = this.personas.some(p => p.personaCode === this.selectedPersonaCode);
         if (selectedExists) {
-            this.onPersonaSelect(this.selectedPersonaCode);
+          this.onPersonaSelect(this.selectedPersonaCode);
         } else {
-            this.selectedPersonaCode = '';
-            this.selectedPersona = null;
-            this.editingPersona = {};
-            this.editMode = 'view';
+          this.selectedPersonaCode = '';
+          this.selectedPersona = null;
+          this.editingPersona = {};
+          this.editMode = 'view';
         }
       }
     },
@@ -446,75 +441,106 @@ Guidelines:
 
 <style scoped>
 :root {
-  --body-bg: #f0f2f5;
-  --panel-bg: #ffffff;
-  --header-bg: #fafafa;
-  --border-color: #d9d9d9;
+  --border-color: #e2e8f0;
   --text-color: #333;
-  --label-color: #555;
-  --hover-bg: #f5f5f5;
-  --active-list-item-bg: #e6f7ff;
-  --active-list-item-border: #1890ff;
-
-  --btn-primary-bg: #1890ff;
-  --btn-primary-color: #fff;
-  --btn-success-bg: #52c41a;
-  --btn-success-color: #fff;
-  --btn-danger-bg: #f5222d;
-  --btn-danger-color: #fff;
-  --btn-default-bg: #fff;
-  --btn-default-color: #333;
-  --btn-default-border: #d9d9d9;
+  --label-color: #666;
 }
 
 .system-admin-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 14px;
-  background-color: var(--body-bg);
+  font-size: 12px;
+  background-color: #f8f9fa;
   color: var(--text-color);
 }
 
 .admin-header {
-  padding: 12px 24px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--panel-bg);
-  flex-shrink: 0;
+  background-color: white;
 }
 
 .admin-header h1 {
-  font-size: 20px;
+  font-size: 16px;
   margin: 0;
+  font-weight: 600;
+}
+
+.admin-header p {
+  font-size: 11px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+/* 페르소나 선택기 */
+.persona-selector {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--panel-bg);
+}
+
+.selector-row {
+  display: flex;
+  align-items: end;
+  gap: 16px;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  max-width: 400px;
+}
+
+.selector-group label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--label-color);
+  margin-bottom: 4px;
+}
+
+.selector-group select {
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: var(--panel-bg);
 }
 
 .admin-main {
   display: flex;
   flex: 1;
   overflow: hidden;
-  gap: 8px;
-  padding: 8px;
+  gap: 1px;
+  background: var(--border-color);
 }
 
 /* Panels */
-.persona-list-panel, .editor-panel, .result-panel {
+.editor-panel,
+.result-panel {
   display: flex;
   flex-direction: column;
   background-color: var(--panel-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 2px;
 }
 
-.persona-list-panel { flex: 0 0 280px; }
-.editor-panel { flex: 2; min-width: 400px; }
-.result-panel { flex: 1; min-width: 300px; }
+.editor-panel {
+  flex: 6;
+  min-width: 400px;
+}
 
-.list-header, .editor-header, .result-header {
-  padding: 12px 16px;
+.result-panel {
+  flex: 4;
+  min-width: 300px;
+}
+
+.list-header,
+.editor-header,
+.result-header {
+  padding: 8px 12px;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--header-bg);
   font-weight: 600;
@@ -524,112 +550,245 @@ Guidelines:
   flex-shrink: 0;
 }
 
-.list-header h3, .editor-header h2, .result-header h3 {
-  margin: 0; font-size: 16px;
+.list-header h3,
+.editor-header h2,
+.result-header h3 {
+  margin: 0;
+  font-size: 13px;
 }
 
-/* Persona List */
-.list-content { overflow-y: auto; }
-.list-content ul { list-style: none; margin: 0; padding: 0; }
-.list-content li {
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-.list-content li:hover { background-color: var(--hover-bg); }
-.list-content li.active {
-  background-color: var(--active-list-item-bg);
-  border-right: 3px solid var(--active-list-item-border);
-}
-.persona-title { display: block; font-weight: 500; margin-bottom: 2px; }
-.persona-code { font-size: 12px; color: #888; }
 
 /* Editor Panel */
-.editor-placeholder { text-align: center; padding: 40px; color: #888; align-self: center; margin: auto; }
-.editor-content { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-.form-scroll-area { overflow-y: auto; padding: 24px; flex: 1; }
-.form-section { margin-bottom: 24px; }
+.editor-placeholder {
+  text-align: center;
+  padding: 30px 20px;
+  color: #64748b;
+  align-self: center;
+  margin: auto;
+  font-size: 11px;
+}
+
+.editor-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.form-scroll-area {
+  overflow-y: auto;
+  padding: 16px;
+  flex: 1;
+}
+
+.form-section {
+  margin-bottom: 16px;
+}
+
 .form-section h4 {
-  margin: 0 0 16px 0;
+  margin: 0 0 10px 0;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 8px;
-  font-size: 16px;
+  padding-bottom: 6px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--label-color);
 }
 
 .form-section:first-child .form-grid {
   max-width: 800px;
 }
 
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; }
-.form-group-full { grid-column: 1 / -1; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
 
-.form-group label { display: block; margin-bottom: 6px; font-weight: 500; color: var(--label-color); }
+.form-group-full {
+  grid-column: 1 / -1;
+}
 
-input[type="text"], select, textarea {
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--label-color);
+  font-size: 11px;
+}
+
+input[type="text"],
+select,
+textarea {
   width: 100%;
-  padding: 8px 12px;
+  padding: 6px 8px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 12px;
   font-family: inherit;
   box-sizing: border-box;
   background-color: var(--panel-bg);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-input[type="text"]:focus, select:focus, textarea:focus {
+input[type="text"]:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--active-list-item-border);
-  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
 }
 
-input[readonly] { background-color: #f5f5f5; cursor: not-allowed; }
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
 
-.prompt-editor { position: relative; }
-.prompt-textarea { resize: vertical; font-family: monospace; }
-.char-count { position: absolute; bottom: 10px; right: 10px; font-size: 12px; color: #888; background: var(--panel-bg); padding: 0 4px; }
+.prompt-editor {
+  position: relative;
+}
 
-.test-area { display: flex; flex-direction: column; gap: 10px; }
+.prompt-textarea {
+  resize: vertical;
+  font-family: monospace;
+}
+
+.char-count {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-size: 10px;
+  color: #64748b;
+  background: var(--panel-bg);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+.test-area {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
 /* Result Panel */
-.result-content { flex: 1; overflow-y: auto; }
-.result-placeholder { text-align: center; padding: 40px; color: #888; }
-.response-wrapper { padding: 16px; }
-.response-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; color: #777; }
-.status { font-weight: bold; padding: 2px 6px; border-radius: 3px; }
-.status.success { color: #52c41a; background: #f6ffed; border: 1px solid #b7eb8f; }
-.status.error { color: #f5222d; background: #fff1f0; border: 1px solid #ffa39e; }
-.response-body { font-size: 14px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
-.response-body >>> :first-child { margin-top: 0; }
+.result-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.result-placeholder {
+  text-align: center;
+  padding: 30px 20px;
+  color: #64748b;
+  font-size: 11px;
+}
+
+.response-wrapper {
+  padding: 12px;
+}
+
+.response-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 10px;
+  color: #64748b;
+}
+
+.status {
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.status.success {
+  color: #52c41a;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.status.error {
+  color: #f5222d;
+  background: #fff1f0;
+  border: 1px solid #ffa39e;
+}
+
+.response-body {
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.response-body>>> :first-child {
+  margin-top: 0;
+}
 
 /* Buttons */
 button {
-  padding: 6px 15px;
+  padding: 4px 10px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.15s;
   border: 1px solid var(--btn-default-border);
   background-color: var(--btn-default-bg);
   color: var(--btn-default-color);
 }
-button:hover { opacity: 0.8; }
-button:disabled { cursor: not-allowed; opacity: 0.6; }
 
-.editor-actions { display: flex; gap: 8px; }
+button:hover {
+  opacity: 0.8;
+}
 
-.btn-refresh { background-color: var(--btn-primary-bg); color: var(--btn-primary-color); border-color: var(--btn-primary-bg); }
-.btn-new { background-color: var(--btn-primary-bg); color: var(--btn-primary-color); border-color: var(--btn-primary-bg); }
-.btn-save { background-color: var(--btn-success-bg); color: var(--btn-success-color); border-color: var(--btn-success-bg); }
-.btn-delete { background-color: var(--btn-danger-bg); color: var(--btn-danger-color); border-color: var(--btn-danger-bg); }
-.btn-test { background-color: var(--btn-primary-bg); color: var(--btn-primary-color); border-color: var(--btn-primary-bg); }
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-refresh {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-color);
+  border-color: var(--btn-primary-bg);
+}
+
+.btn-new {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-color);
+  border-color: var(--btn-primary-bg);
+}
+
+.btn-save {
+  background-color: var(--btn-success-bg);
+  color: var(--btn-success-color);
+  border-color: var(--btn-success-bg);
+}
+
+.btn-delete {
+  background-color: var(--btn-danger-bg);
+  color: var(--btn-danger-color);
+  border-color: var(--btn-danger-bg);
+}
+
+.btn-test {
+  background-color: var(--btn-primary-bg);
+  color: var(--btn-primary-color);
+  border-color: var(--btn-primary-bg);
+}
 
 /* Responsive */
 @media (max-width: 1200px) {
-  .admin-main { flex-direction: column; }
-  .persona-list-panel { flex: 0 0 250px; }
+  .admin-main {
+    flex-direction: column;
+  }
+
+  .persona-list-panel {
+    flex: 0 0 250px;
+  }
 }
 </style>

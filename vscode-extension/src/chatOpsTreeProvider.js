@@ -1,4 +1,4 @@
-const vscode = require('vscode');
+const logger = require('./logger');
 
 class ChatOpsTreeProvider {
     constructor() {
@@ -16,7 +16,7 @@ class ChatOpsTreeProvider {
 
     getChildren(element) {
         try {
-            console.log('getChildren called with element:', element ? element.contextValue : 'root');
+            logger.log('getChildren called with element:', element ? element.contextValue : 'root');
             
             if (!element) {
                 // Root level - return Reports directly
@@ -28,7 +28,7 @@ class ChatOpsTreeProvider {
                         'reports'
                     )
                 ];
-                console.log('Returning root items:', rootItems.length);
+                logger.log('Returning root items:', rootItems.length);
                 return Promise.resolve(rootItems);
             }
 
@@ -42,13 +42,23 @@ class ChatOpsTreeProvider {
                         'weeklyReportGroup'
                     )
                 ];
-                console.log('Returning report items:', reportItems.length);
+                logger.log('Returning report items:', reportItems.length);
                 return Promise.resolve(reportItems);
             }
 
             if (element.contextValue === 'weeklyReportGroup') {
                 // Weekly report sub-items
                 const subItems = [
+                    new ChatOpsTreeItem(
+                        'Check Authentication',
+                        'Check if the authentication token is valid',
+                        vscode.TreeItemCollapsibleState.None,
+                        'checkAuthItem',
+                        {
+                            command: 'swdpChatOps.checkAuth',
+                            title: 'Check Authentication'
+                        }
+                    ),
                     new ChatOpsTreeItem(
                         'Process Weekly Report', 
                         'Generate new report or apply feedback', 
@@ -58,27 +68,17 @@ class ChatOpsTreeProvider {
                             command: 'swdpChatOps.processWeeklyReport',
                             title: 'Process Weekly Report'
                         }
-                    ),
-                    new ChatOpsTreeItem(
-                        'Save Report', 
-                        'Save the current report to workspace', 
-                        vscode.TreeItemCollapsibleState.None,
-                        'saveItem',
-                        {
-                            command: 'swdpChatOps.saveReport',
-                            title: 'Save Report'
-                        }
                     )
                 ];
-                console.log('Returning sub items:', subItems.length);
+                logger.log('Returning sub items:', subItems.length);
                 return Promise.resolve(subItems);
             }
 
-            console.log('No matching context, returning empty array');
+            logger.log('No matching context, returning empty array');
             return Promise.resolve([]);
             
         } catch (error) {
-            console.error('Error in getChildren:', error);
+            logger.error('Error in getChildren:', error);
             return Promise.resolve([]);
         }
     }
@@ -106,8 +106,8 @@ class ChatOpsTreeItem extends vscode.TreeItem {
             case 'weeklyReportItem':
                 this.iconPath = new vscode.ThemeIcon('play');
                 break;
-            case 'saveItem':
-                this.iconPath = new vscode.ThemeIcon('save');
+            case 'checkAuthItem':
+                this.iconPath = new vscode.ThemeIcon('verified');
                 break;
             default:
                 this.iconPath = new vscode.ThemeIcon('circle');

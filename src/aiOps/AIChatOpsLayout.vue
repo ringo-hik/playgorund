@@ -8,10 +8,9 @@
         :interactive="true" key="chat-icon" />
     </button>
 
-    <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" 
-         :class="[windowClasses, currentTheme, { 'system-admin-mode': currentView === 'systemAdmin' }]"
-         ref="chatWindow">
-      <div v-if="currentView !== 'systemAdmin'" class="chat-header">
+    <div v-show="isOpen && isInitialized" class="ai-chatops-chat-window" :class="[windowClasses, currentTheme]"
+      ref="chatWindow">
+      <div class="chat-header">
         <div class="bot-info">
           <div class="avatar">
             <LucideIcon name="robot" fill="white" :width="26" :height="26" />
@@ -23,6 +22,10 @@
               <span>{{ isConnected ? getText('online') : getText('offline') }}</span>
             </div>
           </div>
+          <button class="conversation-history-btn header-btn header-btn--md" @click="openConversationAnalytics"
+            title="대화분석">
+            <LucideIcon name="bar-chart-3" fill="currentColor" :width="16" :height="16" />
+          </button>
         </div>
 
         <div class="actions">
@@ -162,8 +165,6 @@
         <FeedbackTab v-if="currentView === 'feedback' && isInitialized" ref="feedbackTab"
           :current-language="currentLanguage" @feedback-sent="handleFeedbackSent" @go-home="goToCategorySelect" />
 
-        <SystemAdminPage v-if="currentView === 'systemAdmin' && isInitialized" ref="systemAdminPage"
-          :current-language="currentLanguage" @go-home="goToCategorySelect" />
       </div>
     </div>
   </div>
@@ -174,7 +175,6 @@ import aiChatOpsService from './service/aiChatOpsService.js';
 import { getText } from './utils/i18n.js';
 import ChatTab from './components/ChatTab.vue';
 import FeedbackTab from './components/FeedbackTab.vue';
-import SystemAdminPage from './admin/SystemAdminPage.vue';
 import Elements from './components/Elements.vue';
 import LucideIcon from './components/LucideIcon.vue';
 
@@ -183,7 +183,6 @@ export default {
   components: {
     ChatTab,
     FeedbackTab,
-    SystemAdminPage,
     Elements,
     LucideIcon
   },
@@ -251,12 +250,6 @@ export default {
           icon: 'settings',
           titleKey: 'operationCategory',
           descKey: 'operationCategoryDesc'
-        },
-        {
-          key: 'systemAdmin',
-          icon: 'shield',
-          titleKey: 'systemAdminCategory',
-          descKey: 'systemAdminCategoryDesc'
         }
       ]
     };
@@ -419,7 +412,6 @@ export default {
         this.$nextTick(() => {
           Promise.all([
             this.loadPersonas(),
-            this.preloadPopularPersonas()
           ]).catch(() => { });
         });
 
@@ -443,7 +435,7 @@ export default {
     closeChat() {
       // body 스크롤 복원
       document.body.style.overflow = '';
-      
+
       Object.assign(this, {
         isOpen: false,
         currentView: 'categorySelect',
@@ -558,18 +550,15 @@ export default {
     },
 
     openSystemAdmin() {
-      // 시스템 관리 모드로 직접 전환
-      if (!this.isOpen) {
-        this.toggleChat(); // 챗봇이 닫혀있으면 먼저 열기
-      }
-      
-      this.$nextTick(() => {
-        this.currentView = 'systemAdmin';
-        this.selectedCategory = 'systemAdmin';
-        
-        // 전체 화면 모드를 위해 body 스크롤 비활성화
-        document.body.style.overflow = 'hidden';
-      });
+      // 시스템 관리 페이지를 새 창에서 전체화면으로 열기
+      const adminUrl = '/admin.html';
+      window.open(adminUrl, '_blank', 'fullscreen=yes,scrollbars=yes');
+    },
+
+    openConversationAnalytics() {
+      // 대화 분석 페이지를 새 창에서 전체화면으로 열기
+      const analyticsUrl = '/analytics.html';
+      window.open(analyticsUrl, '_blank', 'fullscreen=yes,scrollbars=yes');
     },
 
     saveCurrentMessages() {
@@ -588,25 +577,6 @@ export default {
         return true;
       }
       return false;
-    },
-
-    // Preload conversation history for popular personas
-    async preloadPopularPersonas() {
-      const popularPersonas = this.personas.slice(0, 3);
-
-      for (const persona of popularPersonas) {
-        if (!this.getCache(persona.personaCode)) {
-          try {
-            const response = await aiChatOpsService.getConversations(persona.personaCode);
-            if (response.success && response.data) {
-              const messages = aiChatOpsService.convertConversationsToMessages(response.data);
-              const recentMessages = messages.slice(-this.maxMessagesPerPersona);
-              this.setCache(persona.personaCode, recentMessages);
-            }
-          } catch (error) {
-          }
-        }
-      }
     },
 
     accessCache(personaCode) {
@@ -739,8 +709,7 @@ export default {
       return aiChatOpsService.getPersonas()
         .then(response => {
           if (response.success) {
-            const personas = response.data || [];
-            this.personas = personas;
+            this.personas = response.data || [];
           }
         })
         .catch(error => {

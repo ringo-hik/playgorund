@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const { exec } = require('child_process');
 const path = require('path');
-const fs = require('fs');
+const logger = require('./logger');
 
 class GitUtils {
     constructor() {
@@ -40,11 +40,11 @@ class GitUtils {
                 throw new Error('Invalid email format');
             }
 
-            console.log(`Extracted userId: ${userId} from email: ${email}`);
+            logger.log(`Extracted userId: ${userId} from email: ${email}`);
             return userId;
 
         } catch (error) {
-            console.error('Error extracting userId from git:', error);
+            logger.error('Error extracting userId from git:', error);
             throw error;
         }
     }
@@ -75,7 +75,7 @@ class GitUtils {
             throw new Error('No git email configuration found');
 
         } catch (error) {
-            console.error('Error getting git email:', error);
+            logger.error('Error getting git email:', error);
             throw error;
         }
     }
@@ -93,13 +93,13 @@ class GitUtils {
 
             exec(fullCommand, options, (error, stdout, stderr) => {
                 if (error) {
-                    console.error(`Git command error: ${error}`);
+                    logger.error(`Git command error: ${error}`);
                     resolve(null); // Don't reject, just return null to try other methods
                     return;
                 }
 
                 if (stderr && stderr.trim()) {
-                    console.warn(`Git command warning: ${stderr}`);
+                    logger.log(`Git command warning: ${stderr}`);
                 }
 
                 resolve(stdout ? stdout.toString() : null);
@@ -149,7 +149,7 @@ class GitUtils {
             return null;
 
         } catch (error) {
-            console.error('Error reading git config file:', error);
+            logger.error('Error reading git config file:', error);
             return null;
         }
     }
@@ -172,7 +172,7 @@ class GitUtils {
             return 'Unknown User';
 
         } catch (error) {
-            console.error('Error getting git user name:', error);
+            logger.error('Error getting git user name:', error);
             return 'Unknown User';
         }
     }
@@ -185,7 +185,7 @@ class GitUtils {
             const branch = await this.executeGitCommand('branch --show-current');
             return branch ? branch.trim() : 'main';
         } catch (error) {
-            console.error('Error getting current branch:', error);
+            logger.error('Error getting current branch:', error);
             return 'main';
         }
     }
@@ -226,7 +226,7 @@ class GitUtils {
             };
 
         } catch (error) {
-            console.error('Error getting repository info:', error);
+            logger.error('Error getting repository info:', error);
             return null;
         }
     }
