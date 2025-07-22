@@ -84,7 +84,9 @@ class ApiService {
                 method: 'POST',
                 data: {
                     userId: userId,
-                    userQuery: userQuery
+                    userQuery: userQuery,
+                    persona: 'weekly_report',
+                    category: 'Extension'
                 }
             });
             
