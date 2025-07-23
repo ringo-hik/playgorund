@@ -3,6 +3,7 @@ const { ChatOpsTreeProvider } = require('./chatOpsTreeProvider');
 const { ApiService } = require('./apiService');
 const { GitUtils } = require('./gitUtils');
 const path = require('path');
+const fs = require('fs');
 const logger = require('./logger');
 
 let currentReportContent = '';
@@ -135,18 +136,36 @@ async function processWeeklyReport(apiService, gitUtils) {
             response = await apiService.processWeeklyReport(userId);
         }
         
-        if (response.success) {
-            currentReportContent = response.data;
+        logger.log('API Response:', JSON.stringify(response, null, 2));
+        
+        if (response.success && response.data) {
+            // API 응답 데이터 구조 확인 및 처리
+            let reportContent = '';
+            if (typeof response.data === 'string') {
+                reportContent = response.data;
+            } else if (response.data.content) {
+                reportContent = response.data.content;
+            } else if (response.data.report) {
+                reportContent = response.data.report;
+            } else {
+                logger.error('Unexpected response data structure:', response.data);
+                vscode.window.showErrorMessage('보고서 데이터 형식이 올바르지 않습니다.');
+                return;
+            }
+            
+            currentReportContent = reportContent;
             
             // Automatically save the report
             try {
                 await saveReport();
-                vscode.window.showInformationMessage('Weekly report processed and saved successfully!');
+                vscode.window.showInformationMessage('주간 보고서가 성공적으로 처리되고 저장되었습니다!');
             } catch (saveError) {
-                vscode.window.showErrorMessage(`Report generated but failed to save: ${saveError.message}`);
+                vscode.window.showErrorMessage(`보고서는 생성되었지만 저장에 실패했습니다: ${saveError.message}`);
             }
         } else {
-            vscode.window.showErrorMessage(`Failed to process report: ${response.errorMessage}`);
+            const errorMsg = response.errorMessage || response.message || 'Unknown error';
+            logger.error('Report processing failed:', errorMsg);
+            vscode.window.showErrorMessage(`보고서 처리 실패: ${errorMsg}`);
         }
     } catch (error) {
         vscode.window.showErrorMessage(`Error processing weekly report: ${error.message}`);

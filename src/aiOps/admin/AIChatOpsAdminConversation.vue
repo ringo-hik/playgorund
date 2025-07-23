@@ -9,7 +9,7 @@
       <div class="header-actions">
         <button @click="refreshData" :disabled="isLoading" class="btn-refresh">
           <span v-if="isLoading">새로고침중...</span>
-          <span v-else">새로고침</span>
+          <span v-else>새로고침</span>
         </button>
       </div>
     </header>

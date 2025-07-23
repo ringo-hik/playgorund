@@ -4,8 +4,10 @@ const logger = require('./logger');
 
 class ApiService {
     constructor() {
-        this.baseURL = 'http://localhost:443/devportal';
+        // 올바른 포트 설정
+        this.baseURL = 'http://localhost:3004';  // 또는 실제 백엔드 포트
         this.timeout = 30000;
+        logger.log('ApiService initialized with baseURL:', this.baseURL);
     }
 
     async httpRequest(url, options = {}) {
@@ -27,37 +29,61 @@ class ApiService {
                 timeout: this.timeout
             };
 
+            // 요청 시작 로깅
+            logger.log('Starting HTTP request to:', url);
+            logger.log('Request options:', JSON.stringify(requestOptions, null, 2));
+            
             const req = client.request(requestOptions, (res) => {
+                logger.log(`Response received - Status: ${res.statusCode}`);
                 let data = '';
-                res.on('data', (chunk) => data += chunk);
+                res.on('data', (chunk) => {
+                    data += chunk;
+                    logger.log('Data chunk received, length:', chunk.length);
+                });
                 res.on('end', () => {
                     try {
+                        logger.log(`Raw response data: ${data}`);
                         const result = {
                             status: res.statusCode,
                             statusText: res.statusMessage,
                             data: data ? JSON.parse(data) : null
                         };
+                        logger.log(`Parsed response:`, result);
                         resolve(result);
-                    } catch (error) {
+                    } catch (parseError) {
+                        logger.error(`JSON parse error:`, parseError);
                         resolve({
                             status: res.statusCode,
                             statusText: res.statusMessage,
-                            data: data
+                            data: data,
+                            parseError: parseError.message
                         });
                     }
                 });
             });
 
-            req.on('error', reject);
+            req.on('error', (error) => {
+                logger.error('HTTP request error:', error);
+                reject(error);
+            });
+            
             req.on('timeout', () => {
+                logger.error('HTTP request timeout after', this.timeout, 'ms');
                 req.destroy();
                 reject(new Error('Request timeout'));
             });
+            
+            req.on('connect', () => {
+                logger.log('HTTP connection established');
+            });
 
             if (options.data) {
-                req.write(JSON.stringify(options.data));
+                const requestBody = JSON.stringify(options.data);
+                logger.log('Request body:', requestBody);
+                req.write(requestBody);
             }
 
+            logger.log('Sending HTTP request...');
             req.end();
         });
     }
@@ -80,20 +106,38 @@ class ApiService {
                 userQuery = "Generate a comprehensive weekly report based on the data from the last 8 days starting from today.";
             }
             
-            const response = await this.httpRequest(`${this.baseURL}/api/v1/extension/weekly-report`, {
+            const requestData = {
+                userId: userId,
+                userQuery: userQuery
+            };
+            
+            logger.log('API Request URL:', `${this.baseURL}/message-async`);
+            logger.log('API Request Data:', requestData);
+            
+            // 실제 백엔드 엔드포인트 (db.json의 구조에 맞춤)\n            const response = await this.httpRequest(`${this.baseURL}/message-async`, {
                 method: 'POST',
-                data: {
-                    userId: userId,
-                    userQuery: userQuery
-                }
+                data: requestData
             });
             
             const operation = feedback ? 'feedback processing' : 'report generation';
-            return {
-                success: response.status === 200,
-                data: response.data,
-                message: `Weekly report ${operation} completed successfully`
-            };
+            
+            // API 응답 로깅
+            logger.log(`API Response Status: ${response.status}`);
+            logger.log(`API Response Data:`, response.data);
+            
+            if (response.status === 200) {
+                return {
+                    success: true,
+                    data: response.data,
+                    message: `Weekly report ${operation} completed successfully`
+                };
+            } else {
+                return {
+                    success: false,
+                    errorMessage: `HTTP ${response.status}: ${response.statusText}`,
+                    data: response.data
+                };
+            }
 
         } catch (error) {
             return this.handleError('processWeeklyReport', error);
