@@ -15,9 +15,9 @@
   },
   "publisher": "swdp-team",
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
-  "main": "./src/extension.js",
+  "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -93,12 +93,19 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "node --version",
-    "watch": "node --version"
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production && vsce package",
+    "install-extension": "code --install-extension swdp-chatops-extension-1.0.0.vsix"
   },
   "devDependencies": {
     "@types/vscode": "^1.74.0",
-    "@types/node": "16.x"
+    "@types/node": "16.x",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4",
+    "@vscode/vsce": "^2.22.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
 }

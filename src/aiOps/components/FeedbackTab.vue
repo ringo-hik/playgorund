@@ -163,9 +163,11 @@ export default {
 </script>
 
 <style scoped>
+/* Component-specific layout only - all styling moved to centralized system */
+
+/* Feedback tab height and layout */
 .feedback-tab {
   height: 100%;
-  background: var(--color-surface-light);
   display: flex;
   flex-direction: column;
   padding: var(--space-lg) var(--space-xl) var(--space-xl);
@@ -173,237 +175,35 @@ export default {
   overflow: hidden;
 }
 
-.form-header {
-  text-align: center;
-  margin-bottom: var(--space-lg);
-  flex-shrink: 0;
-}
-
-.form-header h3 {
-  font-size: var(--font-size-xl);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin: 0 0 6px 0;
-  letter-spacing: -0.01em;
-}
-
-.form-header p {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.4;
-  margin: 0;
-}
-
-.feedback-form {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.rating-section {
-  flex-shrink: 0;
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-minimal);
-  transition: all var(--motion-normal);
-}
-
-.rating-section:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-soft);
-}
-
-.comment-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  box-shadow: var(--shadow-minimal);
-  transition: all var(--motion-normal);
-  min-height: 0;
-}
-
-.comment-section:hover {
-  border-color: var(--color-accent);
-  box-shadow: var(--shadow-soft);
-}
-
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--space-md);
-  cursor: pointer;
-}
-
-.required {
-  color: var(--color-error);
-  margin-left: 2px;
-}
-
+/* Comment textarea specific sizing */
 .comment-textarea {
   flex: 1;
   min-height: 120px;
-  background: var(--color-surface-light);
-  margin-bottom: 0;
   resize: vertical;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  transition: all var(--motion-fast);
+  margin-bottom: 0;
 }
 
-.comment-textarea::placeholder {
-  color: var(--color-text-tertiary);
-  font-style: normal;
-  font-weight: 500;
-  opacity: 0.7;
-  font-size: 14px;
-  letter-spacing: 0.025em;
-}
-
-.comment-textarea:focus {
-  background: var(--color-surface-white);
-}
-
-.char-count {
-  text-align: right;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  margin-top: var(--space-sm);
-  font-weight: 500;
-}
-
-.form-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  flex-shrink: 0;
-}
-
+/* Button sizing overrides for feedback form */
 .submit-btn,
 .home-btn {
   height: 48px !important;
   min-height: 48px !important;
 }
 
-.result {
-  background: var(--color-surface-white);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-lg);
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  box-shadow: var(--shadow-soft);
-  flex-shrink: 0;
-}
-
+/* Result section layout variants */
 .result.success {
-  border-color: var(--color-success);
-  background: var(--alert-success-bg);
   flex-direction: column;
   text-align: center;
 }
 
 .result.error {
-  border-color: var(--color-error);
-  background: var(--alert-error-bg);
-  color: var(--color-error);
   flex-direction: row;
   text-align: left;
 }
 
-.result-content h4 {
-  margin: 0 0 6px 0;
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.result-content p {
-  margin: 0;
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-.result-actions {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
-}
-
-.result-actions-separate {
-  display: flex;
-  gap: var(--space-sm);
-  margin-top: var(--space-md);
-}
-
-.result-actions-separate .premium-button {
-  color: white !important;
-  flex: 1;
-  justify-content: center;
-}
-
-.result-actions-separate .premium-button:hover {
-  color: white !important;
-}
-
-@media (max-width: 640px) {
-  .feedback-tab {
-    padding: var(--space-md) var(--space-lg) var(--space-lg);
-  }
-
-  .form-header {
-    margin-bottom: var(--space-lg);
-  }
-
-  .rating-section,
-  .comment-section {
-    padding: var(--space-md);
-  }
-
-  .submit-btn,
-  .home-btn {
-    height: 44px !important;
-    min-height: 44px !important;
-    font-size: var(--font-size-sm) !important;
-  }
-
-  .result-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .result-actions .premium-button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .result-actions-separate {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .result-actions-separate .premium-button {
-    width: 100%;
-    justify-content: center;
-    color: white !important;
-  }
+/* Required field indicator */
+.required {
+  color: var(--color-error);
+  margin-left: 2px;
 }
 </style>

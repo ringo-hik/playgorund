@@ -33,9 +33,19 @@ if not exist "node_modules" (
     echo Dependencies already installed.
 )
 
+:: Compile with Webpack
+echo.
+echo [3/5] Compiling extension...
+npm run compile
+if errorlevel 1 (
+    echo ERROR: Failed to compile extension
+    pause
+    exit /b 1
+)
+
 :: Extension 패키징
 echo.
-echo [3/4] Packaging extension...
+echo [4/5] Packaging extension...
 npx vsce package
 if errorlevel 1 (
     echo ERROR: Failed to package extension
@@ -45,7 +55,7 @@ if errorlevel 1 (
 
 :: 빌드 완료 확인
 echo.
-echo [4/4] Build completed successfully!
+echo [5/5] Build completed successfully!
 for %%f in (*.vsix) do (
     echo Created: %%f
     echo Size: 

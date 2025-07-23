@@ -7,7 +7,12 @@
       "Bash(node:*)",
       "Bash(vsce package:*)",
       "Bash(ls:*)",
-      "Bash(code:*)"
+      "Bash(code:*)",
+      "Bash(npx vsce:*)",
+      "Bash(build.bat)",
+      "Bash(cmd:*)",
+      "Bash(del:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

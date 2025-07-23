@@ -3,6 +3,7 @@ const { ChatOpsTreeProvider } = require('./chatOpsTreeProvider');
 const { ApiService } = require('./apiService');
 const { GitUtils } = require('./gitUtils');
 const path = require('path');
+const fs = require('fs');
 const logger = require('./logger');
 
 let currentReportContent = '';
@@ -12,6 +13,10 @@ let currentReportContent = '';
  */
 function activate(context) {
     logger.log('SWDP ChatOps Extension is now active!');
+    console.log('SWDP ChatOps Extension is now active!');
+    
+    // Show activation message for debugging
+    vscode.window.showInformationMessage('SWDP ChatOps Extension activated successfully!');
 
     try {
         // Initialize services
@@ -82,6 +87,10 @@ function activate(context) {
         });
         
         logger.log('All commands registered successfully');
+        console.log('All commands registered successfully');
+        
+        // Show command registration success
+        vscode.window.showInformationMessage(`Registered ${commands.length} commands successfully`);
         
     } catch (error) {
         logger.error('Error activating extension:', error);
