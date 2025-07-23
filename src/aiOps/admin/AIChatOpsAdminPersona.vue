@@ -1,10 +1,10 @@
 <template>
-  <div class="system-admin-page">
+  <div class="admin-persona-page">
     <!-- 상단 헤더 -->
     <header class="admin-header">
       <div class="header-content">
-        <h1>시스템 관리자</h1>
-        <p>페르소나 관리 및 시스템 프롬프트 테스트</p>
+        <h1>페르소나 관리</h1>
+        <p>페르소나 생성, 수정 및 시스템 프롬프트 관리</p>
       </div>
       <div class="header-actions">
         <button @click="refreshData" :disabled="isLoading" class="btn-refresh">
@@ -138,10 +138,10 @@
 </template>
 
 <script>
-import aiChatOpsService from '../service/aiChatOpsService.js';
+import aiChatOpsAdminService from './aiChatOpsAdminService.js';
 
 export default {
-  name: 'SystemAdminPage',
+  name: 'AIChatOpsAdminPersona',
 
   data() {
     return {
@@ -196,7 +196,7 @@ export default {
     async loadPersonas() {
       this.isLoading = true;
       try {
-        const response = await aiChatOpsService.getAllPersonasWithPrompts();
+        const response = await aiChatOpsAdminService.getAllPersonasWithPrompts();
         if (response.success) {
           this.personas = (response.data || []).sort((a, b) => a.title.localeCompare(b.title));
         } else {
@@ -283,7 +283,7 @@ export default {
       this.isTesting = true;
       this.lastResponse = null;
       try {
-        const response = await aiChatOpsService.testSystemPrompt({
+        const response = await aiChatOpsAdminService.testSystemPrompt({
           promptContent: this.editingPersona.systemPrompt,
           testInput: this.userPrompt,
           personaCode: this.editingPersona.personaCode
@@ -297,7 +297,7 @@ export default {
         };
 
         if (response.success && response.data) {
-          result.formattedContent = await aiChatOpsService.formatContentMarkdown(response.data);
+          result.formattedContent = await aiChatOpsAdminService.formatContentMarkdown(response.data);
         } else {
           result.formattedContent = this.escapeHtml(result.content);
         }
@@ -324,17 +324,17 @@ export default {
         if (this.editMode === 'create') {
           if (this.personas.some(p => p.personaCode === this.editingPersona.personaCode)) {
             this.showError('이미 존재하는 페르소나 코드입니다.');
-            this.isSaving = false; // unlock saving
+            this.isSaving = false;
             return;
           }
-          response = await aiChatOpsService.createPersona(this.editingPersona);
+          response = await aiChatOpsAdminService.createPersona(this.editingPersona);
           if (response.success) {
             await this.loadPersonas();
             this.onPersonaSelect(response.data.personaCode);
             this.showSuccess('페르소나가 생성되었습니다.');
           }
         } else if (this.editMode === 'edit') {
-          response = await aiChatOpsService.updatePersona(this.editingPersona);
+          response = await aiChatOpsAdminService.updatePersona(this.editingPersona);
           if (response.success) {
             const index = this.personas.findIndex(p => p.personaCode === this.editingPersona.personaCode);
             if (index !== -1) {
@@ -364,7 +364,7 @@ export default {
 
       this.isDeleting = true;
       try {
-        const response = await aiChatOpsService.deletePersona(this.selectedPersona.personaCode);
+        const response = await aiChatOpsAdminService.deletePersona(this.selectedPersona.personaCode);
         if (response.success) {
           this.selectedPersonaCode = '';
           this.selectedPersona = null;
@@ -444,9 +444,21 @@ Guidelines:
   --border-color: #e2e8f0;
   --text-color: #333;
   --label-color: #666;
+  --panel-bg: white;
+  --header-bg: #f8fafc;
+  --active-list-item-border: #3b82f6;
+  --btn-default-bg: white;
+  --btn-default-color: #374151;
+  --btn-default-border: #d1d5db;
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-color: white;
+  --btn-success-bg: #10b981;
+  --btn-success-color: white;
+  --btn-danger-bg: #ef4444;
+  --btn-danger-color: white;
 }
 
-.system-admin-page {
+.admin-persona-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -461,7 +473,7 @@ Guidelines:
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: white;
+  background-color: var(--panel-bg);
 }
 
 .admin-header h1 {
@@ -476,7 +488,6 @@ Guidelines:
   margin: 2px 0 0 0;
 }
 
-/* 페르소나 선택기 */
 .persona-selector {
   padding: 12px 16px;
   border-bottom: 1px solid var(--border-color);
@@ -519,7 +530,6 @@ Guidelines:
   background: var(--border-color);
 }
 
-/* Panels */
 .editor-panel,
 .result-panel {
   display: flex;
@@ -537,7 +547,6 @@ Guidelines:
   min-width: 300px;
 }
 
-.list-header,
 .editor-header,
 .result-header {
   padding: 8px 12px;
@@ -550,15 +559,12 @@ Guidelines:
   flex-shrink: 0;
 }
 
-.list-header h3,
 .editor-header h2,
 .result-header h3 {
   margin: 0;
   font-size: 13px;
 }
 
-
-/* Editor Panel */
 .editor-placeholder {
   text-align: center;
   padding: 30px 20px;
@@ -594,14 +600,11 @@ Guidelines:
   color: var(--label-color);
 }
 
-.form-section:first-child .form-grid {
-  max-width: 800px;
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px 16px;
+  max-width: 800px;
 }
 
 .form-group-full {
@@ -669,7 +672,6 @@ input[readonly] {
   gap: 8px;
 }
 
-/* Result Panel */
 .result-content {
   flex: 1;
   overflow-y: auto;
@@ -720,11 +722,10 @@ input[readonly] {
   word-break: break-all;
 }
 
-.response-body>>> :first-child {
+.response-body >>> :first-child {
   margin-top: 0;
 }
 
-/* Buttons */
 button {
   padding: 4px 10px;
   border-radius: 4px;
@@ -781,14 +782,9 @@ button:disabled {
   border-color: var(--btn-primary-bg);
 }
 
-/* Responsive */
 @media (max-width: 1200px) {
   .admin-main {
     flex-direction: column;
-  }
-
-  .persona-list-panel {
-    flex: 0 0 250px;
   }
 }
 </style>

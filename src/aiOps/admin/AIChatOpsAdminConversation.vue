@@ -1,7 +1,7 @@
 <template>
-  <div class="conversation-analytics">
+  <div class="admin-conversation-page">
     <!-- 헤더 -->
-    <header class="analytics-header">
+    <header class="admin-header">
       <div class="header-content">
         <h1>대화 분석</h1>
         <p>사용자 대화 내역 및 운영 통계</p>
@@ -9,37 +9,26 @@
       <div class="header-actions">
         <button @click="refreshData" :disabled="isLoading" class="btn-refresh">
           <span v-if="isLoading">새로고침중...</span>
-          <span v-else>새로고침</span>
+          <span v-else">새로고침</span>
         </button>
       </div>
     </header>
 
-    <!-- 통계 대시보드 -->
-    <section class="stats-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(stats.totalConversations) }}</div>
-          <div class="stat-label">전체 대화</div>
+    <!-- 통계 요약 -->
+    <section class="stats-summary">
+      <div class="summary-header">
+        <h3>운영 통계</h3>
+      </div>
+      <div class="summary-content">
+        <div v-if="isLoadingStats" class="loading">
+          <div class="loading-spinner"></div>
+          <span>통계를 불러오는 중...</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(stats.totalUsers) }}</div>
-          <div class="stat-label">전체 사용자</div>
+        <div v-else-if="statsSummary" class="stats-text">
+          {{ statsSummary }}
         </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(stats.dailyAverage) }}</div>
-          <div class="stat-label">일일 평균</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ formatPercent(stats.successRate) }}</div>
-          <div class="stat-label">성공률</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ formatNumber(stats.todayCount) }}</div>
-          <div class="stat-label">오늘</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">{{ formatTime(stats.responseTimeStats?.avgResponseTime) }}</div>
-          <div class="stat-label">평균 응답시간</div>
+        <div v-else class="no-stats">
+          통계 데이터가 없습니다.
         </div>
       </div>
     </section>
@@ -77,40 +66,6 @@
             <option value="100">100개</option>
           </select>
         </div>
-      </div>
-    </section>
-
-    <!-- 페르소나별 통계 -->
-    <section v-if="stats.personaStats" class="persona-stats">
-      <h3>페르소나별 통계</h3>
-      <div class="persona-stats-table">
-        <table>
-          <thead>
-            <tr>
-              <th>페르소나</th>
-              <th>총 대화</th>
-              <th>일일 평균</th>
-              <th>성공률</th>
-              <th>평균 응답시간</th>
-              <th>고유 사용자</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(stat, code) in stats.personaStats" :key="code">
-              <td>
-                <div class="persona-info">
-                  <strong>{{ stat.title }}</strong>
-                  <span class="code">{{ stat.personaCode }}</span>
-                </div>
-              </td>
-              <td>{{ formatNumber(stat.totalCount) }}</td>
-              <td>{{ formatNumber(stat.dailyAverage) }}</td>
-              <td>{{ formatPercent(stat.successRate) }}</td>
-              <td>{{ formatTime(stat.avgResponseTime) }}</td>
-              <td>{{ formatNumber(stat.uniqueUsers) }}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </section>
 
@@ -199,25 +154,18 @@
 </template>
 
 <script>
-import aiChatOpsService from '../service/aiChatOpsService.js';
+import aiChatOpsAdminService from './aiChatOpsAdminService.js';
 
 export default {
-  name: 'ConversationAnalyticsPage',
+  name: 'AIChatOpsAdminConversation',
 
   data() {
     return {
       isLoading: false,
+      isLoadingStats: false,
       isLoadingConversations: false,
 
-      stats: {
-        totalConversations: 0,
-        totalUsers: 0,
-        dailyAverage: 0,
-        successRate: 0,
-        todayCount: 0,
-        responseTimeStats: null,
-        personaStats: {}
-      },
+      statsSummary: null,
 
       conversationPage: {
         conversations: [],
@@ -263,25 +211,27 @@ export default {
   },
 
   methods: {
-    async loadStats() {
+    async loadStatsSummary() {
+      this.isLoadingStats = true;
       try {
-        const response = await aiChatOpsService.getConversationStats(
-          this.filters.personaCode,
-          'all'
-        );
-
+        const response = await aiChatOpsAdminService.getConversationSummary(this.filters.personaCode);
+        
         if (response.success) {
-          this.stats = response.data;
+          this.statsSummary = response.data;
+        } else {
+          this.statsSummary = '통계 데이터를 불러올 수 없습니다.';
         }
       } catch (error) {
-        this.showError('통계 로드 실패: ' + error.message);
+        this.statsSummary = '통계 로드 중 오류가 발생했습니다: ' + error.message;
+      } finally {
+        this.isLoadingStats = false;
       }
     },
 
     async loadConversations() {
       this.isLoadingConversations = true;
       try {
-        const response = await aiChatOpsService.getConversations({
+        const response = await aiChatOpsAdminService.getConversations({
           page: this.currentPage,
           size: parseInt(this.filters.pageSize),
           personaCode: this.filters.personaCode,
@@ -292,6 +242,8 @@ export default {
 
         if (response.success) {
           this.conversationPage = response.data;
+        } else {
+          this.showError('대화 내역 로드 실패: ' + response.errorMessage);
         }
       } catch (error) {
         this.showError('대화 내역 로드 실패: ' + error.message);
@@ -302,12 +254,12 @@ export default {
 
     async loadPersonas() {
       try {
-        const response = await aiChatOpsService.getAllPersonasWithPrompts();
+        const response = await aiChatOpsAdminService.getAllPersonasWithPrompts();
         if (response.success) {
-          this.personas = response.data.data || response.data || [];
+          this.personas = response.data || [];
         }
       } catch (error) {
-        this.showError('페르소나 로드 실패: ' + error.message);
+        console.error('페르소나 로드 실패:', error);
       }
     },
 
@@ -315,7 +267,7 @@ export default {
       this.isLoading = true;
       try {
         await Promise.all([
-          this.loadStats(),
+          this.loadStatsSummary(),
           this.loadConversations(),
           this.loadPersonas()
         ]);
@@ -327,7 +279,7 @@ export default {
     applyFilters() {
       this.currentPage = 0;
       this.loadConversations();
-      this.loadStats();
+      this.loadStatsSummary();
     },
 
     debouncedFilter() {
@@ -345,11 +297,6 @@ export default {
     formatNumber(num) {
       if (!num && num !== 0) return '0';
       return new Intl.NumberFormat('ko-KR').format(num);
-    },
-
-    formatPercent(num) {
-      if (!num && num !== 0) return '0%';
-      return (num * 100).toFixed(1) + '%';
     },
 
     formatTime(ms) {
@@ -387,7 +334,7 @@ export default {
 </script>
 
 <style scoped>
-.conversation-analytics {
+.admin-conversation-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -398,7 +345,7 @@ export default {
 }
 
 /* 헤더 */
-.analytics-header {
+.admin-header {
   padding: 16px 20px;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -408,51 +355,55 @@ export default {
   flex-shrink: 0;
 }
 
-.analytics-header h1 {
+.admin-header h1 {
   font-size: 18px;
   margin: 0;
   font-weight: 600;
 }
 
-.analytics-header p {
+.admin-header p {
   font-size: 12px;
   color: #64748b;
   margin: 2px 0 0 0;
 }
 
-/* 통계 대시보드 */
-.stats-dashboard {
+/* 통계 요약 */
+.stats-summary {
   padding: 16px 20px;
   background: white;
   border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 16px;
-  max-width: 1000px;
+.summary-header h3 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
 }
 
-.stat-card {
-  text-align: center;
-  padding: 12px;
+.summary-content {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+}
+
+.stats-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #374151;
   background: #f8fafc;
+  padding: 12px 16px;
   border-radius: 6px;
   border: 1px solid #e2e8f0;
+  width: 100%;
+  white-space: pre-wrap;
 }
 
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 11px;
+.no-stats {
+  font-size: 12px;
   color: #64748b;
-  font-weight: 500;
+  font-style: italic;
 }
 
 /* 필터 */
@@ -460,6 +411,7 @@ export default {
   padding: 16px 20px;
   background: white;
   border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
 .filter-row {
@@ -498,53 +450,6 @@ export default {
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
-/* 페르소나 통계 테이블 */
-.persona-stats {
-  padding: 16px 20px;
-  background: white;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.persona-stats h3 {
-  margin: 0 0 12px 0;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.persona-stats-table {
-  overflow-x: auto;
-}
-
-.persona-stats-table table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 11px;
-}
-
-.persona-stats-table th,
-.persona-stats-table td {
-  padding: 8px 10px;
-  text-align: left;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.persona-stats-table th {
-  background: #f8fafc;
-  font-weight: 600;
-  color: #374151;
-}
-
-.persona-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.persona-info .code {
-  font-size: 10px;
-  color: #64748b;
-  font-family: monospace;
-}
-
 /* 대화 내역 테이블 */
 .conversations-table {
   flex: 1;
@@ -564,6 +469,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   background: #f8fafc;
+  flex-shrink: 0;
 }
 
 .table-header h3 {
@@ -689,6 +595,7 @@ export default {
   background: #f8fafc;
   gap: 8px;
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .pagination-btn,
@@ -747,10 +654,6 @@ export default {
 
 /* 반응형 */
 @media (max-width: 1024px) {
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
   .filter-row {
     flex-direction: column;
     align-items: stretch;
