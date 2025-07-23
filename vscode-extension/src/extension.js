@@ -8,20 +8,30 @@ const logger = require('./logger');
 
 let currentReportContent = '';
 
+// Rotating loading messages
+const loadingMessages = [
+    'GPT\uc5d0\uac8c \ubb3c\uc5b4\ubcf4\ub294 \uc911...',
+    'GEMINI\uc5d0\uac8c \ubb3c\uc5b4\ubcf4\ub294 \uc911...',
+    'CLAUDE\uac00 \ub300\ud544 \uc911...',
+    '\ub370\uc774\ud130\ub97c \ubd84\uc11d \uc911...',
+    '\ubcf4\uace0\uc11c\ub97c \uc791\uc131 \uc911...',
+    'AI\uac00 \uc5f4\uc2ec\ud788 \uc77c\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4...'
+];
+
 /**
  * This method is called when your extension is activated
  */
-function activate(context) {
+async function activate(context) {
     logger.log('SWDP ChatOps Extension is now active!');
     console.log('SWDP ChatOps Extension is now active!');
     
-    // Show activation message for debugging
-    vscode.window.showInformationMessage('SWDP ChatOps Extension activated successfully!');
-
     try {
         // Initialize services
         const apiService = new ApiService();
         const gitUtils = new GitUtils();
+        
+        // Auto-check authentication on startup
+        await autoCheckAuth(apiService);
         
         // Create tree data provider
         const treeDataProvider = new ChatOpsTreeProvider();
@@ -66,14 +76,6 @@ function activate(context) {
             }
         }),
 
-        // Check Authentication command
-        vscode.commands.registerCommand('swdpChatOps.checkAuth', async () => {
-            try {
-                await checkAuth(apiService);
-            } catch (error) {
-                vscode.window.showErrorMessage(`Failed to check authentication: ${error.message}`);
-            }
-        }),
 
         // Open Settings command
         vscode.commands.registerCommand('swdpChatOps.openSettings', () => {
@@ -89,8 +91,7 @@ function activate(context) {
         logger.log('All commands registered successfully');
         console.log('All commands registered successfully');
         
-        // Show command registration success
-        vscode.window.showInformationMessage(`Registered ${commands.length} commands successfully`);
+        logger.log(`Registered ${commands.length} commands successfully`);
         
     } catch (error) {
         logger.error('Error activating extension:', error);
@@ -110,38 +111,35 @@ async function processWeeklyReport(apiService, gitUtils) {
             return;
         }
 
+        // Check for recent MD files
+        const recentMdFile = await findRecentMdFile();
         let response;
         
-        if (currentReportContent) {
-            // Ask if user wants to provide feedback or generate new report
-            const action = await vscode.window.showQuickPick([
-                { label: 'Generate New Report', description: 'Create a fresh weekly report' },
-                { label: 'Provide Feedback', description: 'Modify the existing report' }
-            ], {
-                placeHolder: 'Choose an action'
+        if (recentMdFile) {
+            // Show feedback input for recent MD file
+            const feedback = await vscode.window.showInputBox({
+                prompt: `오늘자 보고서가 있습니다 (${recentMdFile.name}). 피드백을 입력하세요`,
+                placeHolder: '예: 프로젝트 타임라인에 더 많은 세부사항을 추가해주세요...',
+                ignoreFocusOut: true
             });
 
-            if (!action) return;
+            if (!feedback) return;
 
-            if (action.label === 'Provide Feedback') {
-                const feedback = await vscode.window.showInputBox({
-                    prompt: 'Enter your feedback for the weekly report',
-                    placeHolder: 'e.g., Please add more details about the project timeline...',
-                    ignoreFocusOut: true
-                });
-
-                if (!feedback) return;
-
-                vscode.window.showInformationMessage('Processing feedback...');
-                response = await apiService.processWeeklyReport(userId, feedback, currentReportContent);
-            } else {
-                vscode.window.showInformationMessage('Generating new weekly report...');
-                currentReportContent = '';
-                response = await apiService.processWeeklyReport(userId);
+            // Show rotating loading messages
+            const progressBar = showRotatingProgress();
+            try {
+                response = await apiService.processWeeklyReport(userId, feedback, recentMdFile.content);
+            } finally {
+                progressBar.dispose();
             }
         } else {
-            vscode.window.showInformationMessage('Generating weekly report...');
-            response = await apiService.processWeeklyReport(userId);
+            // Generate fresh weekly report automatically
+            const progressBar = showRotatingProgress();
+            try {
+                response = await apiService.processWeeklyReport(userId);
+            } finally {
+                progressBar.dispose();
+            }
         }
         
         if (response.success) {
@@ -150,15 +148,15 @@ async function processWeeklyReport(apiService, gitUtils) {
             // Automatically save the report
             try {
                 await saveReport();
-                vscode.window.showInformationMessage('Weekly report processed and saved successfully!');
+                vscode.window.showInformationMessage('주간 보고서가 성공적으로 처리되고 저장되었습니다!');
             } catch (saveError) {
-                vscode.window.showErrorMessage(`Report generated but failed to save: ${saveError.message}`);
+                vscode.window.showErrorMessage(`보고서는 생성되었지만 저장에 실패했습니다: ${saveError.message}`);
             }
         } else {
-            vscode.window.showErrorMessage(`Failed to process report: ${response.errorMessage}`);
+            vscode.window.showErrorMessage(`보고서 처리 실패: ${response.errorMessage}`);
         }
     } catch (error) {
-        vscode.window.showErrorMessage(`Error processing weekly report: ${error.message}`);
+        vscode.window.showErrorMessage(`주간 보고서 처리 중 오류: ${error.message}`);
     }
 }
 
@@ -208,7 +206,29 @@ async function saveReport() {
 }
 
 /**
- * Check Authentication
+ * Auto Check Authentication (Silent)
+ */
+async function autoCheckAuth(apiService) {
+    try {
+        let token = vscode.workspace.getConfiguration('swdpChatOps').get('authToken');
+        if (!token) {
+            logger.log('No auth token found, skipping auto-check');
+            return;
+        }
+
+        const response = await apiService.checkAuth(token);
+        if (response.success) {
+            logger.log('Authentication successful');
+        } else {
+            logger.error('Authentication failed:', response.errorMessage);
+        }
+    } catch (error) {
+        logger.error('Error in auto-check authentication:', error);
+    }
+}
+
+/**
+ * Check Authentication (Interactive)
  */
 async function checkAuth(apiService) {
     try {
@@ -250,6 +270,72 @@ async function checkAuth(apiService) {
     } catch (error) {
         logger.error('Error checking authentication:', error);
         vscode.window.showErrorMessage(`Error checking authentication: ${error.message}`);
+    }
+}
+
+/**
+ * Show rotating progress messages
+ */
+function showRotatingProgress() {
+    let messageIndex = 0;
+    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    statusBarItem.text = loadingMessages[messageIndex];
+    statusBarItem.show();
+
+    const interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        statusBarItem.text = loadingMessages[messageIndex];
+    }, 2000);
+
+    return {
+        dispose: () => {
+            clearInterval(interval);
+            statusBarItem.dispose();
+        }
+    };
+}
+
+/**
+ * Find recent MD file from today
+ */
+async function findRecentMdFile() {
+    try {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            return null;
+        }
+
+        const reportDir = path.join(workspaceFolder.uri.fsPath, 'swdp_chatops', 'weekly_report');
+        if (!fs.existsSync(reportDir)) {
+            return null;
+        }
+
+        const today = new Date();
+        const todayString = today.toISOString().slice(2, 10).replace(/-/g, '');
+        
+        const files = fs.readdirSync(reportDir)
+            .filter(file => file.endsWith('.md') && file.includes(todayString))
+            .sort((a, b) => {
+                const statA = fs.statSync(path.join(reportDir, a));
+                const statB = fs.statSync(path.join(reportDir, b));
+                return statB.mtime.getTime() - statA.mtime.getTime();
+            });
+
+        if (files.length > 0) {
+            const latestFile = files[0];
+            const filePath = path.join(reportDir, latestFile);
+            const content = fs.readFileSync(filePath, 'utf8');
+            return {
+                name: latestFile,
+                path: filePath,
+                content: content
+            };
+        }
+
+        return null;
+    } catch (error) {
+        logger.error('Error finding recent MD file:', error);
+        return null;
     }
 }
 

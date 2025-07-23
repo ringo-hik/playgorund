@@ -20,46 +20,8 @@ class ChatOpsTreeProvider {
             logger.log('getChildren called with element:', element ? element.contextValue : 'root');
             
             if (!element) {
-                // Root level - return Reports directly
+                // Root level - return items directly with reduced hierarchy
                 const rootItems = [
-                    new ChatOpsTreeItem(
-                        'Weekly Reports', 
-                        'Weekly Report Management', 
-                        vscode.TreeItemCollapsibleState.Expanded,
-                        'reports'
-                    )
-                ];
-                logger.log('Returning root items:', rootItems.length);
-                return Promise.resolve(rootItems);
-            }
-
-            if (element.contextValue === 'reports') {
-                // Reports category level
-                const reportItems = [
-                    new ChatOpsTreeItem(
-                        'Weekly Report Actions', 
-                        'Available weekly report operations', 
-                        vscode.TreeItemCollapsibleState.Expanded,
-                        'weeklyReportGroup'
-                    )
-                ];
-                logger.log('Returning report items:', reportItems.length);
-                return Promise.resolve(reportItems);
-            }
-
-            if (element.contextValue === 'weeklyReportGroup') {
-                // Weekly report sub-items
-                const subItems = [
-                    new ChatOpsTreeItem(
-                        'Check Authentication',
-                        'Check if the authentication token is valid',
-                        vscode.TreeItemCollapsibleState.None,
-                        'checkAuthItem',
-                        {
-                            command: 'swdpChatOps.checkAuth',
-                            title: 'Check Authentication'
-                        }
-                    ),
                     new ChatOpsTreeItem(
                         'Process Weekly Report', 
                         'Generate new report or apply feedback', 
@@ -71,8 +33,8 @@ class ChatOpsTreeProvider {
                         }
                     )
                 ];
-                logger.log('Returning sub items:', subItems.length);
-                return Promise.resolve(subItems);
+                logger.log('Returning root items:', rootItems.length);
+                return Promise.resolve(rootItems);
             }
 
             logger.log('No matching context, returning empty array');
@@ -98,17 +60,8 @@ class ChatOpsTreeItem extends vscode.TreeItem {
 
         // Set icons based on context
         switch (contextValue) {
-            case 'reports':
-                this.iconPath = new vscode.ThemeIcon('folder');
-                break;
-            case 'weeklyReportGroup':
-                this.iconPath = new vscode.ThemeIcon('file-text');
-                break;
             case 'weeklyReportItem':
                 this.iconPath = new vscode.ThemeIcon('play');
-                break;
-            case 'checkAuthItem':
-                this.iconPath = new vscode.ThemeIcon('verified');
                 break;
             default:
                 this.iconPath = new vscode.ThemeIcon('circle');

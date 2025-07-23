@@ -49,11 +49,6 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "swdpChatOps.checkAuth",
-        "title": "Check Authentication",
-        "icon": "$(verified)"
-      },
-      {
         "command": "swdpChatOps.openSettings",
         "title": "Open Settings",
         "icon": "$(settings)"

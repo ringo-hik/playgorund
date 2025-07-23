@@ -12,7 +12,8 @@
       "Bash(build.bat)",
       "Bash(cmd:*)",
       "Bash(del:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
